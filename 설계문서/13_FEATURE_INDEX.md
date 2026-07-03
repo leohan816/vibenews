@@ -14,9 +14,10 @@
 | 기능                      | 설명                              | 화면 위치                | 데이터 모델                  | 상태        | 다음 구현 단계        | 관련 문서        |
 | ------------------------- | --------------------------------- | ------------------------ | ---------------------------- | ----------- | --------------------- | ---------------- |
 | 중앙 재생 버튼            | 앱 첫 화면의 큰 재생 버튼 + 문구   | Listen `(tabs)/index`    | BriefingSession, Category    | mock        | 실제 오디오 시작 연결 | 02               |
-| 오디오 플레이어           | chapter 기반 재생 화면            | BriefingSession          | PlaybackState, NewsAudioItem | mock        | expo-audio / TTS      | 02               |
-| 챕터 이동                 | Chapter n/N 표시                  | BriefingSession          | PlaybackState                | mock        | 실제 트랙 이동        | 02               |
-| 이전/다음/다시 듣기       | 뉴스 단위 이동                    | BriefingSession          | PlaybackState                | mock        | 재생 큐 연결          | 02               |
+| 오디오 플레이어           | chapter 기반 실제 재생(expo-audio)| BriefingSession          | PlaybackState, NewsAudioItem | partial     | TTS audioUrl 연결     | 02               |
+| 챕터 이동                 | Chapter n/N + 자동 이어재생       | BriefingSession          | PlaybackState                | partial     | -                     | 02               |
+| 이전/다음/다시/seek       | 뉴스 단위 이동 + 진행바 seek      | BriefingSession          | PlaybackState                | partial     | -                     | 02               |
+| 백그라운드 재생           | 잠금화면/백그라운드 오디오        | 앱 오디오 모드           | PlaybackState                | future      | audio mode + plugin   | 02               |
 | 저장                      | 재생 중 뉴스 지식 저장            | BriefingSession → Saved  | SavedCard                    | mock        | 지식 추출 저장        | 05               |
 | 더 알아보기               | 내부 심층 텍스트 분석             | ExploreMore              | ExploreMore                  | mock        | 다중 소스 분석        | 06               |
 | Daily Recap               | 오늘 들은 내용 요약(음성+텍스트)  | Recap, DailyRecapDetail  | DailyRecap, RecapCard        | mock        | 청취로그 기반 AI 요약 | 04               |

@@ -25,6 +25,14 @@
 - `voice_command_used`
 - `foundation_candidate_created`
 
+### 블록 2 · 오디오 플레이어 (추가)
+- `audio_play_started`
+- `audio_paused`
+- `audio_completed`
+- `chapter_next_clicked`
+- `chapter_previous_clicked`
+- `audio_seeked`
+
 ## 데이터 모델
 `EventLog { id, event, payload, createdAt }` (→ [10_DataModel](10_DataModel_데이터구조.md))
 

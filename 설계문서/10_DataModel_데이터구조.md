@@ -26,6 +26,8 @@ export type FoundationStatus =
 export type RepeatMode = 'none' | 'one' | 'all';
 
 export type ContentStatus = 'mock' | 'partial' | 'working' | 'future';
+
+export type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'completed' | 'error';
 ```
 
 ### Category
@@ -95,7 +97,7 @@ export interface BriefingSession {
 ```
 
 ### PlaybackState
-현재 재생 상태(어느 챕터·위치·재생 여부).
+현재 재생 상태(어느 챕터·위치·재생 여부·길이·완료). 블록 2에서 오디오 엔진용으로 확장.
 
 ```ts
 export interface PlaybackState {
@@ -103,8 +105,12 @@ export interface PlaybackState {
   currentNewsAudioItemId: string;
   currentChapterIndex: number;
   currentPositionSec: number;
+  durationSec: number; // 현재 chapter 길이
   isPlaying: boolean;
+  status: PlaybackStatus; // idle/loading/playing/paused/completed/error
   repeatMode: RepeatMode;
+  sessionCompleted: boolean; // 마지막 chapter까지 재생 완료
+  usingFallbackAudio: boolean; // audioUrl 없어 샘플 사용 중
   updatedAt: string;
 }
 ```
