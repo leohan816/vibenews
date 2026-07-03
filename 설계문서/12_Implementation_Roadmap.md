@@ -25,8 +25,10 @@
 
 ## 실제 기능 연결(스켈레톤 이후) 권장 순서
 1. 본문 추출(웹/유튜브/RSS) 백엔드 — agent-reach 검증 후 결정
-2. AI 요약/분석
-3. **오디오 재생 구조 (블록 2, 진행 중)** → 이후 TTS audioUrl 연결 + 배경 재생(future)
-4. Daily Recap 자동화
-5. Foundation 동기화
-6. 개인화 상품 추천 / 음성 명령 / 결제(후보)
+2. **Global News Pool** — 공통 뉴스 풀 1회 생성(수집·요약·스크립트·TTS 공통 처리)
+3. AI 요약/분석
+4. **오디오 재생 구조 (블록 2, 진행 중)** → 이후 TTS audioUrl 연결 + 배경 재생(future)
+5. **개인화 브리핑 조립** — 공통 풀 → `UserInterestProfile` → `PersonalizedBriefingPlan`(선택·정렬·연결, 오디오 재사용, 연결 멘트만 선택적 LLM). 설계: [03_Briefing](03_Briefing_예약_카테고리_브리핑.md)
+6. Daily Recap 자동화
+7. Foundation 동기화
+8. 개인화 상품 추천 / 음성 명령 / 결제(후보)

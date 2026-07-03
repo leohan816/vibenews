@@ -24,6 +24,7 @@
 | 저장 카드                 | 카테고리별 뉴스 지식              | Saved, SavedCardDetail   | SavedCard                    | mock        | Foundation 연동       | 05               |
 | 카테고리 브리핑           | 카테고리 큰 카드(개수·시간·키워드)| Briefing                 | Category                     | mock        | 야간 수집 연결        | 03               |
 | 예약 브리핑               | 시간 기반 자동 브리핑             | ScheduleBriefing         | ScheduledBriefing            | mock        | 스케줄러 / 푸시       | 03               |
+| 개인화 브리핑 조립        | 공통 뉴스 풀에서 사용자별로 뉴스 일부를 선택·정렬·연결해 브리핑 큐 생성 | Briefing, Listen, Settings | UserInterestProfile, PersonalizedBriefingPlan, NewsConnectionEdge | mock/future | 풀→프로필→플랜 파이프라인 | 00, 03, 10 |
 | 음성 명령                 | 음성으로 앱 제어                  | VoiceCommand             | VoiceCommand                 | future      | STT / 인텐트          | 02, 09           |
 | 개인화 상품 추천          | 관심사 연결 상품(안전 표현)       | ProductRecommendation    | ProductRecommendation        | mock        | 커머스 / Foundation   | 07               |
 | Foundation 뉴스 지식 후보 | 지식 후보 검토 / 승인             | FoundationCandidate      | KnowledgeCandidate           | mock/future | Foundation API        | 08               |
@@ -45,6 +46,7 @@
 - 저장 카드
 - 카테고리 브리핑
 - 예약 브리핑
+- 개인화 브리핑 조립
 - 음성 명령
 - 개인화 상품 추천
 - Foundation 뉴스 지식 후보

@@ -291,6 +291,77 @@ export interface EventLog {
 }
 ```
 
+## 개인화 브리핑 조립 (future)
+공통 뉴스 풀을 한 번 만들고(비용 공통), 사용자별로 그 풀에서 일부를 골라 정렬·연결해 브리핑을 조립한다. 자세한 흐름은 [03_Briefing](03_Briefing_예약_카테고리_브리핑.md) 참조.
+
+### PersonalizationMode
+```ts
+export type PersonalizationMode = 'metadata_only' | 'light_llm_bridge' | 'deep_personalized';
+```
+
+### GlobalNewsPool
+하루치 공통 뉴스 풀(수집·본문추출·요약·스크립트·TTS를 공통으로 1회 처리한 결과). 예: 오늘 100개.
+
+```ts
+export interface GlobalNewsPool {
+  id: string;
+  date: string;
+  newsItemIds: string[]; // 오늘 공통으로 준비된 뉴스(예: 100개)
+  generatedAt: string;
+}
+```
+
+### UserInterestProfile
+개인화의 입력. 관심사·키워드·톤·부정 키워드·행동 이력.
+
+```ts
+export interface UserInterestProfile {
+  userId: string;
+  categories: string[];
+  keywords: string[];
+  projects: string[];
+  preferredDepth: 'short' | 'standard' | 'deep';
+  preferredTone: string;
+  negativeKeywords: string[];
+  savedNewsIds: string[];
+  skippedNewsIds: string[];
+}
+```
+
+### PersonalizedBriefingPlan
+같은 GlobalNewsPool에서 사용자별로 만든 브리핑 계획(선택·정렬·재생 큐). 오디오는 공통 것을 재사용한다.
+
+```ts
+export interface PersonalizedBriefingPlan {
+  id: string;
+  userId: string;
+  sourcePoolId: string; // GlobalNewsPool.id
+  selectedNewsItemIds: string[];
+  orderedNewsItemIds: string[];
+  reasonSummary: string;
+  estimatedDurationSec: number;
+  personalizationMode: PersonalizationMode; // metadata_only | light_llm_bridge | deep_personalized
+  createdAt: string;
+}
+```
+
+### NewsConnectionEdge
+뉴스 사이의 관계(연결 멘트/이어 듣기 근거). 관련 뉴스끼리 묶어 흐름을 만든다.
+
+```ts
+export interface NewsConnectionEdge {
+  id: string;
+  fromNewsItemId: string;
+  toNewsItemId: string;
+  relationType: string; // 예: same_topic | cause_effect | contrast | follow_up
+  strength: number; // 0~1
+  explanation: string;
+}
+```
+
+> 참고: 개인화를 가볍게 하려면 `NewsItem`이 나중에 `tags`/`embedding` 메타데이터를 갖는다(이 블록에서 인터페이스 변경은 아직 안 함).
+
 ## 구현 체크리스트
 - [ ] `src/data/types.ts` 가 위 정의와 일치
 - [ ] `src/data/mockData.ts` 가 위 타입을 사용
+- [ ] (future) 개인화 타입 4종(GlobalNewsPool/UserInterestProfile/PersonalizedBriefingPlan/NewsConnectionEdge) 반영
