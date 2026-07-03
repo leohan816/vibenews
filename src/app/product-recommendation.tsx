@@ -20,15 +20,19 @@ export default function ProductRecommendationScreen() {
   };
 
   return (
-    <Screen
-      subtitle="오늘 들은 주제/관심사와 연결된 제품 예시 (mock)"
-      status="mock">
+    <Screen subtitle="오늘 들은 주제/관심사와 연결된 제품 예시 (mock)" status="mock">
       {productRecommendations.map((p) => (
-        <ProductCard key={p.id} product={p} saved={savedIds.includes(p.id)} onSave={() => onSave(p.id)} />
+        <ProductCard
+          key={p.id}
+          product={p}
+          saved={savedIds.includes(p.id)}
+          onSave={() => onSave(p.id)}
+        />
       ))}
 
       <ThemedText type="small" themeColor="textSecondary" style={styles.notice}>
-        관심사·관련 키워드 기반으로 연결한 제품 예시일 뿐이며, 효능·효과를 보장하지 않습니다. 구매나 섭취 전 전문가와 상담하세요.
+        관심사·관련 키워드 기반으로 연결한 제품 예시일 뿐이며, 효능·효과를 보장하지 않습니다. 구매나
+        섭취 전 전문가와 상담하세요.
       </ThemedText>
     </Screen>
   );

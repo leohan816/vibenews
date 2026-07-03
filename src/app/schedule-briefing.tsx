@@ -160,7 +160,8 @@ export default function ScheduleBriefingScreen() {
       {/* 안내 문구 */}
       <Card>
         <ThemedText type="small" themeColor="textSecondary">
-          밤새 시스템이 선택한 카테고리의 뉴스를 찾아 정리해, 다음 날 아침 예약 시간에 맞춰 브리핑을 준비해 둡니다.
+          밤새 시스템이 선택한 카테고리의 뉴스를 찾아 정리해, 다음 날 아침 예약 시간에 맞춰 브리핑을
+          준비해 둡니다.
         </ThemedText>
       </Card>
 

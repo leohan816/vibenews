@@ -12,7 +12,14 @@ import { EVENTS, logEvent } from '@/lib/eventLog';
 import { useTheme } from '@/hooks/use-theme';
 
 const TIME_FILTERS = ['오늘', '이번 주', '전체'] as const;
-const TYPE_FILTERS: (KnowledgeType | '전체')[] = ['전체', 'Fact', 'Trend', 'Insight', 'Action', 'Question'];
+const TYPE_FILTERS: (KnowledgeType | '전체')[] = [
+  '전체',
+  'Fact',
+  'Trend',
+  'Insight',
+  'Action',
+  'Question',
+];
 
 const FOUNDATION_LABEL: Record<FoundationStatus, string> = {
   local_only: '내부 저장',
@@ -53,7 +60,12 @@ export default function SavedScreen() {
       <FilterRow>
         <Chip label="전체" active={categoryId === 'all'} onPress={() => setCategoryId('all')} />
         {categories.map((c) => (
-          <Chip key={c.id} label={c.name} active={categoryId === c.id} onPress={() => setCategoryId(c.id)} />
+          <Chip
+            key={c.id}
+            label={c.name}
+            active={categoryId === c.id}
+            onPress={() => setCategoryId(c.id)}
+          />
         ))}
       </FilterRow>
 
@@ -105,7 +117,10 @@ export default function SavedScreen() {
 
 function FilterRow({ children }: { children: React.ReactNode }) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.filterRow}>
       {children}
     </ScrollView>
   );

@@ -36,7 +36,10 @@ export default function ListenScreen() {
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={[
         styles.content,
-        { paddingTop: insets.top + Spacing.four, paddingBottom: insets.bottom + BottomTabInset + Spacing.four },
+        {
+          paddingTop: insets.top + Spacing.four,
+          paddingBottom: insets.bottom + BottomTabInset + Spacing.four,
+        },
       ]}>
       <View style={styles.inner}>
         <View style={styles.topRow}>

@@ -24,7 +24,11 @@ export default function RecapScreen() {
     <Screen title="Recap" subtitle="오늘 들은 내용을 지식으로" status="mock">
       <Pressable
         onPress={onGenerate}
-        style={({ pressed }) => [styles.genBtn, { backgroundColor: theme.text }, pressed && styles.pressed]}>
+        style={({ pressed }) => [
+          styles.genBtn,
+          { backgroundColor: theme.text },
+          pressed && styles.pressed,
+        ]}>
         <ThemedText style={{ color: theme.background, fontWeight: '700' }}>
           {generated ? '✓ 방금 요약했어요 (mock)' : '지금 들은 거 요약하기'}
         </ThemedText>

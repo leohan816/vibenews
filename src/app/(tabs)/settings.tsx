@@ -14,7 +14,11 @@ export default function SettingsScreen() {
     <Screen title="Settings" subtitle="개인화 설정" status="mock">
       <Section title="관심 & 브리핑">
         <NavRow label="관심 카테고리" value="AI · 건강 · 투자 · K-Beauty" />
-        <NavRow label="예약 브리핑 시간" value="매일 07:00" onPress={() => router.push('/schedule-briefing')} />
+        <NavRow
+          label="예약 브리핑 시간"
+          value="매일 07:00"
+          onPress={() => router.push('/schedule-briefing')}
+        />
         <NavRow label="기본 브리핑 길이" value="10분" />
         <NavRow label="Daily Recap 자동 시간" value="매일 23:00" />
       </Section>
@@ -27,8 +31,16 @@ export default function SettingsScreen() {
 
       <Section title="지식 & 연동">
         <ToggleRow label="개인화 상품 추천" defaultOn />
-        <NavRow label="상품 추천 살펴보기" value="열기" onPress={() => router.push('/product-recommendation')} />
-        <NavRow label="Foundation 연동 상태" value="내부 저장 중" onPress={() => router.push('/foundation-candidate')} />
+        <NavRow
+          label="상품 추천 살펴보기"
+          value="열기"
+          onPress={() => router.push('/product-recommendation')}
+        />
+        <NavRow
+          label="Foundation 연동 상태"
+          value="내부 저장 중"
+          onPress={() => router.push('/foundation-candidate')}
+        />
         <ToggleRow label="원문 전체 저장 금지 (지식만 저장)" defaultOn disabled />
       </Section>
 
@@ -66,13 +78,25 @@ function NavRow({ label, value, onPress }: { label: string; value: string; onPre
         <ThemedText type="small" themeColor="textSecondary">
           {value}
         </ThemedText>
-        {onPress ? <ThemedText type="small" themeColor="textSecondary">›</ThemedText> : null}
+        {onPress ? (
+          <ThemedText type="small" themeColor="textSecondary">
+            ›
+          </ThemedText>
+        ) : null}
       </View>
     </Pressable>
   );
 }
 
-function ToggleRow({ label, defaultOn, disabled }: { label: string; defaultOn?: boolean; disabled?: boolean }) {
+function ToggleRow({
+  label,
+  defaultOn,
+  disabled,
+}: {
+  label: string;
+  defaultOn?: boolean;
+  disabled?: boolean;
+}) {
   const [on, setOn] = useState(!!defaultOn);
   return (
     <View style={styles.row}>

@@ -19,8 +19,18 @@ export function AmbientVisual({ active }: { active: boolean }) {
     }
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1, duration: 1400, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 0, duration: 1400, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 1400,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0,
+          duration: 1400,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
       ]),
     );
     loop.start();
@@ -36,11 +46,19 @@ export function AmbientVisual({ active }: { active: boolean }) {
     <View style={styles.wrap}>
       <Animated.View style={[styles.ring, { borderColor: theme.text }, ring(1.6, 0.25)]} />
       <Animated.View style={[styles.ring, { borderColor: theme.text }, ring(1.35, 0.4)]} />
-      <View style={[styles.core, { backgroundColor: theme.backgroundElement, borderColor: theme.text }]}>
+      <View
+        style={[
+          styles.core,
+          { backgroundColor: theme.backgroundElement, borderColor: theme.text },
+        ]}>
         <Animated.Text
           style={[
             styles.emoji,
-            { transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] }) }] },
+            {
+              transform: [
+                { scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] }) },
+              ],
+            },
           ]}>
           {active ? '🧠' : '🎧'}
         </Animated.Text>

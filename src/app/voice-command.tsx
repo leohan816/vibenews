@@ -30,8 +30,8 @@ export default function VoiceCommandScreen() {
           아직 준비 중이에요
         </ThemedText>
         <ThemedText type="default">
-          실제 음성 인식(STT)이나 마이크 녹음은 아직 연결되어 있지 않아요. 지금은 어떤 명령을 지원할지 미리
-          보여드리는 단계입니다.
+          실제 음성 인식(STT)이나 마이크 녹음은 아직 연결되어 있지 않아요. 지금은 어떤 명령을
+          지원할지 미리 보여드리는 단계입니다.
         </ThemedText>
       </Card>
 

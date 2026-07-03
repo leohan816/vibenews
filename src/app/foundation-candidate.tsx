@@ -23,7 +23,10 @@ const STATUS_FILTERS: { value: FoundationStatus | 'all'; label: string }[] = [
   { value: 'all', label: '전체' },
   { value: 'local_only', label: `local_only · ${STATUS_LABELS.local_only}` },
   { value: 'candidate', label: `candidate · ${STATUS_LABELS.candidate}` },
-  { value: 'approved_for_foundation', label: `approved · ${STATUS_LABELS.approved_for_foundation}` },
+  {
+    value: 'approved_for_foundation',
+    label: `approved · ${STATUS_LABELS.approved_for_foundation}`,
+  },
   { value: 'synced_to_foundation', label: `synced · ${STATUS_LABELS.synced_to_foundation}` },
   { value: 'rejected', label: `rejected · ${STATUS_LABELS.rejected}` },
 ];
@@ -54,7 +57,8 @@ export default function FoundationCandidateScreen() {
           Foundation 저장 원칙
         </ThemedText>
         <ThemedText type="small">
-          원문 전체 저장 금지 — 검증된 지식 / 요약 / 인사이트 / 출처 메타만 Foundation 후보로 올립니다.
+          원문 전체 저장 금지 — 검증된 지식 / 요약 / 인사이트 / 출처 메타만 Foundation 후보로
+          올립니다.
         </ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
           knowledgeClass = news_knowledge · knowledgeSource = vibenews · freshness = time_sensitive
@@ -90,7 +94,8 @@ export default function FoundationCandidateScreen() {
               {c.summary}
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              출처 {c.sourceMetaIds.length}곳 · 신뢰도 {c.confidenceLevel} · knowledgeClass {c.knowledgeClass}
+              출처 {c.sourceMetaIds.length}곳 · 신뢰도 {c.confidenceLevel} · knowledgeClass{' '}
+              {c.knowledgeClass}
             </ThemedText>
 
             <View style={styles.actions}>
@@ -122,7 +127,10 @@ export default function FoundationCandidateScreen() {
 
 function FilterRow({ children }: { children: React.ReactNode }) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.filterRow}>
       {children}
     </ScrollView>
   );

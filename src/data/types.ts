@@ -4,11 +4,7 @@
 export type KnowledgeType = 'Fact' | 'Trend' | 'Insight' | 'Action' | 'Question';
 
 export type FoundationStatus =
-  | 'local_only'
-  | 'candidate'
-  | 'approved_for_foundation'
-  | 'synced_to_foundation'
-  | 'rejected';
+  'local_only' | 'candidate' | 'approved_for_foundation' | 'synced_to_foundation' | 'rejected';
 
 export type RepeatMode = 'none' | 'one' | 'all';
 

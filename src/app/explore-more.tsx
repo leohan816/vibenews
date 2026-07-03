@@ -12,7 +12,9 @@ export default function ExploreMoreScreen() {
   const sources = em.sourceMetaIds.map(sourceMetaById).filter(Boolean);
 
   return (
-    <Screen subtitle="링크 목록이 아니라, 관련 자료를 내부적으로 분석한 심층 요약입니다." status="mock">
+    <Screen
+      subtitle="링크 목록이 아니라, 관련 자료를 내부적으로 분석한 심층 요약입니다."
+      status="mock">
       <Card>
         <ThemedText type="smallBold" themeColor="textSecondary">
           핵심 결론
@@ -45,7 +47,8 @@ export default function ExploreMoreScreen() {
           분석에 사용한 출처 {sources.length}곳
         </ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
-          {sources.map((s) => s!.type.toUpperCase()).join(' · ')} — 링크 클릭 없이 내부 분석 결과만 제공합니다.
+          {sources.map((s) => s!.type.toUpperCase()).join(' · ')} — 링크 클릭 없이 내부 분석 결과만
+          제공합니다.
         </ThemedText>
       </Card>
     </Screen>

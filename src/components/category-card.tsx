@@ -14,7 +14,9 @@ export function CategoryCard({ category, onPress }: { category: Category; onPres
         <ThemedText type="default" style={styles.name}>
           {category.name}
         </ThemedText>
-        {category.hasNewItems ? <View style={[styles.dot, { backgroundColor: theme.text }]} /> : null}
+        {category.hasNewItems ? (
+          <View style={[styles.dot, { backgroundColor: theme.text }]} />
+        ) : null}
       </View>
       <ThemedText type="small" themeColor="textSecondary">
         오늘 {category.preparedItemCount}개 준비됨 · 약 {category.estimatedDurationMin}분

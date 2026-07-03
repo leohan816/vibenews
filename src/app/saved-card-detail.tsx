@@ -57,7 +57,8 @@ export default function SavedCardDetailScreen() {
           저장 원칙
         </ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
-          원문 전체는 저장하거나 표시하지 않습니다. 가치 있는 지식 문장, 요약, 출처 메타데이터만 남깁니다.
+          원문 전체는 저장하거나 표시하지 않습니다. 가치 있는 지식 문장, 요약, 출처 메타데이터만
+          남깁니다.
         </ThemedText>
       </Card>
 
@@ -91,7 +92,8 @@ export default function SavedCardDetailScreen() {
           <FoundationBadge label="candidate" />
         </View>
         <ThemedText type="small" themeColor="textSecondary">
-          가치 있는 지식만 Foundation 후보로 올라갑니다. 검토를 거쳐 장기 지식 베이스에 동기화될 수 있습니다.
+          가치 있는 지식만 Foundation 후보로 올라갑니다. 검토를 거쳐 장기 지식 베이스에 동기화될 수
+          있습니다.
         </ThemedText>
       </Card>
 

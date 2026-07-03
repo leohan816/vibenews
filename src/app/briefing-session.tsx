@@ -54,7 +54,9 @@ export default function BriefingSessionScreen() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={{ backgroundColor: theme.background }}
+      contentContainerStyle={styles.content}>
       <View style={styles.inner}>
         <View style={styles.metaRow}>
           <ThemedText type="smallBold" themeColor="textSecondary">
@@ -87,12 +89,20 @@ export default function BriefingSessionScreen() {
         <View style={styles.actions}>
           <Pressable
             onPress={toggleSave}
-            style={({ pressed }) => [styles.actionBtn, { borderColor: theme.backgroundSelected }, pressed && styles.pressed]}>
+            style={({ pressed }) => [
+              styles.actionBtn,
+              { borderColor: theme.backgroundSelected },
+              pressed && styles.pressed,
+            ]}>
             <ThemedText type="small">{isSaved ? '✓ 저장됨' : '＋ 저장'}</ThemedText>
           </Pressable>
           <Pressable
             onPress={openExplore}
-            style={({ pressed }) => [styles.actionBtn, { borderColor: theme.backgroundSelected }, pressed && styles.pressed]}>
+            style={({ pressed }) => [
+              styles.actionBtn,
+              { borderColor: theme.backgroundSelected },
+              pressed && styles.pressed,
+            ]}>
             <ThemedText type="small">🔎 더 알아보기</ThemedText>
           </Pressable>
         </View>
@@ -110,7 +120,12 @@ export default function BriefingSessionScreen() {
 const styles = StyleSheet.create({
   content: { padding: Spacing.four, alignItems: 'center' },
   inner: { width: '100%', maxWidth: MaxContentWidth, alignItems: 'center', gap: Spacing.three },
-  metaRow: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  metaRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   title: { textAlign: 'center', fontSize: 24, lineHeight: 32 },
   summary: { textAlign: 'center' },
   actions: { flexDirection: 'row', gap: Spacing.three, marginTop: Spacing.two },
@@ -123,5 +138,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
   },
   pressed: { opacity: 0.7 },
-  note: { width: '100%', borderRadius: Spacing.three, padding: Spacing.three, marginTop: Spacing.two },
+  note: {
+    width: '100%',
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+    marginTop: Spacing.two,
+  },
 });
