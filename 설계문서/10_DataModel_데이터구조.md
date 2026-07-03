@@ -781,6 +781,130 @@ export interface VideoBriefingReview {
   recommendedEdits: string[];
   revisedAudioScript: string | null;
   qualityScore: BriefingQualityScore;
+  // 요약↔음성 스크립트 분리 검수 (작업 3/4)
+  analyticSummaryCoverage: number; // 분석 요약이 원본 핵심을 얼마나 담았나
+  spokenNaturalness: number; // 음성 스크립트가 사람이 읽는 듯 자연스러운가
+  summaryToScriptFaithfulness: number; // 요약→스크립트 변환이 의미를 보존했나
+  missingFromAudioScript: string[]; // 요약엔 있는데 음성 스크립트에서 빠진 것
+  overCompressedPoints: string[]; // 과압축된 포인트
+  roboticPhrasing: string[]; // 딱딱한 표현
+  needsRewrite: boolean; // 음성용 rewrite 재수행 필요
+}
+```
+
+## 요약 ↔ 음성 스크립트 분리 (future)
+
+핵심 원칙: **VibeNews는 "요약문을 TTS로 읽는 앱"이 아니다.** 원본을 이해한 뒤(AnalyticSummary),
+사람이 읽을 만한 오디오 브리핑(SpokenAudioScript)으로 **다시 써준다**.
+`AnalyticSummary ≠ SpokenAudioScript`. 파이프라인:
+`transcript → VideoContentMap → AnalyticSummary → BriefingPlan → SpokenAudioScript → Verifier Review → TTS`.
+상세는 [14_Video_Briefing_Quality_Strategy](14_Video_Briefing_Quality_Strategy.md).
+
+```ts
+// 원본 이해용(딱딱해도 됨). 누락/왜곡 방지 중심.
+export interface AnalyticSummary {
+  oneLineSummary: string;
+  coreThesis: string;
+  keyPoints: string[];
+  keyClaims: string[];
+  evidence: string[];
+  examples: string[];
+  numbers: string[];
+  entities: string[];
+  factOpinionPredictionSplit: FactOpinionPredictionSplit;
+  risksOrCautions: string[];
+}
+
+// 어떻게 들려줄지 계획(선택/순서/전환/연결/주의/마무리).
+export interface BriefingPlan {
+  targetBriefingMode: BriefingMode;
+  targetDurationSec: number;
+  openingAngle: string;
+  narrativeArc: string;
+  selectedSectionIds: string[];
+  mustSayPoints: string[];
+  skipPoints: string[];
+  transitionPlan: string[];
+  userConnectionPlan: string;
+  cautionPlan: string;
+  closingAction: string;
+}
+
+// 사람이 읽는 듯한 최종 낭독문(TTS 입력).
+export interface SpokenAudioScript {
+  scriptVersion: number;
+  targetDurationSec: number;
+  tone: string;
+  language: string;
+  titleForAudio: string;
+  opening: string;
+  body: string;
+  transitions: string[];
+  caution: string;
+  userConnection: string;
+  closing: string;
+  fullText: string;
+  sourceAnalyticSummaryId: string;
+  sourceBriefingPlanId: string;
+}
+```
+
+### 분류 정규화 (Tag Registry)
+
+모델이 만든 태그를 **그대로 쓰지 않고** 정규화한다. `sourceType`은 규칙 기반,
+`contentKind`/`topicCategory`는 enum 제한, `topicCluster`/`tags`/`entities`는 모델 생성 후 **Tag
+Registry에 매칭**해 정규화한다.
+
+```ts
+export interface NormalizedTaxonomy {
+  rawGeneratedTags: string[]; // 모델 원본 출력
+  normalizedTags: string[]; // Tag Registry 매칭 결과
+  taxonomyConfidence: number; // 0~1
+  classificationReason: string;
+  needsHumanReview: boolean;
+}
+```
+
+### 콘텐츠 연결 그래프 (ContentConnectionEdge)
+
+`ContentItem`은 나중에 **그래프 노드**로 볼 수 있어야 한다.
+Claim·Entity·TopicCluster·Tag·UserProject·Source를 연결한다.
+
+```ts
+export type ConnectionRelationType =
+  | 'same_topic'
+  | 'same_entity'
+  | 'supports_claim'
+  | 'contradicts_claim'
+  | 'contrasts_with'
+  | 'relevant_to_project'
+  | 'follow_up_to'
+  | 'duplicate_or_near_duplicate';
+
+export interface ContentConnectionEdge {
+  id: string;
+  fromContentId: string;
+  toContentId: string;
+  relationType: ConnectionRelationType;
+  strength: number; // 0~1
+  explanation: string;
+}
+```
+
+### JSON = schema contract (모델 출력물 아님)
+
+Content Intelligence JSON은 **자유 텍스트가 아니라 스키마 계약**이다. 검증 실패 시 retry 또는
+failed로 기록하고, raw model output과 normalized output을 구분한다. `audioScript`↔`audioAsset`은
+`scriptVersion`으로 연결한다.
+
+```ts
+export interface JsonContractMeta {
+  schemaVersion: string;
+  pipelineVersion: string;
+  validationResult: 'valid' | 'invalid' | 'repaired';
+  rawModelOutputRef: string | null; // 정규화 전 원본 출력 참조
+  normalizedOutputRef: string | null;
+  errors: string[]; // processing.errors 와 연동
 }
 ```
 

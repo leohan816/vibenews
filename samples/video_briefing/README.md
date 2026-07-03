@@ -1,14 +1,17 @@
 # samples/video_briefing — Gold Sample Library
 
-이 샘플 라이브러리는 **모델 학습 데이터가 아니라 품질 기준 샘플**이다.
-Qwen 8B나 다른 오픈소스 모델에게 "이 정도 품질의 브리핑을 만들어야 한다"는 **기준**을 제공하기 위한 것이다.
+이 샘플 라이브러리는 **모델 학습 데이터가 아니라 품질 기준 샘플**이다. Qwen 8B나 다른 오픈소스
+모델에게 "이 정도 품질의 브리핑을 만들어야 한다"는 **기준**을 제공하기 위한 것이다.
 
 ## 원칙
 
 - **full transcript를 저장하지 않는다.** 저작권 있는 원문/실제 YouTube transcript를 넣지 않는다.
 - **synthetic/example 자료만** 둔다(가상의 영상 내용을 기준 예시로 재구성).
-- 긴 영상 처리 기준은 [`14_Video_Briefing_Quality_Strategy`](../../설계문서/14_Video_Briefing_Quality_Strategy.md)의 **LongVideoBriefingPipeline**을 따른다.
-- 이 샘플은 향후 **prompt regression test** 기준 자료로 쓸 수 있게 만든다(같은 입력 → 이 정도 품질이 나오는가).
+- 긴 영상 처리 기준은
+  [`14_Video_Briefing_Quality_Strategy`](../../설계문서/14_Video_Briefing_Quality_Strategy.md)의
+  **LongVideoBriefingPipeline**을 따른다.
+- 이 샘플은 향후 **prompt regression test** 기준 자료로 쓸 수 있게 만든다(같은 입력 → 이 정도 품질이
+  나오는가).
 
 ## 구조
 
@@ -33,5 +36,5 @@ samples/video_briefing/
 
 ## 타입
 
-`content_map.example.json`은 설계문서 10의 `VideoContentMap`을 따른다.
-브리핑 스크립트 구조는 14의 "Standard Brief 표준 구조"를 따른다.
+`content_map.example.json`은 설계문서 10의 `VideoContentMap`을 따른다. 브리핑 스크립트 구조는 14의
+"Standard Brief 표준 구조"를 따른다.

@@ -14,8 +14,12 @@
       "endSec": 300,
       "summary": "기존 LLM은 학습 시점에 지식이 멈춰 있어 최신 웹을 직접 못 읽는다. 그래서 사람이 대신 검색·복붙을 해왔다.",
       "keyClaims": ["LLM은 학습 컷오프 이후 정보에 직접 접근하지 못한다"],
-      "evidence": ["에이전트에게 최신 트렌드를 물으면 '접근할 수 없다'고 답하는 사례"],
-      "examples": ["아이디어를 레딧/X에서 조사시키려다 결국 사람이 브라우저로 검색"],
+      "evidence": [
+        "에이전트에게 최신 트렌드를 물으면 '접근할 수 없다'고 답하는 사례"
+      ],
+      "examples": [
+        "아이디어를 레딧/X에서 조사시키려다 결국 사람이 브라우저로 검색"
+      ],
       "numbers": [],
       "entities": ["LLM"],
       "importanceScore": 0.7,
@@ -28,7 +32,9 @@
       "startSec": 300,
       "endSec": 900,
       "summary": "한 접근 통로가 막히면 자동으로 다음 통로로 갈아타는 라우팅이 핵심. 접근 자체보다 '막힘 대응'이 실제 가치를 만든다.",
-      "keyClaims": ["에이전트 수집의 관건은 접근이 아니라 막혔을 때의 자동 우회다"],
+      "keyClaims": [
+        "에이전트 수집의 관건은 접근이 아니라 막혔을 때의 자동 우회다"
+      ],
       "evidence": ["한 채널이 차단되면 대체 경로로 자동 전환하는 구조 설명"],
       "examples": ["X 검색이 막히면 다른 백엔드로 재시도"],
       "numbers": [],
@@ -83,7 +89,10 @@
   "userRelevance": {
     "relevantProjects": ["VibeNews"],
     "whyItMatters": "VibeNews의 본문 추출 백엔드(SourceAdapter)와 직접 연결되는 흐름. 우회 전략 설계에 참고.",
-    "possibleActions": ["RSS/유튜브/웹 등 자동화 쉬운 채널부터 어댑터 검증", "X 등 어려운 채널은 별도 전략"]
+    "possibleActions": [
+      "RSS/유튜브/웹 등 자동화 쉬운 채널부터 어댑터 검증",
+      "X 등 어려운 채널은 별도 전략"
+    ]
   },
   "qualityScore": {
     "thesisAccuracy": 0.9,
