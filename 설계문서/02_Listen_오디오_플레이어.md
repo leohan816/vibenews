@@ -100,3 +100,37 @@ BriefingSession의 재생/일시정지/이전/다음/seek을 실제로 동작시
 - [ ] 재생 완료 시 다음 chapter 자동 이동, 마지막이면 session completed
 - [ ] audioUrl 없으면 fallback 샘플 사용, 실패해도 앱 안 깨짐
 - [ ] 저장/더 알아보기 버튼 → 해당 화면 이동(mock 유지)
+
+## YouTube → Content Intelligence → Fish Audio 파이프라인 (재생 소스)
+핵심 원칙: **"뉴스/콘텐츠는 공통으로 준비하고, 브리핑은 사용자마다 다르게 조립한다."**
+BriefingSession에서 실제로 재생되는 오디오는 임의의 mock 샘플이 아니라, **ContentItem.audioScript를 Fish Audio TTS로 생성한 audioAsset(mp3)** 이다. `NewsAudioItem`은 이 audioAsset을 참조한다(future).
+
+### 재생 소스의 출처
+- 파이프라인: `YouTube URL → metadata → transcript(temporary cache) → Content Intelligence JSON(ContentItem) → audioScript → Fish Audio TTS → audioAsset(mp3) → Global News Pool 등록 → Personal Briefing Plan 조립 → 재생`.
+- 뉴스/콘텐츠(ContentItem·audioAsset)는 **Global News Pool에 공통으로 1번** 준비되고, 사용자별 **Personal Briefing Plan**이 이를 골라 `BriefingSession`의 chapter 순서로 조립한다.
+- 따라서 `NewsAudioItem.audioUrl`은 원칙적으로 audioAsset.audioUrl을 가리킨다. audioAsset이 아직 없으면(생성 전/실패) 기존 **fallback 샘플 오디오** 정책(위 "오디오 파일 fallback 정책")으로 재생 구조를 유지한다.
+
+### audioAsset (재생 자산 · future)
+`ContentItem.audioAsset`은 재생 가능한 오디오 파일 1개를 서술한다. 타입 정본은 [10_DataModel](10_DataModel_데이터구조.md)(`AudioScript`/`AudioAsset`).
+
+| 필드 | 의미 | 값 |
+|------|------|-----|
+| `provider` | TTS 제공자 | `fish_audio` |
+| `status` | 생성 상태 | `not_started` / `generating` / `generated` / `failed` |
+| `voiceId` | Fish Audio 보이스 식별자 | (문자열) |
+| `model` | 사용한 TTS 모델 | (문자열) |
+| `format` | 오디오 포맷 | `mp3` / `wav` / `opus` (재생 기본: mp3) |
+| `audioUrl` | 생성된 오디오 파일 URL | `status='generated'`일 때 채워짐 |
+| `durationSec` | 재생 길이(초) | 진행바/준비 시간 요약에 사용 |
+
+- `audioScript`(대본, 텍스트) → **Fish Audio TTS** → `audioAsset`(mp3)로 전환. audioScript는 [10_DataModel](10_DataModel_데이터구조.md)의 `AudioScript`.
+- `status`가 `generated`가 되어 `audioUrl`이 채워지면, `useAudioPlayerController`는 코드 변경 없이 **데이터만으로** fallback 대신 이 URL을 재생한다(위 "추후 TTS audioUrl 연결 방식"과 동일).
+
+### 보안 정책 (필수)
+- **`FISH_AUDIO_API_KEY`는 서버(파이프라인) 환경변수 전용이다. 클라이언트(앱)에 절대 노출하지 않는다.**
+- TTS 호출·audioAsset 생성은 서버 측 파이프라인에서만 수행하고, 앱은 완성된 `audioUrl`만 전달받아 재생한다.
+- VibeNews core는 특정 수집/생성 도구에 직접 의존하지 않는다 — Fish Audio TTS도 SourceAdapter/파이프라인 단계 뒤에 감싸 교체 가능하게 둔다. 원문 전체 저장은 회피하고 audioScript/audioAsset(요약·대본·메타 중심)만 보관한다.
+
+### 참조
+- 15단계 파이프라인 전체 흐름·단계 정의: [12_Roadmap](12_Implementation_Roadmap.md).
+- 타입 정본(`AudioScript`/`AudioAsset`, `ContentItem`): [10_DataModel](10_DataModel_데이터구조.md).

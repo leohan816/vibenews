@@ -71,3 +71,62 @@
 - [ ] 9개 섹션 렌더
 - [ ] 링크 목록 UX 없음(출처는 메타 요약만)
 - [ ] 재생 화면/저장 카드에서 진입 가능
+
+## SourceLocator (소스 위치 표현, future)
+"더 알아보기"는 여러 소스를 인용/재분석하지만, **모든 소스에 timestamp를 강제하지 않는다.** 소스 성격이 제각각(영상·글·코드·게시글)이라 위치 표현도 소스별로 달라야 한다. 그래서 위치는 단일 `timestamp` 필드가 아니라 `SourceLocator`로 표현한다.
+
+- `SourceLocator`는 [`ContentItem`](10_DataModel_데이터구조.md)의 `sourceLocators`에 붙는 소스별 위치 정보다(설계 레벨 서술, future).
+- 위치 표현은 sourceType에 따라 달라진다.
+
+| sourceType | 위치 필드(예) | 성격 |
+| --- | --- | --- |
+| youtube | `startSec` / `endSec` | **내부용**: 구간 요약·검증·스크립트 생성·재분석에만 사용. 사용자 화면에 반드시 노출하지 않는다. |
+| github | `repo` / `commitSha` / `filePath` / `lineStart` / `lineEnd` / `issueNumber` / `pullRequestNumber` | 코드/이슈/PR 위치 |
+| rss · web | `paragraphIndex` / `sectionTitle` | 문단·섹션 위치 |
+| reddit · x | `postId` / `commentId` | 게시글·댓글 위치 |
+| 공통(모든 소스) | `url` / `fetchedAt` / `contentHash` | 원위치·수집시각·본문 해시(중복/변경 감지) |
+
+- 원칙: `startSec/endSec` 같은 정밀 위치는 **파이프라인 내부 근거**(구간 요약, 사실 검증, audioScript 생성, 재분석)로만 쓰고, 사용자에게 "몇 분 몇 초" 형태로 그대로 노출하지 않는다.
+- 타입 정본은 [10_DataModel](10_DataModel_데이터구조.md). 여기서는 위치 표현이 **소스별로 갈린다**는 설계 의도만 기록한다.
+
+## YouTube 출처 표시 정책 (SourceDisclosurePolicy)
+YouTube 기반 분석은 내부적으로 출처를 정확히 알고 있어야 하지만, **사용자 화면에 채널명을 기본 노출하지 않는다.** 이는 저작권 리스크가 아니라 표현·신뢰 관점의 정책이다.
+
+- 내부 저장: `sourceUrl` / `videoId` / `channelName` / `channelId`는 [`ContentItem`](10_DataModel_데이터구조.md)의 source에 저장한다(검증·재분석·중복 판정용).
+- 사용자 표현: 채널명 대신 **"영상 기반 분석" / "외부 영상 자료 기반 요약"**으로 표현한다.
+- 원 출처 우선: 영상이 공식 자료/원출처를 참조하면 **채널명보다 원 출처를 우선 표시**한다(예: "OpenAI 발표 기반", "GitHub repo 기준"). 즉 화면에는 "누가 영상을 만들었나"가 아니라 "무엇을 근거로 했나"를 보여준다.
+
+### 노출 단계 (SourceDisclosurePolicy)
+소스마다 어디까지 사용자에게 보일지를 4단계로 표현한다(설계 레벨, future).
+
+| 단계 | 사용자에게 보이는 것 | 예 |
+| --- | --- | --- |
+| `internal_only` | 아무것도 노출 안 함(내부 근거로만 사용) | 미검증 영상 |
+| `source_type_only` | 소스 성격만 | "영상 기반 분석" |
+| `underlying_sources_only` | 영상이 참조한 원 출처만 | "OpenAI 발표 / GitHub repo 기준" |
+| `full_source_visible` | 실제 출처(채널명/링크 등)까지 | 공식 채널·명시적 허용 소스 |
+
+- **YouTube 기본값: `source_type_only` 또는 `underlying_sources_only`.** `full_source_visible`는 예외적으로만.
+
+### 저작권·원문 정책
+- 출처를 숨긴다고 저작권 리스크가 사라지는 것은 **아니다.**
+- 따라서 원문 전체 저장/재배포를 회피하고 **요약·인사이트·메타·audioScript 중심**으로만 보관한다(transcript는 temporary cache). → [정책 상세는 10_DataModel](10_DataModel_데이터구조.md).
+
+### SourceAdapter 후보 (core는 직접 알면 안 됨)
+core는 어댑터가 반환한 [`ContentItem`](10_DataModel_데이터구조.md)만 처리한다. **`yt-dlp`·`curl`·`insane-search`·Agent Reach 같은 수집 수단을 core가 직접 알아서는 안 된다.** 전부 `SourceAdapter` 뒤에 감춘다.
+
+| 어댑터 후보 | 감싸는 대상/용도 |
+| --- | --- |
+| `RSSFetcher` | RSS 피드 |
+| `WebArticleFetcher` | 공개 웹 본문 |
+| `YouTubeFetcher` | YouTube 메타/자막(내부적으로 yt-dlp 등, 쿠키 기능 기본 비활성) |
+| `GitHubFetcher` | repo/commit/issue/PR |
+| `RedditFetcher` | Reddit 게시글·댓글 |
+| `XFetcher` | X 게시글(무인 수집 부적합, 제약 큼) |
+| `ImageOcrFetcher` | 이미지 텍스트(OCR, 숫자 오독 주의) |
+| `GifOcrFetcher` | GIF 최종 프레임 수치 |
+| `HtmlDocumentFetcher` | HTML 문서/렌더 결과 |
+| `BlockedPageFallbackFetcher` | 차단된 공개 페이지 fallback(공개 전용) |
+| `AgentReachFetcher` (future) | Agent Reach 경유(1차 정적 점검 기준 사용 후보, core 의존성 아님) |
+
+- 정책 요약: 민감 기능(쿠키/로그인/insane-search)은 **기본 비활성·운영 자동화 금지**, 어댑터는 반환 `ContentItem`에 정책(riskLevel/authMode/rawContentPolicy 등)을 붙인다. 상세는 위 "외부 소스 수집 정책" 절과 [10_DataModel](10_DataModel_데이터구조.md).

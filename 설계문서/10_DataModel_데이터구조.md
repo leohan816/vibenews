@@ -306,7 +306,7 @@ export type PersonalizationMode = 'metadata_only' | 'light_llm_bridge' | 'deep_p
 export interface GlobalNewsPool {
   id: string;
   date: string;
-  newsItemIds: string[]; // 오늘 공통으로 준비된 뉴스(예: 100개)
+  contentItemIds: string[]; // 오늘 공통으로 준비된 ContentItem(예: 100개)
   generatedAt: string;
 }
 ```
@@ -317,14 +317,17 @@ export interface GlobalNewsPool {
 ```ts
 export interface UserInterestProfile {
   userId: string;
-  categories: string[];
-  keywords: string[];
-  projects: string[];
-  preferredDepth: 'short' | 'standard' | 'deep';
+  categories: { name: string; weight: number }[];
+  tags: { name: string; weight: number }[];
+  negativeTags: string[];
   preferredTone: string;
-  negativeKeywords: string[];
-  savedNewsIds: string[];
-  skippedNewsIds: string[];
+  preferredDepth: 'short' | 'standard' | 'deep';
+  preferredDurationMin: number;
+  languages: string[];
+  projects: string[];
+  savedContentIds: string[];
+  skippedContentIds: string[];
+  recentlyHeardContentIds: string[];
 }
 ```
 
@@ -336,8 +339,8 @@ export interface PersonalizedBriefingPlan {
   id: string;
   userId: string;
   sourcePoolId: string; // GlobalNewsPool.id
-  selectedNewsItemIds: string[];
-  orderedNewsItemIds: string[];
+  selectedContentIds: string[]; // Global News Pool의 ContentItem 선택
+  orderedContentIds: string[]; // 재생 순서(= BriefingSession chapter 큐)
   reasonSummary: string;
   estimatedDurationSec: number;
   personalizationMode: PersonalizationMode; // metadata_only | light_llm_bridge | deep_personalized
@@ -442,8 +445,191 @@ export interface SourceIngestionResult {
 }
 ```
 
+## Content Intelligence 아키텍처 (future)
+콘텐츠 하나(`ContentItem`)를 여러 소스에서 만들어 Global News Pool에 넣고, Personal Briefing Plan으로 조립한다. 참고: `docs/구현로그/2026-07-03_source_taxonomy_and_ingestion_design.md`.
+
+### taxonomy 3축 · 출처/사용 정책
+```ts
+export type SourceType =
+  | 'youtube' | 'rss' | 'web' | 'github' | 'reddit' | 'x'
+  | 'image' | 'gif' | 'html' | 'manual'; // (초기 SourceKind를 대체하는 정본)
+
+export type ContentKind =
+  | 'news' | 'analysis' | 'tutorial' | 'opinion' | 'research'
+  | 'community_signal' | 'github_update' | 'product_update'
+  | 'product_detail' | 'document' | 'internal_note';
+
+export type TopicCategory =
+  | 'News' | 'AI' | 'Health' | 'Finance' | 'K-Beauty' | 'Beauty'
+  | 'Business' | 'Developer' | 'Science' | 'Lifestyle' | 'Internal';
+
+// 출처 노출 정책 (특히 YouTube 채널명 비노출)
+export type SourceDisclosurePolicy =
+  | 'internal_only' | 'source_type_only' | 'underlying_sources_only' | 'full_source_visible';
+
+// 어디까지 써도 되는가 (SourceAllowedUse 대체 정본 — 'forbidden' 추가)
+export type AllowedUse =
+  | 'production' | 'internal_only' | 'research_only' | 'fallback_only' | 'forbidden';
+```
+
+### Entity · TopicCluster · SourceLocator · TranscriptSegment
+```ts
+export interface Entity {
+  id: string;
+  name: string;
+  kind: 'company' | 'product' | 'person' | 'tool' | 'paper' | 'repo' | 'other';
+  importance: number; // 0~1
+}
+
+export interface TopicCluster {
+  id: string;
+  title: string; // "AI 에이전트가 외부 웹을 읽는 흐름"
+  date: string;
+  contentItemIds: string[];
+  topKeywords: string[];
+  estimatedDurationMin: number;
+}
+
+// timestamp를 모든 소스에 강제하지 않는다. 소스별 위치를 표현.
+export interface SourceLocator {
+  url: string;
+  fetchedAt: string;
+  contentHash?: string;
+  startSec?: number; // YouTube/영상/오디오 (내부용 — 사용자 노출 X)
+  endSec?: number;
+  repo?: string; // GitHub
+  commitSha?: string;
+  filePath?: string;
+  lineStart?: number;
+  lineEnd?: number;
+  issueNumber?: number;
+  pullRequestNumber?: number;
+  paragraphIndex?: number; // RSS/Web
+  sectionTitle?: string;
+  postId?: string; // Reddit/X
+  commentId?: string;
+}
+
+export interface TranscriptSegment {
+  startSec?: number;
+  endSec?: number;
+  text: string;
+}
+```
+
+### ContentItem 및 하위 블록 (Content Intelligence JSON)
+```ts
+export interface ContentItemSource {
+  sourceType: SourceType;
+  sourceUrl: string;
+  sourceVisibility: SourceDisclosurePolicy; // YouTube 기본 source_type_only/underlying_sources_only
+  title: string;
+  authorOrChannel?: string; // 내부 저장. YouTube 채널명은 기본 비노출
+  publishedAt: string | null;
+  fetchedAt: string;
+  language: string;
+  contentHash?: string;
+}
+
+export interface ContentTranscript {
+  status: 'none' | 'available' | 'generated' | 'failed';
+  source: 'caption' | 'auto_sub' | 'whisper' | 'none';
+  language: string;
+  segments: TranscriptSegment[];
+  rawTextStoragePolicy: RawContentStoragePolicy; // 기본 temporary_cache_only
+  rawTextExpiresAt: string | null;
+}
+
+export interface ContentClaim {
+  claim: string;
+  evidenceType: 'fact' | 'creator_opinion' | 'prediction' | 'rumor' | 'official_announcement';
+  confidence: 'low' | 'medium' | 'high';
+}
+
+export interface ContentAnalysis {
+  oneLineSummary: string;
+  shortSummary: string;
+  longSummary: string;
+  keyPoints: string[];
+  mainClaims: ContentClaim[];
+  actionIdeas: string[];
+  risksOrCautions: string[];
+}
+
+export interface ContentTaxonomy {
+  sourceType: SourceType;
+  contentKind: ContentKind;
+  primaryCategory: TopicCategory; // 1
+  secondaryCategories: TopicCategory[]; // ≤2
+  topicCluster: string; // TopicCluster.id (1)
+  tags: string[]; // 3~8
+  entities: Entity[]; // 무제한(+importance)
+  audienceFit: string[];
+}
+
+export interface AudioScript {
+  scriptVersion: number;
+  targetDurationSec: number;
+  tone: string;
+  language: string;
+  titleForAudio: string;
+  opening: string;
+  body: string;
+  closing: string;
+  fullText: string;
+}
+
+export interface AudioAsset {
+  provider: 'fish_audio';
+  status: 'not_started' | 'generating' | 'generated' | 'failed';
+  voiceId: string;
+  model: string;
+  format: 'mp3' | 'wav' | 'opus';
+  audioUrl: string | null;
+  storageKey: string | null;
+  durationSec: number;
+  generatedAt: string | null;
+  scriptVersion: number;
+}
+
+export interface ContentPersonalizationMeta {
+  globalImportanceScore: number;
+  recencyScore: number;
+  noveltyScore: number;
+  evergreenScore: number;
+  suitableUserProfiles: string[];
+  negativeMatchTags: string[];
+}
+
+export interface ContentProcessing {
+  status: 'pending' | 'processing' | 'done' | 'failed';
+  pipelineVersion: string;
+  steps: { name: string; status: string; at: string }[];
+  errors: string[];
+  cost?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ContentItem {
+  id: string;
+  source: ContentItemSource;
+  sourceLocators: SourceLocator[];
+  transcript: ContentTranscript | null;
+  analysis: ContentAnalysis;
+  taxonomy: ContentTaxonomy;
+  audioScript: AudioScript | null;
+  audioAsset: AudioAsset | null;
+  personalization: ContentPersonalizationMeta;
+  processing: ContentProcessing;
+}
+```
+
+> 정리: `ContentItem`이 정본 콘텐츠 단위(뉴스/영상/문서/이미지 모두). `NewsItem`/`NewsAudioItem`은 스켈레톤 UI용이며, future에 `ContentItem`/`audioAsset`으로 수렴한다. `AllowedUse`는 `SourceAllowedUse`를, `SourceType`은 `SourceKind`를 대체하는 정본이다.
+
 ## 구현 체크리스트
 - [ ] `src/data/types.ts` 가 위 정의와 일치
 - [ ] `src/data/mockData.ts` 가 위 타입을 사용
 - [ ] (future) 개인화 타입 4종(GlobalNewsPool/UserInterestProfile/PersonalizedBriefingPlan/NewsConnectionEdge) 반영
 - [ ] (future) `SourceAdapter` 인터페이스로 수집 도구 추상화(core는 어댑터에 비종속)
+- [ ] (future) Content Intelligence 타입(ContentItem/ContentAnalysis/ContentTaxonomy/AudioScript/AudioAsset/SourceLocator/Entity/TopicCluster) 반영

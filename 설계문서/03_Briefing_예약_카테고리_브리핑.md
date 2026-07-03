@@ -80,3 +80,93 @@
 - [ ] 예약 요약 배너 → ScheduleBriefing 이동
 - [ ] ScheduleBriefing 폼 렌더(시간/길이/카테고리, mock 저장)
 - [ ] 기본 길이 10분 표기
+
+## Taxonomy 3축 · 오늘의 흐름 · 개인화 조립
+
+핵심 문장: **"뉴스/콘텐츠는 공통으로 준비하고, 브리핑은 사용자마다 다르게 조립한다."**
+아래는 이 문서의 카테고리/예약 UX가 실제로 무엇을 근거로 조립되는지를 설계 레벨에서 정리한 것(타입 정본은 [10_DataModel](10_DataModel_데이터구조.md)).
+
+### 1) Taxonomy 3축
+
+모든 ContentItem은 서로 독립적인 3축으로 분류한다(한 축이 다른 축을 결정하지 않음).
+
+| 축 | 질문 | 값(예) |
+| --- | --- | --- |
+| `sourceType` | 어디서 왔나 | youtube · rss · web · github · reddit · x · image · gif · html · manual |
+| `contentKind` | 성격이 무엇인가 | news · analysis · tutorial · opinion · research · community_signal · github_update · product_update · product_detail · document · internal_note |
+| `topicCategory` | 큰 주제가 무엇인가 | News · AI · Health · Finance · K-Beauty · Beauty · Business · Developer · Science · Lifestyle · Internal |
+
+예시 (하나의 ContentItem taxonomy):
+
+```
+sourceType:       youtube
+contentKind:      news
+primaryCategory:  AI
+secondaryCategories: [Developer]
+tags:             [AI Agent, Browser Agent, Claude]
+entities:         [Anthropic, Claude, OpenAI]
+```
+
+### 2) Category vs TopicCluster vs Tag vs Entity
+
+네 개념은 서로 다르며 섞어 쓰지 않는다.
+
+| 개념 | 정의 | 규모 | UI 위치 |
+| --- | --- | --- | --- |
+| **Category** | 큰 방(고정 대분류) | 8~10개 | 상단 가로 탭(CategoryFilter) |
+| **TopicCluster** | "오늘의 흐름"(오늘 묶인 브리핑 단위) | 매일 가변 | 하단 카드(TopicClusterCard=FlowCard) |
+| **Tag** | 세부 주제 라벨 | 콘텐츠당 3~8 | 카드/상세 보조 표기 |
+| **Entity** | 회사·제품·사람·도구·repo 이름 | 무제한 | 상세, 검색·연결 근거 |
+
+- Tag 좋은 예: `AI Agent` · `수면회복` · `금리전망` → 주제를 가리킴.
+- Tag 나쁜 예: `좋음` · `중요` · `영상` → 감상/형식일 뿐 주제가 아님(금지).
+- Entity는 개별 고유명(예: `Claude`, `Anthropic`, `openai/agents-sdk`). **반복적으로 주제화될 때만** tag로 승격한다(예: `Claude`가 계속 흐름의 중심이면 `Claude` tag 검토).
+- 정리: Category(큰 방) ≠ TopicCluster(오늘의 흐름) ≠ Tag(세부 주제) ≠ Entity(고유명).
+
+### 3) 콘텐츠당 분류 제한
+
+| 필드 | 제한 |
+| --- | --- |
+| `primaryCategory` | 정확히 1 |
+| `secondaryCategories` | ≤ 2 |
+| `contentKind` | 정확히 1 |
+| `topicCluster` | 1 (그날 어느 흐름에 속하는지) |
+| `tags` | 3 ~ 8 |
+| `entities` | 무제한 (각 `importance` 부여) |
+
+### 4) 하단 카드 = FlowCard / TopicClusterCard ("오늘의 흐름")
+
+UI 문구는 "카테고리"가 아니라 **"오늘의 흐름"**. 각 카드는 오늘 묶인 TopicCluster 하나를 나타내며 개수·예상 시간·핵심 태그를 보여준다.
+
+| 흐름(TopicCluster) | 개수 | 예상 시간 | 핵심 태그 |
+| --- | --- | --- | --- |
+| AI 에이전트 흐름 | 7개 | 약 10분 | #Agent #Browser #Claude |
+| 수면·대사 건강 | 4개 | 약 6분 | #수면 #단백질 #혈당 |
+| 금리와 ETF | 3개 | 약 5분 | #금리 #AI반도체 #ETF |
+
+→ 같은 Global News Pool에서 나온 콘텐츠라도, 각 사용자의 "오늘의 흐름" 카드 구성은 개인화 조립 결과에 따라 달라진다.
+
+### 5) Personal Briefing Assembly (단계 요약)
+
+공통 풀은 그대로 두고, 사용자별로 **선택/정렬/연결**만 가볍게 수행한다.
+
+| 단계 | 내용 |
+| --- | --- |
+| 1. InterestProfile | 사용자의 관심 Category·Tag·Entity·청취 이력을 프로필로 유지 |
+| 2. 후보 수집 | 오늘 Global News Pool에서 프로필과 맞는 ContentItem을 후보로 모음 |
+| 3. 점수화 | 관심 일치·신선도·중요도(entity importance)로 후보에 점수 부여 |
+| 4. 제외 | 이미 **들음** · 과거 **스킵** · **중복**(같은 주제 반복) 후보 제거 |
+| 5. selected / ordered | 길이 예산(기본 10분) 안에서 selected 확정 후 흐름 순서로 ordered |
+| 6. 연결 멘트 | 필요할 때만 짧은 브릿지 멘트 생성(항상 X) |
+| 7. BriefingSession | ordered 큐 + 재사용 audioAsset을 묶어 재생 세션 생성 |
+
+`personalizationMode` (비용/깊이 단계):
+
+| 모드 | 방식 | 상태 |
+| --- | --- | --- |
+| `metadata_only` | metadata·tag·entity 매칭만으로 조립(LLM 없음) | 초기 기본 |
+| `light_llm_bridge` | 연결 멘트 등 최소 부분만 LLM | future |
+| `deep_personalized` | 깊은 개인화·재구성 | future / premium |
+
+### 현재 상태
+**future / 설계 전용** — 3축 분류·흐름 묶기·조립 알고리즘은 대부분 mock. 초기엔 `metadata_only`만 상정하고, 실제 점수화/제외/연결 로직은 구현하지 않는다.
