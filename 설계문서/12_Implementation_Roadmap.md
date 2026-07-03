@@ -83,3 +83,50 @@
 - 오디오 재생: [02_Listen](02_Listen_오디오_플레이어.md)
 - 브리핑 조립·예약: [03_Briefing](03_Briefing_예약_카테고리_브리핑.md)
 - 타입 정본: [10_DataModel](10_DataModel.md)
+
+## 긴 영상 브리핑 품질 전략 (선행 단계)
+
+핵심 문장: **"긴 영상은 '짧게 줄이는 것'이 아니라 '들을 가치가 있는 브리핑으로 재구성'해야 한다."**
+
+백엔드/모델 구현에 앞서, "좋은 영상 브리핑이 무엇인가"를 먼저 고정하는 **선행 단계**를 둔다. 코드를 붙이기 전에 품질 기준·판정 로직·재구성 방식을 문서와 샘플로 못박아, 이후 Qwen 8B / DeepSeek / Fish Audio / YouTube 수집 구현이 이 기준을 향해 수렴하도록 한다.
+
+### 선행 단계 (구현 전에 확정)
+
+1. **품질 기준 문서** — [14_Video_Briefing_Quality_Strategy](14_Video_Briefing_Quality_Strategy.md). 무엇이 좋은 브리핑인지, BriefingMode(quick 1~2분 / standard 5~8분 / deep 10~15분)와 InformationDensity(low/medium/high) 결정 규칙, 30분 좋은 영상의 기본값 = standard(1~2분 아님) 같은 판정 기준을 정본으로 고정.
+2. **Gold Sample Library** — `samples/video_briefing`. 대표 영상에 대해 손으로 만든 정답 브리핑(모드/밀도 판정, VideoContentMap, personalized audio script, verifier 검수 결과)을 모아 이후 모델 출력이 겨눌 기준 샘플로 사용.
+
+이 두 가지가 구현보다 먼저 존재해야 "짧은 summary→TTS"라는 나쁜 방식으로 흘러가지 않는다.
+
+### future 단계 (선행 기준 확정 이후로 분리)
+
+아래는 모두 **future**이며, 이번 작업 범위(설계·샘플 기준)에 포함되지 않는다.
+
+- **Qwen 8B (추출/초안)** — chunk summary, keyClaims/evidence/numbers/entities, VideoContentMap 초안, audioScript draft.
+- **DeepSeek (검수/편집)** — 누락·왜곡·과장 점검, fact/opinion/prediction 구분, 숫자/인명 human check, 억지 개인화 제거, revisedAudioScript.
+- **Fish Audio (TTS)** — 최종 audioScript 합성.
+- **YouTube 수집** — 소스 수집/자막 확보.
+
+이번엔 실제 Qwen/DeepSeek/Fish Audio/YouTube 구현 없이 설계·샘플 기준만 만든다.
+
+### LongVideoBriefingPipeline (긴 영상 처리 표준)
+
+긴 영상은 아래 표준 파이프라인으로 처리한다. "transcript → 짧은 summary → TTS"는 채택하지 않는다.
+
+`transcript → chunk extraction → VideoContentMap → logic reconstruction → personalized audio script → verifier review → TTS`
+
+| 단계 | 담당(future) | 산출 |
+|------|--------------|------|
+| transcript | YouTube 수집 | 정리된 자막 |
+| chunk extraction | Qwen 8B | chunk summary, keyClaims/evidence/numbers/entities |
+| VideoContentMap | Qwen 8B | 콘텐츠 구조 초안 (타입 정본: [10_DataModel](10_DataModel.md)) |
+| logic reconstruction | Qwen 8B → DeepSeek | 논리 재구성 (요약이 아닌 재구성) |
+| personalized audio script | Qwen 8B draft → DeepSeek revised | audioScript draft → revisedAudioScript |
+| verifier review | DeepSeek | 누락·왜곡·과장·fact/opinion/prediction·숫자/인명 human check·억지 개인화 제거 |
+| TTS | Fish Audio | 최종 오디오 |
+
+BriefingMode/InformationDensity는 이 파이프라인 안에서 결정한다(30분 좋은 영상 기본값 = standard 5~8분, 밀도에 따라 quick/standard/deep).
+
+### 관련 문서 (품질 전략)
+- 품질 전략 정본: [14_Video_Briefing_Quality_Strategy](14_Video_Briefing_Quality_Strategy.md)
+- 타입 정본(VideoContentMap 등): [10_DataModel](10_DataModel.md)
+- Gold Sample Library: `samples/video_briefing`

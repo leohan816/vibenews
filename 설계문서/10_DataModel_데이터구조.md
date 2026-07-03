@@ -678,6 +678,112 @@ export interface ContentItem {
 > 스켈레톤 UI용이며, future에 `ContentItem`/`audioAsset`으로 수렴한다. `AllowedUse`는
 > `SourceAllowedUse`를, `SourceType`은 `SourceKind`를 대체하는 정본이다.
 
+## 긴 영상 브리핑 (Video Briefing) 타입 (future)
+
+긴 영상을 요약이 아니라 **VideoContentMap → audio briefing → verifier review**로 재구성하기 위한
+타입. 전략·기준은 [14_Video_Briefing_Quality_Strategy](14_Video_Briefing_Quality_Strategy.md).
+
+```ts
+export type BriefingMode = 'quick' | 'standard' | 'deep';
+export type InformationDensity = 'low' | 'medium' | 'high';
+
+export interface VideoSection {
+  sectionTitle: string;
+  startSec: number;
+  endSec: number;
+  summary: string;
+  keyClaims: string[];
+  evidence: string[];
+  examples: string[];
+  numbers: string[];
+  entities: string[];
+  importanceScore: number;
+  noveltyScore: number;
+  keepForBriefing: boolean;
+  skipReason: string | null;
+}
+
+export interface FactOpinionPredictionSplit {
+  facts: string[];
+  opinions: string[];
+  predictions: string[];
+  uncertainClaims: string[];
+}
+
+export interface UserRelevance {
+  relevantProjects: string[];
+  whyItMatters: string;
+  possibleActions: string[];
+}
+
+export interface BriefingQualityScore {
+  thesisAccuracy: number;
+  coverage: number;
+  evidenceRetention: number;
+  specificity: number;
+  audioNaturalness: number;
+  userRelevance: number;
+  cautionBalance: number;
+  overallScore: number;
+}
+
+export interface VideoContentMap {
+  videoId: string;
+  title: string;
+  totalDurationSec: number;
+  coreThesis: string;
+  informationDensity: InformationDensity;
+  recommendedBriefingMode: BriefingMode;
+  recommendedDurationSec: number;
+  sections: VideoSection[];
+  mustKeepPoints: string[];
+  skippablePoints: string[];
+  factOpinionPredictionSplit: FactOpinionPredictionSplit;
+  userRelevance: UserRelevance;
+  qualityScore: BriefingQualityScore;
+}
+
+// 파이프라인 단계 정의 (input/output/모델 역할/품질 게이트/실패 모드)
+export interface VideoBriefingPipelineStep {
+  stepOrder: number;
+  name: string;
+  input: string;
+  output: string;
+  modelRole: string; // 예: 'qwen-8b:extraction' | 'deepseek:verify'
+  qualityGate: string;
+  failureMode: string;
+}
+
+export interface VideoBriefingPipeline {
+  id: string;
+  sourceContentId: string; // ContentItem.id
+  transcriptStatus: string;
+  chunkingStatus: string;
+  contentMapStatus: string;
+  audioScriptStatus: string;
+  reviewStatus: string;
+  ttsStatus: string;
+  steps: VideoBriefingPipelineStep[];
+  currentStatus: string;
+  errors: string[];
+}
+
+// DeepSeek(또는 상위 verifier/editor)의 검수 출력
+export interface VideoBriefingReview {
+  pass: boolean;
+  missingPoints: string[];
+  distortedClaims: string[];
+  overstatements: string[];
+  unsupportedClaims: string[];
+  needsHumanCheck: boolean;
+  numericRisks: string[];
+  entityRisks: string[];
+  recommendedEdits: string[];
+  revisedAudioScript: string | null;
+  qualityScore: BriefingQualityScore;
+}
+```
+
 ## 구현 체크리스트
 
 - [ ] `src/data/types.ts` 가 위 정의와 일치

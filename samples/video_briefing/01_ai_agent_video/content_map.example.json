@@ -1,0 +1,98 @@
+{
+  "_note": "SYNTHETIC EXAMPLE — 실제 YouTube transcript 아님. VideoContentMap(설계문서 10) 형태의 품질 기준 샘플.",
+  "videoId": "example-ai-agent-web",
+  "title": "AI 에이전트가 브라우저를 직접 조작하는 시대 (예시 영상)",
+  "totalDurationSec": 1860,
+  "coreThesis": "AI 에이전트가 API 없이 사람처럼 브라우저를 직접 조작해 웹을 읽고 행동하기 시작했고, 관건은 '접근'이 아니라 막혔을 때의 '우회(self-healing routing)'다.",
+  "informationDensity": "high",
+  "recommendedBriefingMode": "standard",
+  "recommendedDurationSec": 420,
+  "sections": [
+    {
+      "sectionTitle": "왜 지금 에이전트의 웹 접근이 문제인가",
+      "startSec": 0,
+      "endSec": 300,
+      "summary": "기존 LLM은 학습 시점에 지식이 멈춰 있어 최신 웹을 직접 못 읽는다. 그래서 사람이 대신 검색·복붙을 해왔다.",
+      "keyClaims": ["LLM은 학습 컷오프 이후 정보에 직접 접근하지 못한다"],
+      "evidence": ["에이전트에게 최신 트렌드를 물으면 '접근할 수 없다'고 답하는 사례"],
+      "examples": ["아이디어를 레딧/X에서 조사시키려다 결국 사람이 브라우저로 검색"],
+      "numbers": [],
+      "entities": ["LLM"],
+      "importanceScore": 0.7,
+      "noveltyScore": 0.4,
+      "keepForBriefing": true,
+      "skipReason": null
+    },
+    {
+      "sectionTitle": "핵심 개념: self-healing routing",
+      "startSec": 300,
+      "endSec": 900,
+      "summary": "한 접근 통로가 막히면 자동으로 다음 통로로 갈아타는 라우팅이 핵심. 접근 자체보다 '막힘 대응'이 실제 가치를 만든다.",
+      "keyClaims": ["에이전트 수집의 관건은 접근이 아니라 막혔을 때의 자동 우회다"],
+      "evidence": ["한 채널이 차단되면 대체 경로로 자동 전환하는 구조 설명"],
+      "examples": ["X 검색이 막히면 다른 백엔드로 재시도"],
+      "numbers": [],
+      "entities": ["self-healing routing"],
+      "importanceScore": 0.95,
+      "noveltyScore": 0.8,
+      "keepForBriefing": true,
+      "skipReason": null
+    },
+    {
+      "sectionTitle": "밑에 깔린 도구들",
+      "startSec": 900,
+      "endSec": 1500,
+      "summary": "실제 읽기는 검증된 오픈소스 도구(자막 추출기, 웹 리더, RSS 파서 등)를 묶어 수행한다. 새로운 마법이 아니라 조합.",
+      "keyClaims": ["에이전트는 검증된 기존 도구를 조합해 웹을 읽는다"],
+      "evidence": ["자막 추출·웹 리더·RSS 파서 등 기존 도구 언급"],
+      "examples": ["유튜브 자막을 통째로 읽고 뼈대만 추려주는 흐름"],
+      "numbers": ["14개+ 채널"],
+      "entities": ["yt-dlp", "RSS", "Jina Reader"],
+      "importanceScore": 0.75,
+      "noveltyScore": 0.5,
+      "keepForBriefing": true,
+      "skipReason": null
+    },
+    {
+      "sectionTitle": "설치 데모 (잡담/반복 구간)",
+      "startSec": 1500,
+      "endSec": 1860,
+      "summary": "설치 과정을 화면으로 따라가는 구간. 진행이 반복적이고 정보 밀도가 낮다.",
+      "keyClaims": [],
+      "evidence": [],
+      "examples": [],
+      "numbers": [],
+      "entities": [],
+      "importanceScore": 0.2,
+      "noveltyScore": 0.1,
+      "keepForBriefing": false,
+      "skipReason": "설치 화면 따라가기는 반복적이고 오디오 브리핑에 정보 가치가 낮음"
+    }
+  ],
+  "mustKeepPoints": [
+    "관건은 접근이 아니라 self-healing routing(막힘 대응)",
+    "실제 읽기는 검증된 기존 도구의 조합"
+  ],
+  "skippablePoints": ["설치 화면 단계별 따라가기", "진행자 잡담"],
+  "factOpinionPredictionSplit": {
+    "facts": ["에이전트는 기존 도구를 조합해 웹을 읽는다"],
+    "opinions": ["접근보다 우회가 진짜 가치라는 진행자의 견해"],
+    "predictions": ["앞으로 에이전트가 세상을 재료로 쓰는 방향이 커질 것"],
+    "uncertainClaims": ["모든 채널에서 안정적으로 동작하는지"]
+  },
+  "userRelevance": {
+    "relevantProjects": ["VibeNews"],
+    "whyItMatters": "VibeNews의 본문 추출 백엔드(SourceAdapter)와 직접 연결되는 흐름. 우회 전략 설계에 참고.",
+    "possibleActions": ["RSS/유튜브/웹 등 자동화 쉬운 채널부터 어댑터 검증", "X 등 어려운 채널은 별도 전략"]
+  },
+  "qualityScore": {
+    "thesisAccuracy": 0.9,
+    "coverage": 0.85,
+    "evidenceRetention": 0.8,
+    "specificity": 0.8,
+    "audioNaturalness": 0.85,
+    "userRelevance": 0.9,
+    "cautionBalance": 0.85,
+    "overallScore": 0.85
+  }
+}
