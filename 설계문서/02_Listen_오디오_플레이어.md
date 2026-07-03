@@ -13,7 +13,7 @@ VibeNews의 첫 화면이자 심장. 뉴스를 "읽는" 앱이 아니라 "듣는
 
 ### 재생 화면 (BriefingSession)
 - 상단: 카테고리 + Chapter 표시 → 예: `AI · Chapter 2 / 7`
-- 중앙: **ambient visual / thinking brain visual** (음악이 흐르는 듯 / 뇌가 생각하는 듯)
+- 중앙: **음악 앱 스타일 앨범 커버 아트**(카테고리별 그라데이션, 재생 시 살짝 확대). 일반 음악 서비스의 "재생 중" 화면 느낌. (뇌/ambient 비주얼 아님)
 - 뉴스 **제목** + **한 줄 핵심 요약**만 표시 (본문 전체 표시 금지)
 - 진행바
 - 컨트롤: **이전 / 재생·정지 / 다음** (뉴스 단위 이동)
@@ -23,7 +23,7 @@ VibeNews의 첫 화면이자 심장. 뉴스를 "읽는" 앱이 아니라 "듣는
 
 ## 화면 구성
 - Listen: `헤더 문구` → `큰 원형 재생 버튼` → `준비 요약(개수·시간)` → `카테고리 칩 목록` → `음성 명령 진입 버튼`
-- BriefingSession: `카테고리·챕터` → `AmbientVisual` → `제목` → `한 줄 요약` → `ProgressBar` → `Prev/Play/Next` → `저장/더 알아보기`
+- BriefingSession: `카테고리·챕터` → `CoverArt(앨범 커버)` → `제목` → `한 줄 요약` → `ProgressBar` → `Prev/Play/Next` → `저장/더 알아보기`
 
 ## 데이터 모델
 `BriefingSession`, `NewsAudioItem`, `PlaybackState`, `Category` (→ [10_DataModel](10_DataModel_데이터구조.md))
@@ -75,7 +75,7 @@ BriefingSession의 재생/일시정지/이전/다음/seek을 실제로 동작시
 
 ## 구현할 컴포넌트
 - `AudioPlayButton` (큰 중앙 버튼)
-- `AmbientVisual` (placeholder pulse 애니메이션)
+- `CoverArt` (음악 앱 스타일 앨범 커버 — 카테고리 그라데이션 + 재생 시 확대)
 - `ChapterControls` (이전/재생·정지/다음)
 - `ProgressBar` (탭하여 seek 가능, 현재/총 시간 반영)
 - `CategoryChips`
@@ -83,7 +83,7 @@ BriefingSession의 재생/일시정지/이전/다음/seek을 실제로 동작시
 - `src/lib/audio.ts` (fallback 샘플 오디오 목록·헬퍼)
 
 ## 구현 전 확인사항
-- ambient visual 스타일 방향(파동 vs 뇌) — 초기엔 파동 pulse로.
+- 커버 아트 스타일 — 음악 서비스처럼 카테고리별 그라데이션 앨범 커버.
 - 기본 브리핑 카테고리 순서.
 
 ## 나중에 연결될 기능

@@ -2,8 +2,8 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { AmbientVisual } from '@/components/ambient-visual';
 import { ChapterControls } from '@/components/chapter-controls';
+import { CoverArt } from '@/components/cover-art';
 import { ProgressBar } from '@/components/progress-bar';
 import { StatusBadge } from '@/components/status-badge';
 import { ThemedText } from '@/components/themed-text';
@@ -57,7 +57,11 @@ export default function BriefingSessionScreen() {
           <StatusBadge status="partial" />
         </View>
 
-        <AmbientVisual active={audio.isPlaying} />
+        <CoverArt
+          categoryId={item.categoryId}
+          categoryName={category?.name}
+          playing={audio.isPlaying}
+        />
 
         <ThemedText type="subtitle" style={styles.title}>
           {item.title}
