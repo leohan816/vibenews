@@ -48,7 +48,9 @@ export default function BriefingSessionScreen() {
             : '';
 
   return (
-    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={{ backgroundColor: theme.background }}
+      contentContainerStyle={styles.content}>
       <View style={styles.inner}>
         <View style={styles.metaRow}>
           <ThemedText type="smallBold" themeColor="textSecondary">
@@ -154,5 +156,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
   },
   pressed: { opacity: 0.7 },
-  note: { width: '100%', borderRadius: Spacing.three, padding: Spacing.three, marginTop: Spacing.two },
+  note: {
+    width: '100%',
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+    marginTop: Spacing.two,
+  },
 });

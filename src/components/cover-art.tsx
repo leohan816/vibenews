@@ -53,9 +53,7 @@ export function CoverArt({
           end={{ x: 1, y: 1 }}
           style={styles.cover}>
           <ThemedText style={styles.note}>♪</ThemedText>
-          {categoryName ? (
-            <ThemedText style={styles.category}>{categoryName}</ThemedText>
-          ) : null}
+          {categoryName ? <ThemedText style={styles.category}>{categoryName}</ThemedText> : null}
         </LinearGradient>
       </Animated.View>
     </View>

@@ -195,16 +195,7 @@ export interface EventLog {
 
 // ── taxonomy 3축 (설계문서 10의 일부 반영) ──
 export type SourceType =
-  | 'youtube'
-  | 'rss'
-  | 'web'
-  | 'github'
-  | 'reddit'
-  | 'x'
-  | 'image'
-  | 'gif'
-  | 'html'
-  | 'manual';
+  'youtube' | 'rss' | 'web' | 'github' | 'reddit' | 'x' | 'image' | 'gif' | 'html' | 'manual';
 
 export type ContentKind =
   | 'news'

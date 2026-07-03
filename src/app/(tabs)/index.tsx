@@ -31,7 +31,10 @@ export default function ListenScreen() {
     router.push('/briefing-session');
   };
 
-  const tabs = [{ id: 'all', name: '전체' }, ...categories.map((c) => ({ id: c.id, name: c.name }))];
+  const tabs = [
+    { id: 'all', name: '전체' },
+    ...categories.map((c) => ({ id: c.id, name: c.name })),
+  ];
   const shownFlows =
     activeCat === 'all' ? topicClusters : topicClusters.filter((f) => f.categoryId === activeCat);
 

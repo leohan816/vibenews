@@ -1,15 +1,18 @@
 # 10. Data Model · 데이터 구조
 
 ## 목적
-전 화면이 공유하는 TypeScript 타입을 한곳에 정의한다.
-실제 구현은 `src/data/types.ts` 이며, 이 문서와 항상 동기화한다.
+
+전 화면이 공유하는 TypeScript 타입을 한곳에 정의한다. 실제 구현은 `src/data/types.ts` 이며, 이
+문서와 항상 동기화한다.
 
 ## 현재 상태
+
 **mock** — 타입은 확정, 데이터는 `src/data/mockData.ts` 의 하드코딩 값이다.
 
 ## 타입 정의
-> 아래 코드블록은 그대로 복사해 `src/data/types.ts` 로 옮길 수 있는 형태다.
-> 각 타입은 한 섹션에 하나씩 둔다.
+
+> 아래 코드블록은 그대로 복사해 `src/data/types.ts` 로 옮길 수 있는 형태다. 각 타입은 한 섹션에
+> 하나씩 둔다.
 
 ### 공통 타입 (유니온 / 별칭)
 
@@ -17,11 +20,7 @@
 export type KnowledgeType = 'Fact' | 'Trend' | 'Insight' | 'Action' | 'Question';
 
 export type FoundationStatus =
-  | 'local_only'
-  | 'candidate'
-  | 'approved_for_foundation'
-  | 'synced_to_foundation'
-  | 'rejected';
+  'local_only' | 'candidate' | 'approved_for_foundation' | 'synced_to_foundation' | 'rejected';
 
 export type RepeatMode = 'none' | 'one' | 'all';
 
@@ -31,6 +30,7 @@ export type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'comple
 ```
 
 ### Category
+
 카테고리 단위의 오늘 준비 상태(개수·시간·키워드).
 
 ```ts
@@ -46,6 +46,7 @@ export interface Category {
 ```
 
 ### NewsItem
+
 수집된 개별 뉴스의 논리 단위(요약 + 출처 메타).
 
 ```ts
@@ -60,6 +61,7 @@ export interface NewsItem {
 ```
 
 ### NewsAudioItem
+
 재생 playlist 의 한 chapter(오디오 아이템).
 
 ```ts
@@ -81,6 +83,7 @@ export interface NewsAudioItem {
 ```
 
 ### BriefingSession
+
 여러 NewsAudioItem 을 묶은 하나의 브리핑 세션(playlist).
 
 ```ts
@@ -97,6 +100,7 @@ export interface BriefingSession {
 ```
 
 ### PlaybackState
+
 현재 재생 상태(어느 챕터·위치·재생 여부·길이·완료). 블록 2에서 오디오 엔진용으로 확장.
 
 ```ts
@@ -116,6 +120,7 @@ export interface PlaybackState {
 ```
 
 ### ScheduledBriefing
+
 예약 브리핑 설정(시간·요일·길이).
 
 ```ts
@@ -130,6 +135,7 @@ export interface ScheduledBriefing {
 ```
 
 ### ListeningHistory
+
 청취 기록(무엇을 언제 들었고 끝냈는지).
 
 ```ts
@@ -142,6 +148,7 @@ export interface ListeningHistory {
 ```
 
 ### DailyRecap
+
 오늘 들은 내용의 요약(음성+텍스트+카드의 원본 데이터).
 
 ```ts
@@ -164,6 +171,7 @@ export interface DailyRecap {
 ```
 
 ### RecapCard
+
 Recap 에서 저장 카드로 떼어낸 지식 조각.
 
 ```ts
@@ -176,6 +184,7 @@ export interface RecapCard {
 ```
 
 ### SavedCard
+
 저장된 "뉴스 지식" 카드(원문 전체가 아니라 지식 문장/요약).
 
 ```ts
@@ -194,6 +203,7 @@ export interface SavedCard {
 ```
 
 ### ExploreMore
+
 "더 알아보기"의 내부 심층 분석 결과(링크 목록 아님).
 
 ```ts
@@ -214,6 +224,7 @@ export interface ExploreMore {
 ```
 
 ### KnowledgeCandidate
+
 Foundation 전송 후보인 뉴스 지식.
 
 ```ts
@@ -241,6 +252,7 @@ export interface KnowledgeCandidate {
 ```
 
 ### ProductRecommendation
+
 관심사와 연결된 개인화 상품(안전 표현만).
 
 ```ts
@@ -255,6 +267,7 @@ export interface ProductRecommendation {
 ```
 
 ### VoiceCommand
+
 음성 명령 정의(대부분 아직 future).
 
 ```ts
@@ -267,6 +280,7 @@ export interface VoiceCommand {
 ```
 
 ### SourceMeta
+
 출처 메타데이터(내부 저장, UX는 클릭 비의존).
 
 ```ts
@@ -280,6 +294,7 @@ export interface SourceMeta {
 ```
 
 ### EventLog
+
 사용 행동 mock 기록(→ [11_EventLog](11_EventLog_사용행동기록.md)).
 
 ```ts
@@ -292,14 +307,18 @@ export interface EventLog {
 ```
 
 ## 개인화 브리핑 조립 (future)
-공통 뉴스 풀을 한 번 만들고(비용 공통), 사용자별로 그 풀에서 일부를 골라 정렬·연결해 브리핑을 조립한다. 자세한 흐름은 [03_Briefing](03_Briefing_예약_카테고리_브리핑.md) 참조.
+
+공통 뉴스 풀을 한 번 만들고(비용 공통), 사용자별로 그 풀에서 일부를 골라 정렬·연결해 브리핑을
+조립한다. 자세한 흐름은 [03_Briefing](03_Briefing_예약_카테고리_브리핑.md) 참조.
 
 ### PersonalizationMode
+
 ```ts
 export type PersonalizationMode = 'metadata_only' | 'light_llm_bridge' | 'deep_personalized';
 ```
 
 ### GlobalNewsPool
+
 하루치 공통 뉴스 풀(수집·본문추출·요약·스크립트·TTS를 공통으로 1회 처리한 결과). 예: 오늘 100개.
 
 ```ts
@@ -312,6 +331,7 @@ export interface GlobalNewsPool {
 ```
 
 ### UserInterestProfile
+
 개인화의 입력. 관심사·키워드·톤·부정 키워드·행동 이력.
 
 ```ts
@@ -332,7 +352,9 @@ export interface UserInterestProfile {
 ```
 
 ### PersonalizedBriefingPlan
-같은 GlobalNewsPool에서 사용자별로 만든 브리핑 계획(선택·정렬·재생 큐). 오디오는 공통 것을 재사용한다.
+
+같은 GlobalNewsPool에서 사용자별로 만든 브리핑 계획(선택·정렬·재생 큐). 오디오는 공통 것을
+재사용한다.
 
 ```ts
 export interface PersonalizedBriefingPlan {
@@ -349,6 +371,7 @@ export interface PersonalizedBriefingPlan {
 ```
 
 ### NewsConnectionEdge
+
 뉴스 사이의 관계(연결 멘트/이어 듣기 근거). 관련 뉴스끼리 묶어 흐름을 만든다.
 
 ```ts
@@ -362,10 +385,15 @@ export interface NewsConnectionEdge {
 }
 ```
 
-> 참고: 개인화를 가볍게 하려면 `NewsItem`이 나중에 `tags`/`embedding` 메타데이터를 갖는다(이 블록에서 인터페이스 변경은 아직 안 함).
+> 참고: 개인화를 가볍게 하려면 `NewsItem`이 나중에 `tags`/`embedding` 메타데이터를 갖는다(이
+> 블록에서 인터페이스 변경은 아직 안 함).
 
 ## 외부 소스 수집 (Source Adapter, future)
-외부 수집 도구를 **교체 가능하게** 감싸는 인터페이스. Agent Reach 등은 이 인터페이스의 **후보 구현**일 뿐이며, VibeNews core 의존성이 아니다(설계·정책은 [06_ExploreMore](06_ExploreMore_더알아보기.md), 평가는 `docs/구현로그/2026-07-03_agent_reach_evaluation.md`).
+
+외부 수집 도구를 **교체 가능하게** 감싸는 인터페이스. Agent Reach 등은 이 인터페이스의 **후보
+구현**일 뿐이며, VibeNews core 의존성이 아니다(설계·정책은
+[06_ExploreMore](06_ExploreMore_더알아보기.md), 평가는
+`docs/구현로그/2026-07-03_agent_reach_evaluation.md`).
 
 ```ts
 export type SourceKind = 'web' | 'youtube' | 'x' | 'reddit' | 'github' | 'rss' | 'paper' | 'other';
@@ -380,10 +408,13 @@ export interface SourceAdapter {
 }
 ```
 
-> 정책: 특정 수집 도구에 종속 금지. 어댑터는 격리 환경(venv/container)에서만 평가하고, 시스템 변경형 자동설치·브라우저 쿠키 접근은 금지.
+> 정책: 특정 수집 도구에 종속 금지. 어댑터는 격리 환경(venv/container)에서만 평가하고, 시스템 변경형
+> 자동설치·브라우저 쿠키 접근은 금지.
 
 ### Source Ingestion Toolkit 타입 (future)
-각 수집 "도구(Tool Adapter)"에 **언제 써도 되는지 정책**을 붙인다. 참고자료: `docs/구현로그/2026-07-03_source_ingestion_toolkit_reference.md`.
+
+각 수집 "도구(Tool Adapter)"에 **언제 써도 되는지 정책**을 붙인다. 참고자료:
+`docs/구현로그/2026-07-03_source_ingestion_toolkit_reference.md`.
 
 ```ts
 export type SourceIngestionTool =
@@ -406,10 +437,7 @@ export type SourceAllowedUse = 'production' | 'internal_only' | 'research_only' 
 
 // 원문 저장 정책 (원문 전체 저장은 피한다)
 export type RawContentStoragePolicy =
-  | 'none'
-  | 'temporary_cache_only'
-  | 'private_internal'
-  | 'allowed_persistent';
+  'none' | 'temporary_cache_only' | 'private_internal' | 'allowed_persistent';
 
 export interface SourceAdapterConfig {
   id: string;
@@ -446,33 +474,53 @@ export interface SourceIngestionResult {
 ```
 
 ## Content Intelligence 아키텍처 (future)
-콘텐츠 하나(`ContentItem`)를 여러 소스에서 만들어 Global News Pool에 넣고, Personal Briefing Plan으로 조립한다. 참고: `docs/구현로그/2026-07-03_source_taxonomy_and_ingestion_design.md`.
+
+콘텐츠 하나(`ContentItem`)를 여러 소스에서 만들어 Global News Pool에 넣고, Personal Briefing
+Plan으로 조립한다. 참고: `docs/구현로그/2026-07-03_source_taxonomy_and_ingestion_design.md`.
 
 ### taxonomy 3축 · 출처/사용 정책
+
 ```ts
 export type SourceType =
-  | 'youtube' | 'rss' | 'web' | 'github' | 'reddit' | 'x'
-  | 'image' | 'gif' | 'html' | 'manual'; // (초기 SourceKind를 대체하는 정본)
+  'youtube' | 'rss' | 'web' | 'github' | 'reddit' | 'x' | 'image' | 'gif' | 'html' | 'manual'; // (초기 SourceKind를 대체하는 정본)
 
 export type ContentKind =
-  | 'news' | 'analysis' | 'tutorial' | 'opinion' | 'research'
-  | 'community_signal' | 'github_update' | 'product_update'
-  | 'product_detail' | 'document' | 'internal_note';
+  | 'news'
+  | 'analysis'
+  | 'tutorial'
+  | 'opinion'
+  | 'research'
+  | 'community_signal'
+  | 'github_update'
+  | 'product_update'
+  | 'product_detail'
+  | 'document'
+  | 'internal_note';
 
 export type TopicCategory =
-  | 'News' | 'AI' | 'Health' | 'Finance' | 'K-Beauty' | 'Beauty'
-  | 'Business' | 'Developer' | 'Science' | 'Lifestyle' | 'Internal';
+  | 'News'
+  | 'AI'
+  | 'Health'
+  | 'Finance'
+  | 'K-Beauty'
+  | 'Beauty'
+  | 'Business'
+  | 'Developer'
+  | 'Science'
+  | 'Lifestyle'
+  | 'Internal';
 
 // 출처 노출 정책 (특히 YouTube 채널명 비노출)
 export type SourceDisclosurePolicy =
-  | 'internal_only' | 'source_type_only' | 'underlying_sources_only' | 'full_source_visible';
+  'internal_only' | 'source_type_only' | 'underlying_sources_only' | 'full_source_visible';
 
 // 어디까지 써도 되는가 (SourceAllowedUse 대체 정본 — 'forbidden' 추가)
 export type AllowedUse =
-  | 'production' | 'internal_only' | 'research_only' | 'fallback_only' | 'forbidden';
+  'production' | 'internal_only' | 'research_only' | 'fallback_only' | 'forbidden';
 ```
 
 ### Entity · TopicCluster · SourceLocator · TranscriptSegment
+
 ```ts
 export interface Entity {
   id: string;
@@ -518,6 +566,7 @@ export interface TranscriptSegment {
 ```
 
 ### ContentItem 및 하위 블록 (Content Intelligence JSON)
+
 ```ts
 export interface ContentItemSource {
   sourceType: SourceType;
@@ -625,11 +674,17 @@ export interface ContentItem {
 }
 ```
 
-> 정리: `ContentItem`이 정본 콘텐츠 단위(뉴스/영상/문서/이미지 모두). `NewsItem`/`NewsAudioItem`은 스켈레톤 UI용이며, future에 `ContentItem`/`audioAsset`으로 수렴한다. `AllowedUse`는 `SourceAllowedUse`를, `SourceType`은 `SourceKind`를 대체하는 정본이다.
+> 정리: `ContentItem`이 정본 콘텐츠 단위(뉴스/영상/문서/이미지 모두). `NewsItem`/`NewsAudioItem`은
+> 스켈레톤 UI용이며, future에 `ContentItem`/`audioAsset`으로 수렴한다. `AllowedUse`는
+> `SourceAllowedUse`를, `SourceType`은 `SourceKind`를 대체하는 정본이다.
 
 ## 구현 체크리스트
+
 - [ ] `src/data/types.ts` 가 위 정의와 일치
 - [ ] `src/data/mockData.ts` 가 위 타입을 사용
-- [ ] (future) 개인화 타입 4종(GlobalNewsPool/UserInterestProfile/PersonalizedBriefingPlan/NewsConnectionEdge) 반영
+- [ ] (future) 개인화 타입
+      4종(GlobalNewsPool/UserInterestProfile/PersonalizedBriefingPlan/NewsConnectionEdge) 반영
 - [ ] (future) `SourceAdapter` 인터페이스로 수집 도구 추상화(core는 어댑터에 비종속)
-- [ ] (future) Content Intelligence 타입(ContentItem/ContentAnalysis/ContentTaxonomy/AudioScript/AudioAsset/SourceLocator/Entity/TopicCluster) 반영
+- [ ] (future) Content Intelligence
+      타입(ContentItem/ContentAnalysis/ContentTaxonomy/AudioScript/AudioAsset/SourceLocator/Entity/TopicCluster)
+      반영
