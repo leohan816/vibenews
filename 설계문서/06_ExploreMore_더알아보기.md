@@ -36,8 +36,21 @@
 ## 구현 전 확인사항
 - 링크 노출 방식: 클릭 유도 없이 "출처 3곳 분석됨"처럼 표기.
 
+## 외부 소스 수집 정책 (Source Adapter)
+"더 알아보기"·본문 추출은 외부 소스(웹/유튜브/GitHub/Reddit/X/RSS)를 읽어야 하지만, 특정 수집 도구에 종속되지 않는다.
+
+- VibeNews core는 [`SourceAdapter`](10_DataModel_데이터구조.md) 인터페이스에만 의존하고, 실제 수집 도구는 **교체 가능한 어댑터**로 둔다.
+- **Agent Reach**(`github.com/Panniantong/agent-reach`)는 이 어댑터의 **후보**일 뿐 **core 의존성이 아니다.** 성격상 capability layer / installer / doctor이며, 실제 읽기는 `yt-dlp`·`gh CLI`·Jina Reader 등 **upstream tool**을 사용한다.
+- **1차 정적 점검 기준 사용 후보**(완전한 보안 감사 아님). 평가 상세: `docs/구현로그/2026-07-03_agent_reach_evaluation.md`.
+- 금지/제약:
+  - `agent-reach install --env=auto` **금지**(sudo·apt/brew·Node/gh 설치·apt 저장소/키링 등 시스템 변경 위험).
+  - 공유 서버/여러 서비스가 도는 서버에서 **자동 설치 금지.**
+  - 사용 시 **격리된 venv 또는 container에서만** 평가.
+  - `browser-cookie3` 등 브라우저 쿠키 접근은 프라이버시 민감 기능 → **기본 비활성/금지.**
+  - 외부 플랫폼 약관/차단 리스크 고려(X/Instagram 등 무인 수집 부적합).
+
 ## 나중에 연결될 기능
-agent-reach 등으로 실제 다중 소스 수집·요약, 심층 오디오 생성.
+`SourceAdapter` 기반 실제 다중 소스 수집·요약, 심층 오디오 생성. (수집 도구는 sandbox/container 테스트 후 채택.)
 
 ## 구현 체크리스트
 - [ ] 9개 섹션 렌더

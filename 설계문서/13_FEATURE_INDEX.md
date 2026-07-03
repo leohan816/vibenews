@@ -20,6 +20,7 @@
 | 백그라운드 재생           | 잠금화면/백그라운드 오디오        | 앱 오디오 모드           | PlaybackState                | future      | audio mode + plugin   | 02               |
 | 저장                      | 재생 중 뉴스 지식 저장            | BriefingSession → Saved  | SavedCard                    | mock        | 지식 추출 저장        | 05               |
 | 더 알아보기               | 내부 심층 텍스트 분석             | ExploreMore              | ExploreMore                  | mock        | 다중 소스 분석        | 06               |
+| 외부 소스 수집(Source Adapter) | 수집 도구를 교체 가능하게 추상화. Agent Reach는 core 의존성 아님, 후보 어댑터(1차 정적 점검) | (백엔드) | SourceAdapter | future | 격리 sandbox/container 테스트 후 채택 | 06, 10 |
 | Daily Recap               | 오늘 들은 내용 요약(음성+텍스트)  | Recap, DailyRecapDetail  | DailyRecap, RecapCard        | mock        | 청취로그 기반 AI 요약 | 04               |
 | 저장 카드                 | 카테고리별 뉴스 지식              | Saved, SavedCardDetail   | SavedCard                    | mock        | Foundation 연동       | 05               |
 | 카테고리 브리핑           | 카테고리 큰 카드(개수·시간·키워드)| Briefing                 | Category                     | mock        | 야간 수집 연결        | 03               |
@@ -42,6 +43,7 @@
 - 이전/다음/다시 듣기
 - 저장
 - 더 알아보기
+- 외부 소스 수집 (Source Adapter)
 - Daily Recap
 - 저장 카드
 - 카테고리 브리핑

@@ -361,7 +361,26 @@ export interface NewsConnectionEdge {
 
 > 참고: 개인화를 가볍게 하려면 `NewsItem`이 나중에 `tags`/`embedding` 메타데이터를 갖는다(이 블록에서 인터페이스 변경은 아직 안 함).
 
+## 외부 소스 수집 (Source Adapter, future)
+외부 수집 도구를 **교체 가능하게** 감싸는 인터페이스. Agent Reach 등은 이 인터페이스의 **후보 구현**일 뿐이며, VibeNews core 의존성이 아니다(설계·정책은 [06_ExploreMore](06_ExploreMore_더알아보기.md), 평가는 `docs/구현로그/2026-07-03_agent_reach_evaluation.md`).
+
+```ts
+export type SourceKind = 'web' | 'youtube' | 'x' | 'reddit' | 'github' | 'rss' | 'paper' | 'other';
+
+// core는 이 인터페이스에만 의존하고, 실제 수집 도구(어댑터)는 갈아끼운다.
+export interface SourceAdapter {
+  id: string; // 예: 'native-rss' | 'agent-reach' | ...
+  supportedKinds: SourceKind[];
+  canHandle(url: string): boolean;
+  read(url: string): Promise<NewsItem>;
+  search(query: string): Promise<NewsItem[]>;
+}
+```
+
+> 정책: 특정 수집 도구에 종속 금지. 어댑터는 격리 환경(venv/container)에서만 평가하고, 시스템 변경형 자동설치·브라우저 쿠키 접근은 금지.
+
 ## 구현 체크리스트
 - [ ] `src/data/types.ts` 가 위 정의와 일치
 - [ ] `src/data/mockData.ts` 가 위 타입을 사용
 - [ ] (future) 개인화 타입 4종(GlobalNewsPool/UserInterestProfile/PersonalizedBriefingPlan/NewsConnectionEdge) 반영
+- [ ] (future) `SourceAdapter` 인터페이스로 수집 도구 추상화(core는 어댑터에 비종속)

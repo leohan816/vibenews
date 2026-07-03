@@ -24,7 +24,7 @@
 - **블록 2 · 실제 오디오 플레이어 (진행 중/완료)** — Phase 5(재생 화면)를 mock에서 **partial**로 승격. expo-audio로 재생/일시정지/이전/다음/seek·chapter 큐·이어재생·완료 처리를 실제 동작시킨다. 오디오는 mock/샘플, 백그라운드 재생은 future. 설계: [02_Listen](02_Listen_오디오_플레이어.md).
 
 ## 실제 기능 연결(스켈레톤 이후) 권장 순서
-1. 본문 추출(웹/유튜브/RSS) 백엔드 — agent-reach 검증 후 결정
+1. 본문 추출(웹/유튜브/RSS) 백엔드 — `SourceAdapter` 인터페이스로 추상화. **Agent Reach는 core 의존성 아님, Source Adapter 후보**(1차 정적 점검 기준). 채택 전 격리 sandbox/container 테스트 필수. `install --env=auto`·브라우저 쿠키 접근 금지. 평가: `docs/구현로그/2026-07-03_agent_reach_evaluation.md`
 2. **Global News Pool** — 공통 뉴스 풀 1회 생성(수집·요약·스크립트·TTS 공통 처리)
 3. AI 요약/분석
 4. **오디오 재생 구조 (블록 2, 진행 중)** → 이후 TTS audioUrl 연결 + 배경 재생(future)
