@@ -40,4 +40,31 @@ body { margin: 0; background-color: #FBEDE6; overscroll-behavior: none; }
 @media (prefers-color-scheme: dark) { body { background-color: #1A1512; } }
 * { -webkit-tap-highlight-color: transparent; }
 #root { display: flex; flex-direction: column; }
+
+/* 데스크톱(넓은 화면): 아이폰 목업 프레임 안에 앱을 보여준다. 실제 폰에선 전체화면. */
+@media (min-width: 768px) {
+  body {
+    background: radial-gradient(120% 120% at 50% 0%, #FDF3EE 0%, #EFDBCF 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  #root {
+    width: 402px;
+    height: min(860px, calc(100vh - 48px));
+    flex: none;
+    border-radius: 48px;
+    overflow: hidden;
+    background-color: #FBEDE6;
+    border: 12px solid #0e0e10;
+    box-shadow: 0 30px 80px rgba(120, 70, 40, 0.35);
+    box-sizing: border-box;
+  }
+}
+@media (min-width: 768px) and (prefers-color-scheme: dark) {
+  body { background: radial-gradient(120% 120% at 50% 0%, #241A15 0%, #130F0C 100%); }
+  #root { background-color: #1A1512; }
+}
 `;
