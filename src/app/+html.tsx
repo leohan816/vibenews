@@ -23,7 +23,7 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {/* Android/Chrome */}
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#FBEDE6" />
 
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: appShellCss }} />
@@ -36,8 +36,8 @@ export default function Root({ children }: PropsWithChildren) {
 // 전체화면 앱 느낌: 화면 꽉 채우고, 바운스/탭 하이라이트 제거, 테마 배경.
 const appShellCss = `
 html, body, #root { height: 100%; }
-body { margin: 0; background-color: #ffffff; overscroll-behavior: none; }
-@media (prefers-color-scheme: dark) { body { background-color: #000000; } }
+body { margin: 0; background-color: #FBEDE6; overscroll-behavior: none; }
+@media (prefers-color-scheme: dark) { body { background-color: #1A1512; } }
 * { -webkit-tap-highlight-color: transparent; }
 #root { display: flex; flex-direction: column; }
 `;

@@ -10,10 +10,10 @@ type CardProps = {
   style?: ViewStyle;
 };
 
-/** 테마 카드 컨테이너. onPress 있으면 눌림 효과. */
+/** cosmile 스타일 흰색 카드 + 부드러운 그림자. onPress 있으면 눌림 효과. */
 export function Card({ children, onPress, style }: CardProps) {
   const inner = (
-    <ThemedView type="backgroundElement" style={[styles.card, style]}>
+    <ThemedView type="card" style={[styles.card, style]}>
       {children}
     </ThemedView>
   );
@@ -27,9 +27,14 @@ export function Card({ children, onPress, style }: CardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: Spacing.four,
+    borderRadius: 20,
     padding: Spacing.four,
     gap: Spacing.two,
+    shadowColor: '#8A5A3C',
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
   },
   pressed: {
     opacity: 0.7,

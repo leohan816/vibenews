@@ -7,20 +7,31 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
+// cosmile 스타일 팔레트: 따뜻한 크림 배경 + 오렌지 포인트 + 흰 카드.
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#2A211C',
+    textSecondary: '#8C7F77',
+    background: '#FBEDE6', // 페이지: 크림/피치
+    card: '#FFFFFF', // 카드: 흰색
+    backgroundElement: '#FBE2D4', // 칩/연한 면
+    backgroundSelected: '#F7D3C0',
+    tint: '#F5641E', // 브랜드 오렌지
+    tintSoft: '#FDE6DA', // 배지/필 배경
+    border: '#F0DBCF',
+    danger: '#FF3B30',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#F7EDE7',
+    textSecondary: '#B9ABA3',
+    background: '#1A1512',
+    card: '#241C18',
+    backgroundElement: '#2E2420',
+    backgroundSelected: '#3A2D27',
+    tint: '#FF7A3D',
+    tintSoft: '#3A2A22',
+    border: '#3A2D27',
+    danger: '#FF6B5E',
   },
 } as const;
 

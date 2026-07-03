@@ -30,10 +30,10 @@ export function ChapterControls({
         onPress={onTogglePlay}
         style={({ pressed }) => [
           styles.playBtn,
-          { backgroundColor: theme.text },
+          { backgroundColor: theme.tint },
           pressed && styles.pressed,
         ]}>
-        <ThemedText style={[styles.playIcon, { color: theme.background }]}>
+        <ThemedText style={[styles.playIcon, { color: '#ffffff' }]}>
           {isPlaying ? '❚❚' : '▶'}
         </ThemedText>
       </Pressable>

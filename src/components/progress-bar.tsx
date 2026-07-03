@@ -19,7 +19,7 @@ export function ProgressBar({ progress, onSeekFraction }: Props) {
     <View
       onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       style={[styles.track, { backgroundColor: theme.backgroundElement }]}>
-      <View style={[styles.fill, { backgroundColor: theme.text, width: `${pct}%` }]} />
+      <View style={[styles.fill, { backgroundColor: theme.tint, width: `${pct}%` }]} />
     </View>
   );
 
