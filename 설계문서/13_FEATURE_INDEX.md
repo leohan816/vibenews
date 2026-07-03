@@ -61,6 +61,9 @@
 | Max 2 Review Attempts | 자동 수정 루프 최대 2회 | (백엔드) | ReviewLoopState | future | 루프 제한 | 16 |
 | Human Review Fallback | 2회 실패 시 사람 판단 | (Admin) | ReviewLoopState | future | human review | 16 |
 | TTS Ready State | tts_ready(제작 가능) ≠ tts_generated(완료) | (백엔드) | CandidateProcessingState | future | 상태 관리 | 16 |
+| Design Direction (Neo-Retro AI Radio) | 시각 정체성·용어·컬러·홈/플레이어 방향 문서화 | (설계) | — | 문서 | 리디자인 선행 | 17 |
+| Neo-Retro AI Radio UI Redesign | 홈/플레이어/오늘의 흐름 카드 리디자인 | 전 화면 | — | future | 디자인 토큰 후 구현 | 17 |
+| Design Tokens | warm 다크·amber orange 등 토큰(초안) | (설계) | — | future | 코드 반영 | 17 |
 | Daily Recap                        | 오늘 들은 내용 요약(음성+텍스트)                                                                                                                            | Recap, DailyRecapDetail    | DailyRecap, RecapCard                                             | mock        | 청취로그 기반 AI 요약                 | 04               |
 | 저장 카드                          | 카테고리별 뉴스 지식                                                                                                                                        | Saved, SavedCardDetail     | SavedCard                                                         | mock        | Foundation 연동                       | 05               |
 | 카테고리 브리핑                    | 카테고리 큰 카드(개수·시간·키워드)                                                                                                                          | Briefing                   | Category                                                          | mock        | 야간 수집 연결                        | 03               |
