@@ -379,6 +379,69 @@ export interface SourceAdapter {
 
 > 정책: 특정 수집 도구에 종속 금지. 어댑터는 격리 환경(venv/container)에서만 평가하고, 시스템 변경형 자동설치·브라우저 쿠키 접근은 금지.
 
+### Source Ingestion Toolkit 타입 (future)
+각 수집 "도구(Tool Adapter)"에 **언제 써도 되는지 정책**을 붙인다. 참고자료: `docs/구현로그/2026-07-03_source_ingestion_toolkit_reference.md`.
+
+```ts
+export type SourceIngestionTool =
+  | 'yt-dlp'
+  | 'curl'
+  | 'vision-ocr'
+  | 'tesseract'
+  | 'ffmpeg'
+  | 'chrome-headless'
+  | 'insane-search'
+  | 'api'
+  | 'manual';
+
+export type SourceRiskLevel = 'low' | 'medium' | 'high';
+
+export type SourceAuthMode = 'none' | 'api_key' | 'oauth' | 'browser_cookie' | 'manual_login';
+
+// 어디까지 써도 되는가
+export type SourceAllowedUse = 'production' | 'internal_only' | 'research_only' | 'fallback_only';
+
+// 원문 저장 정책 (원문 전체 저장은 피한다)
+export type RawContentStoragePolicy =
+  | 'none'
+  | 'temporary_cache_only'
+  | 'private_internal'
+  | 'allowed_persistent';
+
+export interface SourceAdapterConfig {
+  id: string;
+  name: string;
+  sourceType: 'youtube' | 'web' | 'image' | 'gif' | 'html' | 'rss' | 'github' | 'reddit' | 'x';
+  tool: SourceIngestionTool;
+  riskLevel: SourceRiskLevel;
+  authMode: SourceAuthMode;
+  allowedUse: SourceAllowedUse;
+  storesRawContent: boolean;
+  rawContentPolicy: RawContentStoragePolicy;
+}
+
+// OCR 결과 — 숫자/소수점/퍼센트 오류 위험 때문에 human verification 필드를 둔다.
+export interface OcrExtractionResult {
+  text: string;
+  ocrConfidence: number; // 0~1
+  needsHumanCheck: boolean;
+  numericRisk: SourceRiskLevel; // 숫자 오독 위험 (예: 91.146→91146, 0.05%→005%)
+  numbers?: string[]; // 검증 대상 숫자 후보
+}
+
+export interface SourceIngestionResult {
+  adapterId: string;
+  sourceType: SourceAdapterConfig['sourceType'];
+  url: string;
+  ok: boolean;
+  newsItemId?: string;
+  ocr?: OcrExtractionResult;
+  rawContentPolicy: RawContentStoragePolicy;
+  fetchedAt: string;
+  error?: string;
+}
+```
+
 ## 구현 체크리스트
 - [ ] `src/data/types.ts` 가 위 정의와 일치
 - [ ] `src/data/mockData.ts` 가 위 타입을 사용

@@ -25,6 +25,7 @@
 
 ## 실제 기능 연결(스켈레톤 이후) 권장 순서
 1. 본문 추출(웹/유튜브/RSS) 백엔드 — `SourceAdapter` 인터페이스로 추상화. **Agent Reach는 core 의존성 아님, Source Adapter 후보**(1차 정적 점검 기준). 채택 전 격리 sandbox/container 테스트 필수. `install --env=auto`·브라우저 쿠키 접근 금지. 평가: `docs/구현로그/2026-07-03_agent_reach_evaluation.md`
+   - **Source Ingestion Toolkit 우선순위:** ① RSS/GitHub/공개웹/수동 YouTube → ② yt-dlp 자막 → ③ OCR/이미지 → ④ insane-search fallback → ⑤ 쿠키 기반. 운영 자동화 금지: 쿠키 YouTube·WAF fallback·로그인 수집. 참고: `docs/구현로그/2026-07-03_source_ingestion_toolkit_reference.md`
 2. **Global News Pool** — 공통 뉴스 풀 1회 생성(수집·요약·스크립트·TTS 공통 처리)
 3. AI 요약/분석
 4. **오디오 재생 구조 (블록 2, 진행 중)** → 이후 TTS audioUrl 연결 + 배경 재생(future)

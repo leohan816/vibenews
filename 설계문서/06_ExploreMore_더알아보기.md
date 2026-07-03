@@ -49,6 +49,21 @@
   - `browser-cookie3` 등 브라우저 쿠키 접근은 프라이버시 민감 기능 → **기본 비활성/금지.**
   - 외부 플랫폼 약관/차단 리스크 고려(X/Instagram 등 무인 수집 부적합).
 
+### Source Ingestion Toolkit (참고자료)
+수집 "도구(Tool Adapter)" 후보들. 각 도구는 `SourceAdapterConfig`로 감싸 정책(riskLevel/authMode/allowedUse/rawContentPolicy)을 붙인다. 상세: `docs/구현로그/2026-07-03_source_ingestion_toolkit_reference.md`.
+
+| # | 도구 | 용도 | 위험/정책 |
+| --- | --- | --- | --- |
+| 1 | **yt-dlp** | YouTube 자막 수집 | `--cookies-from-browser`는 민감 → 운영 자동화 금지, transcript는 temp cache |
+| 2 | **curl** | 공개 상세페이지 이미지 | UI/로고 제외, 403/WAF 시 fallback 후보 |
+| 3 | **Vision/Tesseract OCR** | 이미지 텍스트 | 숫자 오독 위험 → human verification 필요 |
+| 4 | **ffmpeg + OCR** | GIF 최종 프레임 수치 | 카운트업은 마지막 프레임이 실제 값 |
+| 5 | **Chrome headless** | HTML→PDF | 스크롤 리빌/지연 렌더링 처리 |
+| 6 | **insane-search** | 차단된 공개 페이지 fallback | 공개 페이지 전용, 로그인/페이월 금지, `fallback_only` |
+
+**우선순위:** ① RSS/GitHub/공개웹/수동 YouTube → ② yt-dlp 자막 → ③ OCR/이미지 → ④ insane-search fallback → ⑤ 쿠키 기반.
+**공개 서비스화 전 운영 자동화 금지:** 쿠키 기반 YouTube 수집 · WAF fallback · 로그인 기반 수집.
+
 ## 나중에 연결될 기능
 `SourceAdapter` 기반 실제 다중 소스 수집·요약, 심층 오디오 생성. (수집 도구는 sandbox/container 테스트 후 채택.)
 
