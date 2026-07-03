@@ -13,7 +13,7 @@ export default function SettingsScreen() {
   return (
     <Screen title="Settings" subtitle="개인화 설정" status="mock">
       <Section title="관심 & 브리핑">
-        <NavRow label="관심 카테고리" value="AI · 건강 · 투자 · K-Beauty" />
+        <NavRow label="관심 카테고리" value="AI · 건강 · 투자 · 피부관리" />
         <NavRow
           label="예약 브리핑 시간"
           value="매일 07:00"

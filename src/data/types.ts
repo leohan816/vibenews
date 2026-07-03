@@ -215,7 +215,7 @@ export type TopicCategory =
   | 'AI'
   | 'Health'
   | 'Finance'
-  | 'K-Beauty'
+  | 'Skin Care'
   | 'Beauty'
   | 'Business'
   | 'Developer'

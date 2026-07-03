@@ -10,7 +10,7 @@ const GRADIENTS: Record<string, [string, string]> = {
   ai: ['#6366f1', '#8b5cf6'],
   health: ['#10b981', '#059669'],
   invest: ['#f59e0b', '#ef4444'],
-  kbeauty: ['#ec4899', '#f472b6'],
+  skincare: ['#ec4899', '#f472b6'],
   beauty: ['#f472b6', '#a78bfa'],
   biz: ['#3b82f6', '#06b6d4'],
 };

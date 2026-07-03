@@ -52,6 +52,15 @@
 | Category/Subcategory Taxonomy | Category→Subcategory→TopicCluster→Tag→Entity 계층 | 필터/개인화 | CategoryNode, SubcategoryNode | mock/future | mock taxonomy | 15, 03 |
 | Quality Prediction | 소스 단계 품질/위험 예측 | (백엔드) | QualityPrediction | future | 예측 로직 | 15, 14 |
 | SourceCandidate Scoring | editorial/hot/user/risk 기반 후보 점수화 | (백엔드) | SourceCandidate | future | score 계산 | 15 |
+| Candidate Review & Approval Pipeline | 후보 승인→처리→검수→TTS-ready 운영 게이트 | (Admin/백엔드) | CandidateProcessingState | future | 게이트 구현 | 16 |
+| CandidatePreview | 승인용 미리보기(근거·예측·점수·승인상태) | (Admin) | CandidatePreview | future | Admin 화면 | 16 |
+| Admin Approval Gate | 사람(MD/Leo)이 승인해야 처리 진행 | (Admin) | CandidateApprovalStatus | future | 승인 UI | 16 |
+| Builder LLM | 승인분 본 분석·스크립트 생성 | (백엔드) | ContentItem, SpokenAudioScript | future | 모델 연결 | 16, 14 |
+| DeepSeek Verifier | rubric 10점 검수·수정지시 | (백엔드) | DeepSeekReviewResult | future | 모델 연결 | 16, 14 |
+| 9/10 Quality Gate | overallScore ≥ 9.0만 TTS-ready | (백엔드) | DeepSeekReviewRubric | future | 게이트 로직 | 16 |
+| Max 2 Review Attempts | 자동 수정 루프 최대 2회 | (백엔드) | ReviewLoopState | future | 루프 제한 | 16 |
+| Human Review Fallback | 2회 실패 시 사람 판단 | (Admin) | ReviewLoopState | future | human review | 16 |
+| TTS Ready State | tts_ready(제작 가능) ≠ tts_generated(완료) | (백엔드) | CandidateProcessingState | future | 상태 관리 | 16 |
 | Daily Recap                        | 오늘 들은 내용 요약(음성+텍스트)                                                                                                                            | Recap, DailyRecapDetail    | DailyRecap, RecapCard                                             | mock        | 청취로그 기반 AI 요약                 | 04               |
 | 저장 카드                          | 카테고리별 뉴스 지식                                                                                                                                        | Saved, SavedCardDetail     | SavedCard                                                         | mock        | Foundation 연동                       | 05               |
 | 카테고리 브리핑                    | 카테고리 큰 카드(개수·시간·키워드)                                                                                                                          | Briefing                   | Category                                                          | mock        | 야간 수집 연결                        | 03               |

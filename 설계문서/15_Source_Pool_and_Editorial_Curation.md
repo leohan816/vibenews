@@ -77,7 +77,7 @@ novelty.
 
 | 계층 | 정의 | 규모 | 예 |
 | --- | --- | --- | --- |
-| **Category** | 큰 분야 | 고정 8-10 | AI, Health, Finance, K-Beauty, Beauty, Business, Developer, Science, Lifestyle, News |
+| **Category** | 큰 분야 | 고정 8-10 | AI, Health, Finance, Skin Care, Beauty, Business, Developer, Science, Lifestyle, News |
 | **Subcategory** | Category 안의 중간 분류 | 카테고리별 | Health 안의 수면/혈당/장건강/보충제/운동·회복 |
 | **TopicCluster** | 오늘의 흐름(브리핑 단위) | 매일 가변 | "AI 에이전트 운영에서 검증 루프가 중요해지는 흐름" |
 | **Tag** | 세부 주제(여럿) | 콘텐츠당 3-8 | AI Agent, Verification Loop, Claude Code, 혈당관리, 수면회복 |
@@ -96,13 +96,28 @@ novelty.
   Business · AI Safety/Policy
 - **Health**: Sleep · Glucose/Metabolism · Gut Health · Exercise/Recovery · Supplements · Skin/Inflammation ·
   Hormone · Longevity · Functional Medicine
-- **K-Beauty**: Brand Trends · Distribution/Export · Ingredient Trends · Influencer/Live Commerce · China
-  Market · Southeast Asia Market · Product Detail Analysis · Competitor Monitoring
+- **Skin Care**: Skin Barrier / 피부장벽 · Acne / 여드름 · Sensitive Skin / 민감성 피부 · Sunscreen / 자외선
+  차단 · Anti-aging / 안티에이징 · Ingredients / 성분 · Routine Tips / 루틴 팁 · Dermatology / 피부과·피부과학 ·
+  Seasonal Skin Care / 계절별 피부관리 · Product Usage Tips / 제품 사용법 · Scalp / 두피관리
 - **Finance**: Macro · Interest Rate · ETF · AI Semiconductor · Currency/FX · Crypto · Personal Investing
 - **Developer**: GitHub Trends · Dev Tools · Frameworks · Cloud/Infra · Security · Databases · Testing/QA
-- **Business**: Startup · E-commerce · Marketing · Global Expansion · Operations · Productivity
+- **Business**: Startup · E-commerce · Marketing · Global Expansion · Operations · Productivity · Beauty Export ·
+  Global Beauty Market
 
 > 초기에는 세부 구현하지 말고 **설계문서 + mock taxonomy로만** 둔다.
+
+### K-Beauty는 top-level Category가 아니다
+
+일반 사용자가 매일 듣는 정보 카테고리로는 **Skin Care / 피부관리**가 적절하고, K-Beauty는
+Cosmile/비즈니스/브랜드/시장 맥락에 가깝다. K-Beauty는 다음으로만 남긴다.
+
+- **tag**: K-Beauty, Korean Sunscreen, Korean Skin Care Routine
+- **entity**: 특정 한국 브랜드/제품/성분/제조사
+- **Business context**: Beauty Export, Global Beauty Market
+- **source context**: 한국 뷰티 시장 소스에서 온 자료
+
+구분: **Skin Care** = 피부관리 팁·성분·루틴·피부과학·제품 사용법·피부 문제 / **Beauty** = 메이크업·뷰티
+트렌드·소비 트렌드·산업 흐름.
 
 ---
 
@@ -128,6 +143,8 @@ selectedForProcessing
 recurring_watch
 
 > **모든 후보를 다 처리하지 않는다.** 비용·품질 관리를 위해 score가 높은 후보만 ContentItem으로 승격한다.
+> 승격 전에 **사람(MD/Leo) 승인 게이트**를 거친다 — SourceCandidate → CandidatePreview → 승인 → 승인분만 처리.
+> 상세: [16_Candidate_Review_and_TTS_Approval_Pipeline](16_Candidate_Review_and_TTS_Approval_Pipeline.md).
 
 ---
 

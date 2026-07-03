@@ -48,7 +48,7 @@
 
 | 필드 | 타입(개념) | 설명 |
 |---|---|---|
-| `interestedCategories` | `{ name, weight }[]` | 관심 **Category**(큰 방, topicCategory 축과 정렬: News/AI/Health/Finance/K-Beauty/Beauty/Business/Developer/Science/Lifestyle/Internal). `weight`로 상단 CategoryFilter 노출·개인화 가중치 조절 |
+| `interestedCategories` | `{ name, weight }[]` | 관심 **Category**(큰 방, topicCategory 축과 정렬: News/AI/Health/Finance/Skin Care/Beauty/Business/Developer/Science/Lifestyle/Internal). `weight`로 상단 CategoryFilter 노출·개인화 가중치 조절 |
 | `interestedTags` | `{ name, weight }[]` | 관심 **Tag**(세부 주제). `weight`로 강도 조절 |
 | `negativeTags` | `string[]` | 싫어하는 태그. 매칭 시 점수 **감점**(또는 제외) |
 | `preferredTone` | `enum`(개념) | 선호 톤(예: neutral/casual/pro). audioScript 톤·목소리 힌트 |

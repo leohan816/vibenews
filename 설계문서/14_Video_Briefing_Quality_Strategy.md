@@ -358,3 +358,16 @@ VibeNews의 품질은 **두 단계**로 결정된다.
 - `likelyRisk`가 높으면 `requiresVerifier`/`requiresHumanReview`를 켜 (1) 요약 품질 단계에서 과장·왜곡을 걸러낸다.
 - QualityPrediction은 **예측값**이다. 실제 fetch/analyze 후 값과 달라지면 실측으로 갱신한다.
 - 타입 정본: [10_DataModel](10_DataModel_데이터구조.md) (`QualityPrediction`). Source Pool·소스 4유형 정의: [15_Source_Pool_and_Editorial_Curation](15_Source_Pool_and_Editorial_Curation.md).
+
+---
+
+## DeepSeek Quality Gate & 승인 연결
+
+이 문서의 품질 기준은 승인 파이프라인의 gate로 동작한다. AI가 모든 콘텐츠를 자동으로 음성화하지 않는다.
+
+- **Rubric 채점**: DeepSeek verifier가 `revisedAudioScript`를 rubric 10점 만점으로 채점한다. **9점 이상만 TTS-ready.**
+- **자동 수정 루프**: 9점 미만이면 재작성한다. **자동 수정 최대 2회**, 그래도 9점 미달이면 자동 통과시키지 않고 **human review**로 넘긴다.
+- **승인 전 비용 차단**: MD/Leo 승인(Admin) 전에는 비싼 분석·스크립트·DeepSeek 검수·**TTS를 실행하지 않는다.** 승인분만 full analysis/script/verify로 진입하고, 9/10점 이상 통과분만 TTS로 넘어간다.
+- 순서: SourceCandidate → CandidatePreview → 승인 → (분석/스크립트/DeepSeek 검수) → 9점 이상 TTS-ready.
+
+상세 파이프라인: [16_Candidate_Review_and_TTS_Approval_Pipeline](16_Candidate_Review_and_TTS_Approval_Pipeline.md).

@@ -176,3 +176,30 @@ QualityPrediction은 소스 단계에서 미리 BriefingMode(quick 1-2분 / stan
 - 설계 정본: [15_Source_Pool_and_Editorial_Curation](15_Source_Pool_and_Editorial_Curation.md)
 - 타입 정본: [10_DataModel](10_DataModel.md)
 - 품질 전략 정본: [14_Video_Briefing_Quality_Strategy](14_Video_Briefing_Quality_Strategy.md)
+
+## Candidate Review & TTS Approval (운영 게이트)
+
+핵심 문장: **"AI가 모든 콘텐츠를 자동 음성화하지 않는다. Admin 승인분만 비싼 처리로 넘어간다."**
+
+수집 후보를 곧바로 full fetch/분석/TTS로 흘리지 않는다. 사이에 **운영 게이트**를 둔다: 값싼 미리보기로 후보를 만들고, MD/Leo(Admin)가 승인한 것만 비싼 분석·스크립트·TTS로 승격한다. approval 전 full fetch/TTS는 금지한다.
+
+### 게이트 흐름
+
+`Source scan → Candidate Preview → Admin 승인 → 승인분만 처리(full fetch/분석/스크립트) → DeepSeek 9/10 검수 → TTS-ready`
+
+| 단계 | 산출/상태 | 비고 |
+|------|-----------|------|
+| Source scan | SourceCandidate | 원천에서 후보만 수집(아직 full fetch 아님) |
+| Candidate Preview | CandidatePreview | 값싼 미리보기(메타/요지). 승인 판단용 |
+| Admin 승인 | approved / rejected | MD/Leo 승인분만 다음 단계로. **approval 전 full fetch/TTS 금지** |
+| 승인분만 처리 | 분석·audioScript | 승인 후보만 비싼 full fetch/분석/스크립트 수행 |
+| DeepSeek 검수 | 점수(0~10) | 누락·왜곡·과장 검수. **9/10점 이상만** 통과 |
+| TTS-ready | TTS 승격 | 검수 통과분만 최종 TTS 대상 |
+
+### retry 정책
+- 검수 미달 시 **자동 수정 최대 2회** 재시도.
+- 2회 실패 시 자동 진행 중단 → **human review**로 넘긴다.
+
+### 이번 작업 범위
+- 실제 모델/TTS 구현은 **future**. 이번엔 게이트 흐름·승인 규칙만 설계로 고정.
+- 상세 정본: [16_Candidate_Review_and_TTS_Approval_Pipeline](16_Candidate_Review_and_TTS_Approval_Pipeline.md)

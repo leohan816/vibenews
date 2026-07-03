@@ -502,7 +502,7 @@ export type TopicCategory =
   | 'AI'
   | 'Health'
   | 'Finance'
-  | 'K-Beauty'
+  | 'Skin Care'
   | 'Beauty'
   | 'Business'
   | 'Developer'
@@ -1019,6 +1019,148 @@ export interface QualityPrediction {
   likelyRisk: SourceRiskLevel;
   requiresVerifier: boolean;
   requiresHumanReview: boolean;
+}
+```
+
+## Candidate Review & TTS Approval 타입 (future)
+
+후보 승인 → 처리 → DeepSeek 검수(9/10) → TTS-ready까지의 운영 게이트. 전략:
+[16_Candidate_Review_and_TTS_Approval_Pipeline](16_Candidate_Review_and_TTS_Approval_Pipeline.md).
+
+```ts
+export type CandidateApprovalStatus =
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'needs_more_info'
+  | 'auto_rejected'
+  | 'processing'
+  | 'failed'
+  | 'tts_ready';
+
+export type ModelRole =
+  | 'worker_candidate_preview' // Qwen 8B
+  | 'builder_content_intelligence' // 더 큰 open-source
+  | 'builder_spoken_script'
+  | 'verifier_deepseek'
+  | 'human_editor';
+
+export type FinalDecision = 'tts_ready' | 'revise_manually' | 'discard' | 'defer';
+
+// approval 전/후를 분리. TTS는 review 통과 후에만.
+export type CandidateProcessingState =
+  | 'discovered'
+  | 'preview_generated'
+  | 'awaiting_approval'
+  | 'approved'
+  | 'rejected'
+  | 'fetch_pending'
+  | 'fetched'
+  | 'content_map_created'
+  | 'analytic_summary_created'
+  | 'briefing_plan_created'
+  | 'spoken_script_created'
+  | 'review_pending'
+  | 'revision_requested'
+  | 'revised_script_created'
+  | 'second_review_pending'
+  | 'human_review_required'
+  | 'tts_ready' // 음성 제작 가능 상태
+  | 'tts_generated' // 실제 음성 파일 생성 완료
+  | 'failed'
+  | 'discarded';
+
+// Admin에 표시되는 승인용 미리보기(최종 요약 아님).
+export interface CandidatePreview {
+  id: string;
+  sourceCandidateId: string;
+  title: string;
+  sourceName: string;
+  sourceType: SourceType;
+  url: string;
+  publishedAt: string | null;
+  category: TopicCategory;
+  subcategory: string;
+  tags: string[];
+  entities: string[];
+  recommendationReason: string;
+  shortSummary: string; // Qwen 8B 생성. 최종 요약 아님
+  whyItMatters: string;
+  likelyInformationDensity: InformationDensity;
+  likelyBriefingMode: BriefingMode;
+  estimatedBriefingDurationSec: number;
+  sourceTrustLevel: 'high' | 'medium' | 'low';
+  editorialPriority: 'core' | 'normal' | 'watchlist';
+  hotTopicScore: number;
+  userInterestScore: number;
+  duplicateRisk: number;
+  freshnessScore: number;
+  riskLevel: SourceRiskLevel;
+  requiresVerifier: boolean;
+  requiresHumanReview: boolean;
+  candidateScore: number;
+  approvalStatus: CandidateApprovalStatus;
+  rejectionReason: string | null;
+  approvedBy: string | null;
+  approvedAt: string | null;
+}
+
+// DeepSeek 검수 rubric (각 0-10 또는 weight). overallScore >= 9.0 이면 통과.
+export interface DeepSeekReviewRubric {
+  coverage: number;
+  faithfulness: number;
+  specificity: number;
+  structure: number;
+  spokenNaturalness: number;
+  cautionBalance: number;
+  userRelevance: number;
+  ttsReadiness: number;
+  overallScore: number;
+}
+
+export interface DeepSeekReviewResult {
+  id: string;
+  contentItemId: string;
+  scriptVersion: number;
+  attemptNumber: number; // 1 또는 2 (max 2)
+  pass: boolean;
+  overallScore: number;
+  rubric: DeepSeekReviewRubric;
+  criticalErrors: string[];
+  missingPoints: string[];
+  distortedClaims: string[];
+  unsupportedClaims: string[];
+  overCompressedPoints: string[];
+  roboticPhrasing: string[];
+  ttsReadinessIssues: string[];
+  recommendedEdits: string[];
+  revisedSuggestion: string | null;
+  requiresHumanReview: boolean;
+  reviewedAt: string;
+}
+
+// 자동 수정 루프(최대 2회). 실패 시 human_review_required.
+export interface ReviewLoopState {
+  id: string;
+  contentItemId: string;
+  currentAttempt: number;
+  maxAttempts: number; // 2
+  status:
+    | 'draft_script_created'
+    | 'review_pending'
+    | 'review_passed'
+    | 'review_failed'
+    | 'revision_requested'
+    | 'revision_created'
+    | 'second_review_pending'
+    | 'human_review_required'
+    | 'tts_ready'
+    | 'tts_generated'
+    | 'discarded';
+  reviewResults: DeepSeekReviewResult[];
+  finalDecision: FinalDecision | null;
+  humanReviewer: string | null;
+  humanDecisionReason: string | null;
 }
 ```
 
