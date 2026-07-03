@@ -10,6 +10,8 @@ export type RepeatMode = 'none' | 'one' | 'all';
 
 export type ContentStatus = 'mock' | 'partial' | 'working' | 'future';
 
+export type PlaybackStatus = 'idle' | 'loading' | 'playing' | 'paused' | 'completed' | 'error';
+
 export interface Category {
   id: string;
   name: string;
@@ -61,8 +63,12 @@ export interface PlaybackState {
   currentNewsAudioItemId: string;
   currentChapterIndex: number;
   currentPositionSec: number;
+  durationSec: number;
   isPlaying: boolean;
+  status: PlaybackStatus;
   repeatMode: RepeatMode;
+  sessionCompleted: boolean;
+  usingFallbackAudio: boolean;
   updatedAt: string;
 }
 

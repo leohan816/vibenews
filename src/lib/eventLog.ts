@@ -21,6 +21,13 @@ export const EVENTS = {
   productCardSaved: 'product_card_saved',
   voiceCommandUsed: 'voice_command_used',
   foundationCandidateCreated: 'foundation_candidate_created',
+  // 블록 2 · 오디오 플레이어
+  audioPlayStarted: 'audio_play_started',
+  audioPaused: 'audio_paused',
+  audioCompleted: 'audio_completed',
+  chapterNextClicked: 'chapter_next_clicked',
+  chapterPreviousClicked: 'chapter_previous_clicked',
+  audioSeeked: 'audio_seeked',
 } as const;
 
 export type EventName = (typeof EVENTS)[keyof typeof EVENTS];

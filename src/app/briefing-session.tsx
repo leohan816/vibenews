@@ -10,62 +10,54 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { audioItemsForSession, categoryById, todaySession } from '@/data/mockData';
-import { EVENTS, logEvent } from '@/lib/eventLog';
+import { useAudioPlayerController } from '@/hooks/use-audio-player-controller';
 import { useTheme } from '@/hooks/use-theme';
+import { formatTime } from '@/lib/audio';
+import { EVENTS, logEvent } from '@/lib/eventLog';
 
 const items = audioItemsForSession(todaySession.id);
 
 export default function BriefingSessionScreen() {
   const theme = useTheme();
   const router = useRouter();
-  const [index, setIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const audio = useAudioPlayerController(items);
   const [savedIds, setSavedIds] = useState<string[]>([]);
 
-  const item = items[index];
-  const total = items.length;
+  const item = audio.current;
   const category = categoryById(item.categoryId);
   const isSaved = savedIds.includes(item.id);
-  // mock 진행률: 챕터 위치 기반 표시값
-  const progress = total > 1 ? index / (total - 1) : 0;
+  const progress = audio.durationSec > 0 ? audio.positionSec / audio.durationSec : 0;
 
-  const goPrev = () => {
-    if (index === 0) return;
-    logEvent(EVENTS.previousChapterClicked, { from: item.id });
-    setIndex(index - 1);
-    setIsPlaying(true);
-  };
-  const goNext = () => {
-    if (index >= total - 1) return;
-    logEvent(EVENTS.nextChapterClicked, { from: item.id });
-    setIndex(index + 1);
-    setIsPlaying(true);
-  };
-  const togglePlay = () => {
-    logEvent(isPlaying ? EVENTS.newsSkipped : EVENTS.newsPlayed, { id: item.id });
-    setIsPlaying((p) => !p);
-  };
-  const toggleSave = () => {
+  const toggleSave = () =>
     setSavedIds((prev) => (isSaved ? prev.filter((x) => x !== item.id) : [...prev, item.id]));
-  };
+
   const openExplore = () => {
     logEvent(EVENTS.exploreMoreOpened, { id: item.id });
     router.push('/explore-more');
   };
 
+  const statusLabel =
+    audio.status === 'loading'
+      ? '오디오 불러오는 중…'
+      : audio.status === 'error'
+        ? '오디오 재생 실패 (샘플 접근 불가) — 이전/다음은 계속 가능'
+        : audio.status === 'completed'
+          ? '브리핑 완료 · 재생 버튼으로 다시 듣기'
+          : audio.usingFallbackAudio
+            ? '샘플 오디오 재생 중 (실제 음성 TTS는 나중에 연결)'
+            : '';
+
   return (
-    <ScrollView
-      style={{ backgroundColor: theme.background }}
-      contentContainerStyle={styles.content}>
+    <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.content}>
       <View style={styles.inner}>
         <View style={styles.metaRow}>
           <ThemedText type="smallBold" themeColor="textSecondary">
-            {category?.name} · Chapter {index + 1} / {total}
+            {category?.name} · Chapter {audio.index + 1} / {audio.total}
           </ThemedText>
-          <StatusBadge status="mock" />
+          <StatusBadge status="partial" />
         </View>
 
-        <AmbientVisual active={isPlaying} />
+        <AmbientVisual active={audio.isPlaying} />
 
         <ThemedText type="subtitle" style={styles.title}>
           {item.title}
@@ -74,18 +66,31 @@ export default function BriefingSessionScreen() {
           {item.shortSummary}
         </ThemedText>
 
-        <ProgressBar progress={progress} />
+        <ProgressBar progress={progress} onSeekFraction={audio.seekToFraction} />
+        <View style={styles.timeRow}>
+          <ThemedText type="small" themeColor="textSecondary">
+            {formatTime(audio.positionSec)}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {formatTime(audio.durationSec)}
+          </ThemedText>
+        </View>
 
         <ChapterControls
-          isPlaying={isPlaying}
-          canPrev={index > 0}
-          canNext={index < total - 1}
-          onPrev={goPrev}
-          onTogglePlay={togglePlay}
-          onNext={goNext}
+          isPlaying={audio.isPlaying}
+          canPrev={audio.canPrev}
+          canNext={audio.canNext}
+          onPrev={audio.previous}
+          onTogglePlay={audio.togglePlay}
+          onNext={audio.next}
         />
 
-        {/* 저장 / 더 알아보기 */}
+        {statusLabel ? (
+          <ThemedText type="small" themeColor="textSecondary" style={styles.statusLabel}>
+            {statusLabel}
+          </ThemedText>
+        ) : null}
+
         <View style={styles.actions}>
           <Pressable
             onPress={toggleSave}
@@ -109,7 +114,7 @@ export default function BriefingSessionScreen() {
 
         <ThemedView type="backgroundElement" style={styles.note}>
           <ThemedText type="small" themeColor="textSecondary">
-            재생 중에는 본문 전체를 보여주지 않습니다. 실제 오디오·TTS는 나중에 연결됩니다.
+            재생 중에는 본문 전체를 보여주지 않습니다. 실제 음성(TTS)은 나중에 연결됩니다.
           </ThemedText>
         </ThemedView>
       </View>
@@ -128,6 +133,13 @@ const styles = StyleSheet.create({
   },
   title: { textAlign: 'center', fontSize: 24, lineHeight: 32 },
   summary: { textAlign: 'center' },
+  timeRow: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: -Spacing.two,
+  },
+  statusLabel: { textAlign: 'center' },
   actions: { flexDirection: 'row', gap: Spacing.three, marginTop: Spacing.two },
   actionBtn: {
     flexDirection: 'row',
@@ -138,10 +150,5 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
   },
   pressed: { opacity: 0.7 },
-  note: {
-    width: '100%',
-    borderRadius: Spacing.three,
-    padding: Spacing.three,
-    marginTop: Spacing.two,
-  },
+  note: { width: '100%', borderRadius: Spacing.three, padding: Spacing.three, marginTop: Spacing.two },
 });
