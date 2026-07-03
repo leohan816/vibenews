@@ -192,3 +192,54 @@ export interface EventLog {
   payload: Record<string, unknown>;
   createdAt: string;
 }
+
+// ── taxonomy 3축 (설계문서 10의 일부 반영) ──
+export type SourceType =
+  | 'youtube'
+  | 'rss'
+  | 'web'
+  | 'github'
+  | 'reddit'
+  | 'x'
+  | 'image'
+  | 'gif'
+  | 'html'
+  | 'manual';
+
+export type ContentKind =
+  | 'news'
+  | 'analysis'
+  | 'tutorial'
+  | 'opinion'
+  | 'research'
+  | 'community_signal'
+  | 'github_update'
+  | 'product_update'
+  | 'product_detail'
+  | 'document'
+  | 'internal_note';
+
+export type TopicCategory =
+  | 'News'
+  | 'AI'
+  | 'Health'
+  | 'Finance'
+  | 'K-Beauty'
+  | 'Beauty'
+  | 'Business'
+  | 'Developer'
+  | 'Science'
+  | 'Lifestyle'
+  | 'Internal';
+
+// "오늘의 흐름" — 하단 카드 단위(UI/mock). 전체 설계는 10_DataModel의 TopicCluster/ContentItem.
+// Category(상단 필터) ≠ TopicCluster(오늘의 흐름) 를 코드에서도 분리한다.
+export interface TopicCluster {
+  id: string;
+  title: string;
+  categoryId: string; // 상단 CategoryFilter와 매칭
+  itemCount: number;
+  estimatedDurationMin: number;
+  tags: string[];
+  hasNewItems: boolean;
+}

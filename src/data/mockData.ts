@@ -11,6 +11,7 @@ import type {
   SavedCard,
   ScheduledBriefing,
   SourceMeta,
+  TopicCluster,
   VoiceCommand,
 } from './types';
 
@@ -75,6 +76,14 @@ export const categories: Category[] = [
 
 export const TODAY_TOTAL_ITEMS = categories.reduce((s, c) => s + c.preparedItemCount, 0);
 export const TODAY_TOTAL_MINUTES = categories.reduce((s, c) => s + c.estimatedDurationMin, 0);
+
+// "오늘의 흐름"(TopicCluster) — 하단 카드. 상단 CategoryFilter(categories)와 별개 개념.
+export const topicClusters: TopicCluster[] = [
+  { id: 'tc-ai-agent', title: 'AI 에이전트 흐름', categoryId: 'ai', itemCount: 7, estimatedDurationMin: 10, tags: ['Agent', 'Browser', 'Claude'], hasNewItems: true },
+  { id: 'tc-sleep', title: '수면·대사 건강', categoryId: 'health', itemCount: 4, estimatedDurationMin: 6, tags: ['수면', '단백질', '혈당'], hasNewItems: true },
+  { id: 'tc-rate-etf', title: '금리와 ETF', categoryId: 'invest', itemCount: 3, estimatedDurationMin: 5, tags: ['금리', 'AI반도체', 'ETF'], hasNewItems: false },
+  { id: 'tc-kbeauty', title: 'K-Beauty 유통 흐름', categoryId: 'kbeauty', itemCount: 4, estimatedDurationMin: 6, tags: ['선케어', '더마', '수출'], hasNewItems: true },
+];
 
 export const sourceMetas: SourceMeta[] = [
   {
