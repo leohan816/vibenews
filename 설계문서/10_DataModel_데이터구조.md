@@ -908,6 +908,120 @@ export interface JsonContractMeta {
 }
 ```
 
+## Source Pool & Editorial Curation 타입 (future)
+
+콘텐츠를 어디서 가져오고(Source Pool), MD 지정 소스와 Hot Topic을 어떻게 구분하며, 후보를 어떻게 선별할지.
+전략은 [15_Source_Pool_and_Editorial_Curation](15_Source_Pool_and_Editorial_Curation.md).
+
+```ts
+export type OwnerType = 'editorial' | 'system' | 'user' | 'internal_project';
+
+export type CandidateReason =
+  | 'editorial_source'
+  | 'hot_topic'
+  | 'user_requested'
+  | 'internal_project_relevance'
+  | 'recurring_watch';
+
+export interface SourcePool {
+  id: string;
+  name: string;
+  description: string;
+  category: TopicCategory;
+  subcategories: string[];
+  sources: string[]; // EditorialSource.id 등
+  enabled: boolean;
+  ownerType: OwnerType;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// MD/운영자가 정한 소스(가장 신뢰). 실제 fetch는 future.
+export interface EditorialSource {
+  id: string;
+  name: string;
+  sourceType: SourceType;
+  url: string;
+  category: TopicCategory;
+  subcategories: string[];
+  defaultTags: string[];
+  language: string;
+  trustLevel: 'high' | 'medium' | 'low';
+  updateFrequency: 'hourly' | 'daily' | 'weekly' | 'manual';
+  priority: 'core' | 'normal' | 'watchlist';
+  enabled: boolean;
+  notes: string;
+}
+
+// 시스템이 감지한 급상승 주제(과장 위험 -> 검수 전 확정 금지).
+export interface HotTopic {
+  id: string;
+  title: string;
+  category: TopicCategory;
+  subcategory: string;
+  tags: string[];
+  entities: string[];
+  trendScore: number; // sourceCount/recency/diversity/userInterestMatch/editorialPriority/novelty
+  sourceCount: number;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  candidateSources: string[];
+  whyHot: string;
+  riskLevel: SourceRiskLevel;
+  shouldBrief: boolean;
+}
+
+export interface CategoryNode {
+  id: string;
+  name: string; // TopicCategory 문자열
+  description: string;
+  subcategories: string[]; // SubcategoryNode.id
+  defaultTags: string[];
+  riskPolicy: string;
+  enabled: boolean;
+}
+
+export interface SubcategoryNode {
+  id: string;
+  parentCategoryId: string;
+  name: string; // 예: 'Sleep' | '수면'
+  description: string;
+  defaultTags: string[];
+  exampleTopicClusters: string[];
+  enabled: boolean;
+}
+
+// Source Pool -> SourceCandidate -> (선별) -> ContentItem
+export interface SourceCandidate {
+  id: string;
+  sourcePoolId: string;
+  sourceType: SourceType;
+  url: string;
+  title: string;
+  category: TopicCategory;
+  subcategory: string;
+  tags: string[];
+  entities: string[];
+  candidateReason: CandidateReason;
+  editorialPriority: 'core' | 'normal' | 'watchlist';
+  hotTopicScore: number;
+  userInterestScore: number;
+  riskLevel: SourceRiskLevel;
+  fetchStatus: 'pending' | 'fetching' | 'fetched' | 'skipped' | 'failed';
+  selectedForProcessing: boolean;
+}
+
+// Source 단계에서 미리 예측하는 품질/위험(처리 여부·방식 결정).
+export interface QualityPrediction {
+  likelyInformationDensity: InformationDensity;
+  likelyBriefingMode: BriefingMode;
+  likelyUserValue: number; // 0-1
+  likelyRisk: SourceRiskLevel;
+  requiresVerifier: boolean;
+  requiresHumanReview: boolean;
+}
+```
+
 ## 구현 체크리스트
 
 - [ ] `src/data/types.ts` 가 위 정의와 일치

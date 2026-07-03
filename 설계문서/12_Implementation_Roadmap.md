@@ -130,3 +130,49 @@ BriefingMode/InformationDensity는 이 파이프라인 안에서 결정한다(30
 - 품질 전략 정본: [14_Video_Briefing_Quality_Strategy](14_Video_Briefing_Quality_Strategy.md)
 - 타입 정본(VideoContentMap 등): [10_DataModel](10_DataModel.md)
 - Gold Sample Library: `samples/video_briefing`
+
+## Source Pool / Editorial Curation (수집 선행 단계)
+
+핵심 문장: **"실제로 수집하기 전에, 무엇을 어디서 가져올지(Source Pool)와 무엇을 승격시킬지(Editorial Curation)를 먼저 설계로 고정한다."**
+
+앞의 Content Intelligence 파이프라인(① YouTube URL 입력 ~)은 "이미 소스가 정해진 이후"를 다룬다. 그 **앞단**에서 VibeNews는 아무 콘텐츠나 가져오지 않는다. 콘텐츠 후보를 가져오는 전체 원천 목록인 **Source Pool**과, 그 후보 중 무엇을 ContentItem으로 승격할지 결정하는 **Editorial Curation**, 그리고 이를 분류하는 **Category/Subcategory taxonomy**를 실제 수집 구현보다 먼저 설계·mock로 고정한다. 설계 정본: [15_Source_Pool_and_Editorial_Curation](15_Source_Pool_and_Editorial_Curation.md). 타입 정본: [10_DataModel](10_DataModel.md).
+
+### 왜 수집보다 먼저 고정하는가
+- 무엇을 가져올지 정하기 전에 수집기를 붙이면, 저품질·과장 후보까지 모두 요약/TTS로 흘러가 **비용·품질**이 무너진다.
+- 소스 단계에서 **QualityPrediction**으로 미리 걸러야, 좋은 후보만 Content Intelligence로 승격되어 중복 요약/TTS를 피한다.
+- 분류 체계(Category/Subcategory)가 먼저 있어야 후보를 일관되게 배치하고 개인화 매칭이 가능하다.
+
+### Source Pool (4유형)
+Source Pool = VibeNews가 콘텐츠 후보를 가져오는 전체 원천 목록. 아무거나 안 가져온다.
+
+| 유형 | 뜻 | 신뢰/위험 |
+|------|-----|-----------|
+| Editorial Source | MD/운영자 지정 | 가장 신뢰 |
+| Hot Topic Source | 시스템 감지 트렌드 | 과장 위험 |
+| User Requested Source | 사용자 URL/주제 | 사용자 의도 반영 |
+| Internal Project Source | VibeNews/Cosmile/Foundation/SIASIU 연결 | future |
+
+### 파이프라인 선행 단계 (수집 앞단)
+실제 fetch/analyze 이전에 아래를 먼저 수행한다. 모든 후보를 처리하지 않는다.
+
+`Source Pool → SourceCandidate 생성 → scoring(QualityPrediction 포함) → selected 후보만 fetch/analyze → Content Intelligence(ContentItem) → Global News Pool → Personal Briefing Assembly`
+
+| 단계 | 산출/상태 | 비고 |
+|------|-----------|------|
+| Source Pool | 4유형 원천 목록 | Editorial/Hot Topic/User Requested/Internal Project |
+| SourceCandidate 생성 | 후보 레코드 | 원천에서 콘텐츠 후보만 뽑아냄(아직 fetch 아님) |
+| scoring | score(editorial priority/hot topic/user interest/risk) | 높은 후보만 승격 대상 |
+| QualityPrediction | likelyInformationDensity/likelyBriefingMode/likelyUserValue/likelyRisk/requiresVerifier/requiresHumanReview | 소스 단계 품질 예측. 좋은 소스라고 항상 deep 아님 |
+| selected만 fetch/analyze | selected 후보 | score 낮은 후보는 여기서 탈락(비용/품질 관리) |
+| Content Intelligence | ContentItem | 위 15단계 파이프라인으로 승격 |
+
+QualityPrediction은 소스 단계에서 미리 BriefingMode(quick 1-2분 / standard 5-8분 / deep 10-15분)와 InformationDensity(low/medium/high)를 **예측**만 한다(확정은 이후 파이프라인에서). 좋은 소스라고 항상 deep이 아니며, 30분 좋은 영상의 기본값도 standard(5-8분)이다.
+
+### 이번 작업 범위 (설계 + mock)
+- **포함:** Source Pool·Editorial Curation·Category/Subcategory taxonomy를 설계·mock로 고정. 예: Health 하위 Subcategory = 수면/혈당/장건강/보충제/운동회복.
+- **future(이번 제외):** 실제 외부 수집(fetch), Hot Topic detector, Qwen 8B / DeepSeek 모델 요약, Fish Audio TTS, 백엔드 API. 이번엔 설계 + mock taxonomy만 만든다.
+
+### 관련 문서 (Source Pool)
+- 설계 정본: [15_Source_Pool_and_Editorial_Curation](15_Source_Pool_and_Editorial_Curation.md)
+- 타입 정본: [10_DataModel](10_DataModel.md)
+- 품질 전략 정본: [14_Video_Briefing_Quality_Strategy](14_Video_Briefing_Quality_Strategy.md)

@@ -311,3 +311,50 @@ transcript
   [03_Briefing](03_Briefing_예약_카테고리_브리핑.md)
 - 샘플 기준: `samples/video_briefing/` · 로드맵: [12_Roadmap](12_Implementation_Roadmap.md)
 - 구현 기록: `docs/구현로그/2026-07-03_video_briefing_quality_strategy.md`
+
+---
+
+## Source 단계 품질 예측 (QualityPrediction)
+
+VibeNews의 품질은 **두 단계**로 결정된다.
+
+| 단계 | 산출물 | 결정하는 것 |
+| ---- | ------ | ----------- |
+| (1) 요약 품질 | `VideoContentMap` / `AnalyticSummary` | 원본 이해·구조 재구성·누락/왜곡 방지 |
+| (2) 음성 마사지 품질 | `SpokenAudioScript` | 청취 지속성(끝까지 듣게 되는가) |
+
+- 요약이 정확해도 음성 스크립트가 딱딱하면 사용자는 중간에 끊는다. 반대로 낭독은 매끄러운데 알맹이가 빠지면 신뢰가 무너진다. 두 품질을 **따로** 관리한다.
+
+### 왜 Source 단계에서 미리 예측하는가
+
+- 모든 후보를 처리하지 않는다. Source Pool -> SourceCandidate 단계에서 **fetch/analyze 전에** 품질을 미리 예측해, 어느 후보를 ContentItem으로 승격할지·어느 파이프라인(quick/standard/deep)에 태울지·검수를 붙일지 판단한다(비용·품질 관리).
+- 소스 4유형(Editorial / Hot Topic / User Requested / Internal Project)에 따라 예측 기본값이 다르다. 예: Editorial Source는 신뢰 높음, Hot Topic Source는 과장 위험 높음.
+
+### QualityPrediction 필드 (설계 레벨, mock)
+
+| 필드 | 의미 | 예시 값 |
+| ---- | ---- | ------- |
+| `likelyInformationDensity` | 예상 정보 밀도 | low / medium / high |
+| `likelyBriefingMode` | 예상 브리핑 모드 | quick / standard / deep |
+| `likelyUserValue` | 예상 사용자 가치 | low / medium / high |
+| `likelyRisk` | 예상 위험(과장·오정보) | low / medium / high |
+| `requiresVerifier` | 검수 모델(2nd-pass) 필요 여부 | true / false |
+| `requiresHumanReview` | 사람 검수 필요 여부 | true / false |
+
+### 예측 규칙 예시
+
+| 소스 특성 | 예측 결과 |
+| --------- | --------- |
+| 건강 새 연구·투자/법률/의료 주장 | `requiresVerifier` true, `likelyRisk` high |
+| 반복·잡담 많은 영상 | `likelyBriefingMode` quick, `likelyInformationDensity` low |
+| 고밀도 기술/사업 영상(창업/시장 구조) | `likelyBriefingMode` standard 또는 deep, `likelyInformationDensity` high |
+| Hot Topic Source(시스템 감지 트렌드) | `likelyRisk` 상향, 과장 여부 확인 대상 |
+| Editorial Source(MD/운영자 지정) | 신뢰 기본 높음, 밀도·가치로 mode 결정 |
+
+### 핵심 원칙
+
+- **좋은 소스라고 항상 deep이 아니다.** 신뢰도와 브리핑 길이는 별개다.
+- 브리핑 모드는 **정보 밀도(`likelyInformationDensity`)와 사용자 가치(`likelyUserValue`)** 로 결정한다. 반복 많으면 신뢰 소스라도 quick.
+- `likelyRisk`가 높으면 `requiresVerifier`/`requiresHumanReview`를 켜 (1) 요약 품질 단계에서 과장·왜곡을 걸러낸다.
+- QualityPrediction은 **예측값**이다. 실제 fetch/analyze 후 값과 달라지면 실측으로 갱신한다.
+- 타입 정본: [10_DataModel](10_DataModel_데이터구조.md) (`QualityPrediction`). Source Pool·소스 4유형 정의: [15_Source_Pool_and_Editorial_Curation](15_Source_Pool_and_Editorial_Curation.md).

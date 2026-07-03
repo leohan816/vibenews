@@ -86,3 +86,42 @@ score(item, profile) =
 - **source/risk policy는 내부 정책이며 아직 Settings UI에 노출하지 않는다.** SourceAdapter·민감기능(쿠키/로그인/insane-search) 기본 비활성, Agent Reach는 "1차 정적 점검 기준 사용 후보"로만 내부 취급 — 사용자 대면 설정 항목 아님.
 - `UserInterestProfile`은 개인화 입력만 담고, 수집/저장 정책은 core 내부(정본: [10_DataModel](./10_DataModel_데이터구조.md))에서 관리.
 - 원문 전체 저장 회피 원칙에 따라, 참조는 `ContentItemId` 등 식별자 중심으로 유지.
+
+## Editorial Source·Subcategory 관리 (운영자/future)
+
+> Source Pool(콘텐츠 후보 원천 전체 목록)의 관리와, 사용자가 고르는 관심 분류를 구분한다.
+> 소스 관리는 **운영자(MD) 영역**, 사용자 Settings는 **관심 표현 영역**이다.
+> 타입 정본은 [10_DataModel](./10_DataModel_데이터구조.md)(`EditorialSource`/`SubcategoryNode`), 소스 큐레이션 정본은 [15_Source_Pool_and_Editorial_Curation](./15_Source_Pool_and_Editorial_Curation.md) 참조. 아래는 설계 레벨 서술(future/mock).
+
+### Editorial Source는 운영자(MD) 영역 — Settings 미노출
+
+- **Editorial Source**는 MD(운영자)가 지정하는 신뢰 소스(채널/RSS/repo/사이트)로, Source Pool 4유형 중 가장 신뢰가 높다(Hot Topic/User Requested/Internal Project와 구분).
+- 소스별 운영 속성(`trustLevel`/`priority`/`updateFrequency`)은 **운영자 전용**이며, 일반 사용자 Settings UI에는 **노출하지 않는다**. 별도 future 운영 화면(운영자 콘솔)에서만 편집.
+- 사용자는 "어떤 소스를 넣고 뺄지"를 직접 만지지 않는다. source/risk policy(SourceAdapter·민감기능·Agent Reach 등)는 앞 절과 동일하게 **계속 미노출**.
+
+| 항목 | 값(개념) | 노출 대상 |
+|---|---|---|
+| Editorial Source 목록 | 채널/RSS/repo/사이트 | 운영자(MD) 전용, future 운영 화면 |
+| `trustLevel` | 신뢰 등급 | 운영자 전용 |
+| `priority` | 편성 우선순위 | 운영자 전용 |
+| `updateFrequency` | 갱신 주기 | 운영자 전용 |
+| source/risk policy | 내부 정책 | 미노출(사용자·운영 UI 공통 비대상) |
+
+### 사용자 Settings에는 '관심 Subcategory 선택'만 (mock/future)
+
+- 사용자가 만질 수 있는 것은 **관심 표현**뿐이다. 향후 Settings에 **관심 Subcategory 선택**(Category 안의 중간 분류) 정도만 노출 가능(mock/future).
+- 계층: Category → **Subcategory** → TopicCluster → Tag → Entity. 사용자는 Category(큰 방)와 Subcategory(중간 방)까지만 고르고, 하위 TopicCluster/Tag/Entity 매칭은 개인화 점수 로직이 자동 처리.
+- 예) Health Category → Subcategory: 수면 / 혈당 / 장건강 / 보충제 / 운동회복.
+- 이 선택은 `UserInterestProfile`의 관심 신호를 보강하는 입력이며, 소스 지정/편성과는 무관(사용자는 소스가 아니라 **관심 분류**를 고른다).
+
+| 구분 | 사용자 Settings | 운영자(MD) 화면 |
+|---|---|---|
+| 다루는 대상 | 관심 Category/Subcategory 선택 | Editorial Source(소스 등록·편성) |
+| 타입 | `SubcategoryNode`(선택 참조) | `EditorialSource` |
+| 상태 | mock/future(노출 가능) | future 운영 화면 |
+| source/risk policy | 미노출 | 미노출 |
+
+### 타입 참조
+
+- `EditorialSource` — MD 지정 소스(채널/RSS/repo/사이트) + `trustLevel`/`priority`/`updateFrequency`. 정본: [10_DataModel](./10_DataModel_데이터구조.md).
+- `SubcategoryNode` — Category 하위 중간 분류 노드(예: Health→수면/혈당/장건강/보충제/운동회복). 정본: [10_DataModel](./10_DataModel_데이터구조.md).
