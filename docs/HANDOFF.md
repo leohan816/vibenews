@@ -1,7 +1,7 @@
 # VibeNews 핸드오프 문서
 
 > 이 문서 하나로 다음 사람이(또는 다음 세션의 AI가) VibeNews의 현재 상태를 파악하고 바로 이어서 작업할 수
-> 있도록 정리한다. 최종 업데이트: **2026-07-04** · 최신 커밋: **`8034473`** (master).
+> 있도록 정리한다. 최종 업데이트: **2026-07-05** · 최신 커밋: **`2c3ab50`** (master).
 
 ---
 
@@ -15,7 +15,7 @@
 
 ---
 
-## 1. 현재 상태 요약 (2026-07-04)
+## 1. 현재 상태 요약 (2026-07-05)
 
 | 영역 | 상태 |
 | --- | --- |
@@ -143,6 +143,8 @@ Source Pool (Editorial/Hot Topic/User/Internal)
 | `2f8784e` | **Candidate Review & TTS Approval Pipeline** 설계(문서 16 + 타입 8종) + **K-Beauty→Skin Care** 교체(문서 + 최소 mock 코드) |
 | `c4e5ee8` | **Neo-Retro AI Radio 디자인 방향** 문서화(문서 17) |
 | `8034473` | **Listen 홈 Neo-Retro 1차 리디자인**(index/topic-cluster-card/_layout) |
+| `8330dfd` | **핸드오프 + TODO 문서**(docs/HANDOFF.md, docs/TODO.md) |
+| `2c3ab50` | **Agent Reach = fallback/최후 수단 추출기** 역할 명시(문서 06/TODO/HANDOFF + 메모리) |
 
 (이전: `e587805` 영상 샘플 검증, `e510d51` 영상 품질 전략, `9a4fdc6` 포맷/타입 sync, `bece456` taxonomy UI 등)
 
