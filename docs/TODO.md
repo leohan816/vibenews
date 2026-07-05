@@ -59,6 +59,7 @@
 > 각 항목은 실제 구현 전 설계 세부화 + 사용자 승인 필요. 실제 수집/모델/TTS 호출은 아직 전부 금지 상태였음.
 
 - [ ] 🧱 **SourceAdapter** 첫 구현 (예: RSS) — core 도구 비종속 유지 (설계문서 06/15)
+- [ ] 🧱 **Agent Reach = fallback/최후 수단 추출기.** 평소엔 안 씀. RSS/Jina/yt-dlp/GitHub로 **자료를 못 찾거나 접근이 어려울 때**(차단·로그인·희귀 소스) 마지막 수단으로만. `BlockedPageFallback` 계층. 안전 제약(무인 자동설치·쿠키 접근 금지, 격리 실행) 유지 (설계문서 06)
 - [ ] 🧱 **Source Pool → SourceCandidate scoring** 로직 (설계문서 15)
 - [ ] 🧱 **CandidatePreview 생성**(Worker LLM=Qwen 8B) + **Admin 승인 화면** (설계문서 16)
 - [ ] 🧱 **Content Intelligence 파이프라인**(Builder LLM): ContentItem/VideoContentMap/AnalyticSummary

@@ -42,6 +42,7 @@
 - VibeNews core는 [`SourceAdapter`](10_DataModel_데이터구조.md) 인터페이스에만 의존하고, 실제 수집 도구는 **교체 가능한 어댑터**로 둔다.
 - **Agent Reach**(`github.com/Panniantong/agent-reach`)는 이 어댑터의 **후보**일 뿐 **core 의존성이 아니다.** 성격상 capability layer / installer / doctor이며, 실제 읽기는 `yt-dlp`·`gh CLI`·Jina Reader 등 **upstream tool**을 사용한다.
 - **1차 정적 점검 기준 사용 후보**(완전한 보안 감사 아님). 평가 상세: `docs/구현로그/2026-07-03_agent_reach_evaluation.md`.
+- **역할(중요) — fallback/최후 수단.** 평상시엔 쓰지 않는다. 하지만 **일반 어댑터(RSS·Jina Reader·yt-dlp·GitHub 등)로 자료를 못 찾거나 접근이 어려울 때**(차단 페이지·로그인 필요·희귀/비표준 소스) **마지막 수단으로 Agent Reach를 쓴다.** 기본 파이프라인의 core가 아니라 `BlockedPageFallback`/최후 수단 계층에 둔다. 이때도 위 금지/제약(무인 자동설치·쿠키 접근·약관 리스크)은 그대로 지킨다.
 - 금지/제약:
   - `agent-reach install --env=auto` **금지**(sudo·apt/brew·Node/gh 설치·apt 저장소/키링 등 시스템 변경 위험).
   - 공유 서버/여러 서비스가 도는 서버에서 **자동 설치 금지.**

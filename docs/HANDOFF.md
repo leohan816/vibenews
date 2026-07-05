@@ -160,7 +160,9 @@ Source Pool (Editorial/Hot Topic/User/Internal)
 5. **보안**: `.env`/API key/service role/raw transcript/실사용자 데이터/full copyrighted transcript **커밋
    금지**. `.env.example`만. push 전 민감정보 검사.
 6. **Agent Reach**(github.com/panniantong/agent-reach): "1차 정적 점검 기준 사용 후보"이며 core dep 아님.
-   `install --env=auto` 금지, browser-cookie3 기본 금지.
+   `install --env=auto` 금지, browser-cookie3 기본 금지. **역할 = fallback/최후 수단 추출기**: 평소엔 안
+   쓰고, 일반 어댑터(RSS/Jina/yt-dlp/GitHub)로 **자료를 못 찾거나 접근이 어려울 때만** 마지막 수단으로 사용
+   (`BlockedPageFallback` 계층). — Leo 결정(2026-07-05).
 7. Video Briefing 등 특정 작업은 **반드시 VibeNews repo에서만**(SIASIU/Foundation/Cosmile repo에서 금지).
 
 ---
