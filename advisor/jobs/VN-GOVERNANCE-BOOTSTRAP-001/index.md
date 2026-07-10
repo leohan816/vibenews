@@ -1,12 +1,21 @@
 # VN-GOVERNANCE-BOOTSTRAP-001
 
 ```text
-STATUS: AWAITING_INDEPENDENT_INITIAL_REVIEW
+STATUS: VALIDATED_AWAITING_POINTER_PUBLISH
 AUTHORING_BASE: 4e47b3f21ca4f41a6da5e835fc2beaf792dc9583
+AUTHORING_HEAD: ad2c5ef10a3c7d2b92cbd8e876592b9f5ed867e2
+INITIAL_REVIEW_REPORT_HEAD: 2a38a6e515a5e3f9586ef395f4800e188f20a921
+PATCH_HEAD: NOT_APPLICABLE
+DELTA_REVIEW_REPORT_HEAD: NOT_APPLICABLE
+REVIEWER_FINAL_VERDICT: PASS
+ALL_REQUIRED_SESSIONS_RELOADED: true
+RUNTIME_CHANGE_STATUS: ZERO
+FINAL_CONTENT_HEAD: RECORDED_IN_11_FINAL_POINTER_AFTER_THIS_INDEX_IS_COMMITTED
 REPO: /home/leo/Project/VibeNews
 BRANCH: master
 TOPOLOGY: SINGLE_REPO
-NEXT_ACTOR: VibeNews Reviewer
+SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
+NEXT_ACTOR: VibeNews Advisor for pointer publish
 ```
 
 ## Job artifacts
@@ -25,5 +34,10 @@ NEXT_ACTOR: VibeNews Reviewer
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 - [`11_FINAL_POINTER.md`](11_FINAL_POINTER.md)
 
-No bootstrap Worker brief, Worker launcher, Worker run, or Worker result exists. Reviewer outputs are created only by
-the separate Reviewer session under `runs/reviewer/VN-GOVERNANCE-BOOTSTRAP-001/`.
+## Review artifacts
+
+- [`REVIEW_RESULT.md`](../../../runs/reviewer/VN-GOVERNANCE-BOOTSTRAP-001/REVIEW_RESULT.md)
+- [`REVIEW_RESULT_POINTER.md`](../../../runs/reviewer/VN-GOVERNANCE-BOOTSTRAP-001/REVIEW_RESULT_POINTER.md)
+
+No bootstrap Worker or patch artifact exists. Final audit evidence is complete; `11_FINAL_POINTER.md` is published
+only after the final content commit provides its exact SHA.
