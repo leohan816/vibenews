@@ -13,6 +13,11 @@ snapshot, playback persistence는 이 문서 마지막의 `YouTube Add · Global
 [18번 문서](18_YouTube_Add_Global_Resume_MVP.md)가 우선한다. 실제 MVP data를 mock 배열로 표현하거나 raw
 caption을 client type에 넣지 않는다.
 
+D-009-A current provider scope는 `public_low_risk_youtube_technology` 하나다. 이 문서의 future
+`UserInterestProfile`, `DailyRecap`, personal connection/history field는 현재 DeepSeek/Fish pipeline input이
+아니며 연결 edge도 만들지 않는다. Provider policy uncertainty는 아래 exact assurance record로 남기고, local
+scope/payload failure와 expanded scope는 provider call 전에 막는다.
+
 ## 타입 정의
 
 > 아래 코드블록은 그대로 복사해 `src/data/types.ts` 로 옮길 수 있는 형태다. 각 타입은 한 섹션에
@@ -1236,22 +1241,155 @@ export type ProviderAttemptSubstage =
   | 'builder_aggregate'
   | 'verifier'
   | 'tts';
+export type ProviderName = 'deepseek' | 'fish_audio';
+export type ProviderRole = 'deepseek_builder' | 'deepseek_verifier' | 'fish_tts';
+export type SourceScope = 'public_low_risk_youtube_technology';
+export type ScopeApprovalStatus = 'active' | 'revoked' | 'superseded';
+export type ExpandedScopeReason =
+  | 'private_or_user_uploaded_document'
+  | 'internal_company_data'
+  | 'personal_conversation_or_memory'
+  | 'personal_data_health_finance_legal_or_election'
+  | 'children_or_biometric_data'
+  | 'multi_user_production'
+  | 'public_commercial_launch'
+  | 'third_party_customer_content'
+  | 'confidential_or_regulated_information'
+  | 'scope_ambiguous';
+export type ProviderPayloadGuardOutcome =
+  | 'allowed'
+  | 'scope_review_required'
+  | 'payload_rejected'
+  | 'runtime_binding_rejected';
+export type ProviderPolicyLookupStatus = 'retrieved' | 'unavailable' | 'changed_since_review';
+export type ProviderPublicStatementCode =
+  | 'INPUT_COLLECTED'
+  | 'SERVICE_IMPROVEMENT_OR_TRAINING_STATED'
+  | 'OPT_OUT_RIGHT_STATED'
+  | 'DELETION_RIGHT_STATED'
+  | 'PURPOSE_BUSINESS_LEGAL_RETENTION_STATED'
+  | 'DOWNSTREAM_APP_PROCESSING_NOT_COVERED'
+  | 'USER_CONTENT_COLLECTED'
+  | 'RESEARCH_ANALYTICS_PRODUCT_DEVELOPMENT_STATED'
+  | 'SYSTEM_NEED_RETENTION_STATED'
+  | 'FREE_TIER_MODEL_IMPROVEMENT_STATED';
+export type VerifiedLocalControlCode =
+  | 'VERSIONED_SCOPE_ATTESTATION'
+  | 'PRE_PROVIDER_PAYLOAD_ALLOWLIST'
+  | 'NO_RAW_PROVIDER_BODY_LOG'
+  | 'EPHEMERAL_CAPTION_LOCAL_DELETION';
+export type UnverifiedProviderControlCode =
+  | 'CONFIGURED_ACCOUNT_NO_TRAINING_EFFECT'
+  | 'CONFIGURED_ACCOUNT_OPT_OUT_EFFECT'
+  | 'PROVIDER_RETENTION_WINDOW'
+  | 'PROVIDER_SIDE_DELETION'
+  | 'CONFIGURED_TIER';
+export type ProviderPolicyAssurance = 'LIMITED_AND_UNVERIFIED';
+export type LocalDataControls = 'VERIFIED';
+export type ProviderSideDeletion = 'NOT_VERIFIED';
+export type ProviderSideNoTraining = 'NOT_VERIFIED';
+export type ProductionPrivacyApproval = 'NOT_GRANTED';
 export type CaptionArtifactDeleteStatus = 'pending' | 'deleted' | 'overdue' | 'failed';
 export type PlaybackMode = 'automatic' | 'manual_replay';
 ```
+
+### D-009-A provider evidence types
+
+```ts
+export interface ProviderScopeApproval {
+  id: string;
+  userId: 'leo';
+  originKind: 'manual_batch' | 'channel';
+  manualBatchId: string | null;
+  channelId: string | null; // exactly one is non-null and matches originKind
+  approvalVersion: number;
+  sourceScope: SourceScope;
+  attestationVersion: 'd009a.public-youtube-tech.v1';
+  status: ScopeApprovalStatus;
+  approvedAt: string;
+  revokedAt: string | null;
+}
+
+export interface ProviderPolicySnapshot {
+  id: string;
+  provider: ProviderName;
+  officialPolicyUrls: string[];
+  officialApiUrl: string;
+  publicApiSurfaceId: 'deepseek.post.chat-completions' | 'fish.post.v1.tts';
+  policyEffectiveOrUpdatedDate: string;
+  reviewedAt: string;
+  documentSetSha256: string | null;
+  lookupStatus: ProviderPolicyLookupStatus;
+  publicStatementCodes: ProviderPublicStatementCode[];
+  verifiedLocalControlCodes: VerifiedLocalControlCode[];
+  controlsNotIndependentlyVerified: UnverifiedProviderControlCode[];
+  providerPolicyAssurance: ProviderPolicyAssurance;
+  localDataControls: LocalDataControls;
+  providerSideDeletion: ProviderSideDeletion;
+  providerSideNoTraining: ProviderSideNoTraining;
+  productionPrivacyApproval: ProductionPrivacyApproval;
+}
+
+export interface ProviderRuntimeBinding {
+  id: string;
+  providerRole: ProviderRole;
+  publicApiSurfaceId: 'deepseek.post.chat-completions' | 'fish.post.v1.tts';
+  auditKeyId: 'provider-audit-hmac-v1';
+  endpointOriginHmac: string;
+  modelSelectorHmac: string;
+  reasoningSelectorHmac: string | null;
+  referenceSelectorHmac: string | null;
+  configVersionHash: string;
+  credentialPresent: true;
+  verifiedAt: string;
+}
+
+export interface ProviderPayloadAudit {
+  id: string;
+  jobId: string;
+  providerRole: ProviderRole;
+  providerAttemptId: string | null; // pre-network block이면 null
+  guardVersion: 'provider-payload-guard.v1';
+  scopeAttestationVersion: 'd009a.public-youtube-tech.v1';
+  outcome: ProviderPayloadGuardOutcome;
+  recursiveFieldNames: string[]; // sorted names only; values/text/body 금지
+  semanticPayloadBytes: number | null; // allowed only
+  semanticPayloadSha256: string | null; // allowed only
+  forbiddenFieldCount: number;
+  expandedScopeReason: ExpandedScopeReason | null;
+  checkOrdinal: number;
+  checkedAt: string;
+}
+```
+
+Policy snapshot의 exact labels는 바꿀 수 없다. `VERIFIED`는 local scope/allowlist/log/deletion test만 뜻하고
+provider-side retention/training/deletion 또는 production compliance를 뜻하지 않는다. Public policy document-set
+hash/URL/date/statement codes는 versioned public fields다. Runtime endpoint/model/reasoning/reference는 raw value가
+아니라 server-only audit key로 만든 role-tagged HMAC만 DB에 두며 key/original은 Git·DB·log·result에 없다.
+Key의 exact boundary는 `/var/lib/vibenews-dev/private/provider-audit-hmac-v1.key` (`0700` parent, `0600` file)고
+DB에는 safe `auditKeyId`만 둔다. Existing binding 뒤 key missing/mode mismatch는 overwrite가 아니라 readiness
+failure다.
+Migration은 public seed constants와 schema만 포함한다. Runtime-local control preflight가 실제 통과하기 전에는
+exact-label snapshot/assurance event를 insert하지 않으며 실패 시 `VERIFIED`를 기록하지 않고 call을 막는다.
+Payload bytes/hash는 `allowed`에만 non-null이다. Scope/payload/runtime rejection은 attempt와 bytes/hash를 null로
+두고 safe field names/count/reason만 남기므로 rejected private content의 hash도 보존하지 않는다.
 
 ### authoritative entity map
 
 | Entity/table | 정본 field/constraint |
 | --- | --- |
 | User | fixed `id='leo'`, `timezone='Asia/Seoul'` |
-| ManualBatch | user, status, explicit `approvedAt`, idempotency key; 1~10 item |
+| ManualBatch | user, status, explicit `approvedAt`, idempotency key; matching active ProviderScopeApproval references it; 1~10 item |
 | ManualBatchItem | ordinal, raw input SHA-256, nullable safe canonical URL/video ID, independent status/safe error; raw submitted URL 미보존 |
-| Channel | stable YouTube channel ID, canonical URL, ON/OFF standing approval + version, poll cursor/due, tombstone; user당 non-deleted 최대 5 |
+| Channel | stable YouTube channel ID, canonical URL, ON/OFF standing approval + version, poll cursor/due, tombstone; matching active ProviderScopeApproval references it; user당 non-deleted 최대 5 |
+| ProviderScopeApproval | exactly one manual-batch/channel FK, exact source scope + attestation/approval version, active/revoked/superseded status; source text 없음 |
 | ChannelDiscovery | channel/video unique, published/seen, discovered/deferred/queued/revoked state; limit hit 보존 |
 | SourceVideo | unique video ID, channel ID, public metadata, duration, caption metadata/provenance; original media 없음 |
-| ProcessingJob | source FK, exactly one manual-item/channel-discovery origin FK, approval version, stage/state, eligible/defer, verifier count 0..2, lease/idempotency/error |
-| ProviderAttempt | macro stage + exact substage + ordinal (`builder_chunk` 1..20, 나머지 0) + logical submission 1..2, separate prompt/schema/config version hashes, request/output hash; raw body 없음 |
+| ProcessingJob | source/scope-approval FKs, exactly one manual-item/channel-discovery origin FK, approval version, stage/state, eligible/defer, verifier count 0..2, lease/idempotency/error |
+| ProviderPolicySnapshot | provider + official URLs/public API surface/date/review/document-set hash/lookup status, statement/local/unverified codes, exact five labels; public facts only |
+| ProviderRuntimeBinding | role + public API surface + endpoint/model/reasoning/reference HMACs/config hash/credential-presence/verified time; actual values 없음 |
+| ProviderAttempt | macro stage + exact substage + ordinal (`builder_chunk` 1..20, 나머지 0) + logical submission 1..2, separate prompt/schema/config version hashes, request/output hash + scope FK; DeepSeek/Fish에는 policy/runtime FK mandatory, local caption에는 null; raw body 없음 |
+| ProviderPayloadAudit | job/role, nullable attempt, guard/attestation versions, outcome, sorted field names/bytes/hash/forbidden count/reason; value/body/text 없음 |
 | TemporaryCaptionArtifact | relative temp key, hash/bytes/language/kind, create/expire/delete; expire <= create+24h |
 | ContentItem | user/source unique, parsed Builder/Verifier versions/hashes, taxonomy, correction/tombstone, `audioReadyAt` |
 | Category/Subcategory | stable slug/name hierarchy and FKs |
@@ -1283,6 +1421,11 @@ Builder와 Verifier는 generic `modelRole` 문자열로 합치지 않는다.
 - server PASS: score >=9.0 AND critical failure 0 AND model verdict PASS
 - ProviderAttempt unique `(job,substage,ordinal,logicalAttempt)`; 각 Builder chunk가 충돌 없이 독립 기록되고
   Verifier logical attempt 총합은 최대 2
+- Builder chunk는 required public caption text/evidence/public metadata만, aggregate/revision은 strict generated
+  outputs/public metadata/allowlisted finding refs만, Verifier는 candidate/public evidence pack만 사용한다.
+- Current MVP의 `UserInterestProfile`, ListeningHistory, DailyRecap, notes/conversation/private project context는
+  provider graph와 FK가 없다. Fish wire payload는 final approved SpokenAudioScript, configured reference identifier,
+  minimum synthesis parameters만이고 VideoContentMap/AnalyticSummary/raw transcript/app ID/secret는 없다.
 
 Provider model/reference의 실제 값과 raw caption/provider body는 schema field가 아니다.
 
@@ -1308,9 +1451,15 @@ post-snapshot audio_ready -> excluded until a new session
 - batch/item, channel count+insert, poll claim+3 promotions, TTS reservation/provider-success receipt materialized
   counts/finalize, session snapshot,
   playback mutation은 모두 immediate write transaction이다.
+- Manual batch submit과 channel ON은 matching scope approval을 같은 transaction에서 만들고, OFF/delete는
+  revoke한다. Provider claim은 job approval version과 active scope row를 다시 확인한 뒤 guard/audit까지
+  transactionally 예약하며 실패하면 network attempt row를 만들지 않는다.
 - unique: video ID, active channel per user/channel ID, job/API idempotency, ContentItem user/source,
-  AudioAsset content, session/content, client mutation.
+  AudioAsset content, session/content, client mutation; active scope origin/version; provider role/config version;
+  provider payload `(job,role,checkOrdinal)`과 non-null attempt.
 - claim index: job `(state,eligibleAt,createdAt)`, channel `(status,nextPollAt)`, lease expiry.
+- evidence index: policy `(provider,lookupStatus,reviewedAt)`, runtime binding `verifiedAt`, payload audit
+  `(outcome,checkedAt)`; every actual DeepSeek/Fish attempt has policy/runtime/scope FKs and one allowed payload audit.
 - queue index: ContentItem `(user,audioReadyAt,id)`, PlaybackItem `(user,status)` and unique partial `(user)` where
   status is in_progress.
 - limits는 CHECK + service transaction 둘 다 검증하고 hit는 `deferred`로 보존한다.
@@ -1330,3 +1479,9 @@ post-snapshot audio_ready -> excluded until a new session
 - [ ] Exactly-one TTS receipt/count per provider success, exactly-one AudioAsset, verifier max-2, daily max-10,
       single active invariant 검증
 - [ ] Raw caption/original media/secret/provider actual value field가 schema에 없음
+- [ ] DeepSeek/Fish policy snapshot이 official URL/date/review/API surface/public statement/local/unverified codes와
+      exact five assurance labels를 보존하고 raw configured values는 role HMAC binding으로만 증명
+- [ ] Active current-scope approval + pre-provider payload audit 없이는 network attempt가 없고, expanded/ambiguous
+      scope는 null attempt audit 뒤 `SCOPE_ESCALATION_REQUIRED`
+- [ ] DeepSeek aggregate에 user preference/history가 없고 Fish payload에 raw transcript, VideoContentMap,
+      AnalyticSummary, private user data, credentials/secrets가 없음을 schema/test로 검증

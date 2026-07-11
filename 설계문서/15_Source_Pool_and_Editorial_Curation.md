@@ -15,6 +15,38 @@
 > 일반 Source Pool/Hot Topic/다중 source 확장은 future다. 단 18번 private MVP의 manual YouTube URL과
 > 승인 channel은 실제 public-caption/DeepSeek/Fish Audio vertical slice이며 mock으로 대체하지 않는다.
 
+## D-009-A current provider scope
+
+이 MVP에서 provider로 보낼 수 있는 source scope는
+`public_low_risk_youtube_technology` 하나다. 아래의 Health/Finance/Beauty/Business/Internal, Hot Topic,
+UserInterestProfile, internal project relevance 예시는 long-term taxonomy/future이지 current live-provider
+allowlist가 아니다. Current source는 Leo가 manual CTA 또는 channel ON에서 public YouTube low-risk technology라고
+versioned attestation한 canonical video/channel이어야 한다. `user_requested`라는 이유만으로 승인되지 않는다.
+
+Caption을 public 방식으로 ephemeral local 취득한 뒤 `ProviderPayloadGuard`가 active scope approval/version,
+canonical public provenance, denied/private/personal/sensitive markers, ambiguity, exact provider-role payload fields,
+runtime binding을 **provider call 전에** 검사한다. Scope 판단을 Builder/Verifier에 맡기지 않는다. Builder가
+current allowed technology category와 다른 결과를 내면 후속 provider/TTS도 중단한다. Aggregate context에는
+user preference, history, project, notes, conversation 또는 private context가 없다.
+
+다음은 모두 `SCOPE_ESCALATION_REQUIRED`이고 Leo/GPT의 새 explicit decision 전에는 fetch한 text를 provider로
+보내거나 retry/toggle/operator override할 수 없다.
+
+- private 또는 user-uploaded document
+- internal company data
+- personal conversation 또는 memory
+- personal-data health/finance/legal/election use
+- children 또는 biometric data
+- multi-user production
+- public commercial launch
+- third-party customer content
+- confidential 또는 regulated information
+- 위 범위인지 local에서 명확히 결정할 수 없는 source
+
+Provider public-policy lookup 실패나 provider-side retention/training/deletion control 미검증은 이 current scope
+gate의 실패가 아니다. D-009-A exact limited/unverified record로 남고, local scope/payload control이 통과하면
+현재 slice만 계속한다. Production privacy approval은 없다.
+
 ---
 
 ## 1. Source Pool 개념
@@ -143,8 +175,9 @@ selectedForProcessing
 recurring_watch
 
 > **모든 후보를 다 처리하지 않는다.** 일반 editorial flow는 사람 review를 유지한다. 이 MVP의 manual
-> batch는 `분석·음성 생성` CTA가 명시적 승인이며, channel auto-processing ON은 해당 channel의 취소
-> 가능한 standing approval다. OFF/human-review-required/cap hit은 TTS나 자동 큐를 우회하지 않는다.
+> batch는 `분석·음성 생성` CTA가 명시적 처리 승인과 D-009-A scope attestation이며, channel
+> auto-processing ON은 해당 public technology channel의 취소 가능한 standing/scope approval다.
+> OFF/human-review-required/cap hit은 TTS나 자동 큐를 우회하지 않는다.
 > 상세: [16_Candidate_Review_and_TTS_Approval_Pipeline](16_Candidate_Review_and_TTS_Approval_Pipeline.md).
 
 ---
@@ -167,13 +200,16 @@ requiresHumanReview
 
 - 좋은 소스라고 항상 deep briefing을 만들지 않는다. **정보 밀도와 사용자 가치로 brief 길이를 결정**한다.
 - 요약 품질은 `VideoContentMap`에서 확인하고, 청취 지속성은 `SpokenAudioScript` 품질에서 확인한다.
+- 위 Health/투자/법률/의료 예시는 future risk-taxonomy 설명이다. D-009-A current provider run에는 해당 source나
+  personal data를 넣지 않으며 verifier requirement만 추가해 허용 범위로 바꾸지 않는다.
 
 ---
 
 ## 8. YouTube channel standing approval MVP
 
 - User `leo`는 최대 5개 channel을 stable channel ID로 등록한다.
-- ON 문구는 매시간 새 public-caption video를 자동 처리하는 standing approval임을 명시한다.
+- ON 문구는 이 public technology channel의 새 public-caption video를 매시간 처리하는 standing approval과
+  D-009-A scope attestation임을 명시하며 exact attestation version을 저장한다.
 - OFF/delete는 approval version을 올려 아직 시작하지 않은 job을 `approval_revoked`로 defer한다. 이미 만든
   derived content는 별도 user delete까지 유지한다.
 - poller는 YouTube public Atom feed를 exact channel ID로 매시간 읽고 existing deferred를 먼저 포함해
