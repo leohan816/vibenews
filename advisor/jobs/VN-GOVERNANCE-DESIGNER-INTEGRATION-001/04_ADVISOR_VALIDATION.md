@@ -84,3 +84,47 @@ The immutable design is therefore frozen at `b05ad62aa503567f64a36f449c84c31679b
 Reviewer report head remain evidence identities and do not replace the frozen content identity. Any later change to
 the frozen design path invalidates this freeze and must follow the Designer revision and same-Reviewer delta-review
 flow before Worker may resume.
+
+## Initial Worker implementation validation
+
+```text
+VALIDATION_PHASE: POST_WORKER_PRE_IMPLEMENTATION_REVIEW
+VALIDATION_STATUS: NEEDS_BOUNDED_WORKER_CORRECTION
+WORKER_INPUT_HEAD: 065e2815faafcb4d4b94c62940961c77ba1cf4f3
+WORKER_CONTENT_HEAD: 647efaa47cb5eda5c7e90ea2304fa00d0c23776b
+WORKER_POINTER_HEAD: f4b318a0059992a06512d4dc033110bd3d2bb988
+FROZEN_DESIGN_HEAD: b05ad62aa503567f64a36f449c84c31679ba9aee
+FROZEN_DESIGN_UNCHANGED: true
+RUNTIME_CHANGE_STATUS: ZERO
+DIRTY_STATE: clean
+IMPLEMENTATION_REVIEW_READY: false
+ADVISOR_VALIDATION_CORRECTION_ID: validation-correction-001
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 0
+NEXT_ACTOR: VibeNews Worker
+```
+
+The Advisor directly read all 24 Worker-created or changed Markdown files, verified both Worker commits and origin,
+confirmed the content commit contains exactly the 22 implementation subject paths plus `WORKER_RESULT.md`, confirmed
+the pointer commit changes only `WORKER_RESULT_POINTER.md`, and re-executed ancestry, path, integrity, canonical
+reachability, actor/depth/review/freeze/defect, corruption, frozen-design immutability, Reviewer-report immutability,
+and runtime-zero checks.
+
+Mechanical checks passed, but direct frozen-design conformance found these bounded pre-review defects:
+
+```text
+AIV-001: RESULT_REPORTING_PROTOCOL.md says the permanent Designer result preserves every required field, but its
+         DESIGN_RESULT schema replaces or omits required job fields including USER_VALUE, SUCCESS_CRITERIA,
+         CURRENT_STATE, the distinct mission/user/system flow and data/interface fields, SECURITY_AND_PRIVACY,
+         COPYRIGHT_OR_POLICY, MIGRATION_FROM_CURRENT_GOVERNANCE, and SESSION_RELOAD_REQUIREMENTS.
+AIV-002: The canonical Reviewer result schema lacks distinct DESIGN_CONTENT_HEAD and DESIGN_SUBJECT_PATHS fields,
+         even though DESIGN_REVIEW occurs before FROZEN_DESIGN_HEAD exists and the frozen design requires the
+         review interface to carry design subject identity.
+AIV-003: AGENT_ROLE_PROTOCOL.md presents the permanent flow as Advisor selecting Designer, Worker, or Reviewer and
+         later says canonical governance is authored by Designer and Worker. That wording is ambiguous against
+         mandatory Designer participation and the explicit rule that Designer may not author canonical governance.
+```
+
+No Reviewer verdict has yet been issued for the implementation, so this is an Advisor validation correction rather
+than a Reviewer-triggered implementation rework. It does not consume either automatic implementation rework attempt.
+Only the same Worker may correct the exact two canonical paths and write the declared correction evidence. The
+implementation subject is not review-ready until the Advisor validates the corrected content/pointer commits.
