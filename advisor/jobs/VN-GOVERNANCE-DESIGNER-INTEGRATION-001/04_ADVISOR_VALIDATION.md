@@ -51,3 +51,36 @@ NEXT_ACTOR: VibeNews Reviewer
 Advisor validation permits only `DESIGN_REVIEW` of the immutable design content head above. It does not approve or
 freeze the design. `FROZEN_DESIGN_HEAD` remains pending until the existing independent Reviewer returns `PASS` and
 Advisor validates the report-only commit and subject identity.
+
+## Design review validation and freeze
+
+```text
+VALIDATION_PHASE: POST_DESIGN_REVIEW
+VALIDATION_STATUS: PASS
+DESIGN_REVIEW_ID: design-review-001
+REVIEW_TYPE: DESIGN_REVIEW
+REVIEWER_VERDICT: PASS
+VERDICT_TARGET_HEAD: b05ad62aa503567f64a36f449c84c31679ba9aee
+VERDICT_TARGET_PATHS: runs/designer/VN-GOVERNANCE-DESIGNER-INTEGRATION-001/DESIGN_RESULT.md
+DESIGN_REVIEW_REPORT_HEAD: 544a6e8cdfed528acb52758c1aaf5c9d44206b28
+DESIGN_REVISION_ATTEMPTS_USED: 0
+DESIGN_VERSION: 1
+FROZEN_DESIGN_HEAD: b05ad62aa503567f64a36f449c84c31679ba9aee
+FROZEN_DESIGN_PATHS: runs/designer/VN-GOVERNANCE-DESIGNER-INTEGRATION-001/DESIGN_RESULT.md
+DESIGN_FREEZE_STATUS: FROZEN
+BLOCKING_FINDINGS: none
+REQUIRED_PATCHES: none
+RISK_ACCEPTANCE_REQUIRED: false
+NEXT_ACTOR: VibeNews Worker
+```
+
+The Advisor directly read both Reviewer files and verified that report commit
+`544a6e8cdfed528acb52758c1aaf5c9d44206b28` is pushed, descends from the Advisor routing commit, changes only the two
+declared `design-review-001` report paths, uses the required containing-commit sentinel, and leaves the worktree
+clean. The `PASS` applies only to the exact content head and subject path above. Reviewer watch items N1–N3 remain
+mandatory implementation-review checks but are not unresolved or accepted material risks.
+
+The immutable design is therefore frozen at `b05ad62aa503567f64a36f449c84c31679ba9aee`. The Designer pointer head and
+Reviewer report head remain evidence identities and do not replace the frozen content identity. Any later change to
+the frozen design path invalidates this freeze and must follow the Designer revision and same-Reviewer delta-review
+flow before Worker may resume.

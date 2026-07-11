@@ -1,7 +1,7 @@
 # VN-GOVERNANCE-DESIGNER-INTEGRATION-001
 
 ```text
-STATUS: DESIGN_REVIEW_PENDING
+STATUS: IMPLEMENTATION_PENDING
 REPO: /home/leo/Project/VibeNews
 BRANCH: master
 BASE: b69421da59cb4b99683e8196618d1b8ab6eab040
@@ -12,7 +12,9 @@ DESIGN_REVIEW_REQUIRED: true
 DESIGN_CONTENT_HEAD: b05ad62aa503567f64a36f449c84c31679ba9aee
 DESIGN_POINTER_HEAD: f8e7ed29286d7846a0d216c7745bf4e3633b00fe
 DESIGN_REVIEW_ID: design-review-001
-NEXT_ACTOR: VibeNews Reviewer
+DESIGN_REVIEW_REPORT_HEAD: 544a6e8cdfed528acb52758c1aaf5c9d44206b28
+FROZEN_DESIGN_HEAD: b05ad62aa503567f64a36f449c84c31679ba9aee
+NEXT_ACTOR: VibeNews Worker
 ```
 
 ## Advisor artifacts
@@ -26,6 +28,9 @@ NEXT_ACTOR: VibeNews Reviewer
 - [`reviews/design-review-001/REVIEWER_BRIEF.md`](reviews/design-review-001/REVIEWER_BRIEF.md)
 - [`reviews/design-review-001/REVIEWER_HANDOFF_PROMPT.md`](reviews/design-review-001/REVIEWER_HANDOFF_PROMPT.md)
 - [`reviews/design-review-001/REVIEWER_RUN_PROMPT.md`](reviews/design-review-001/REVIEWER_RUN_PROMPT.md)
+- [`implementation/WORKER_BRIEF.md`](implementation/WORKER_BRIEF.md)
+- [`implementation/WORKER_HANDOFF_PROMPT.md`](implementation/WORKER_HANDOFF_PROMPT.md)
+- [`implementation/WORKER_RUN_PROMPT.md`](implementation/WORKER_RUN_PROMPT.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 
 ## Exclusive result paths
