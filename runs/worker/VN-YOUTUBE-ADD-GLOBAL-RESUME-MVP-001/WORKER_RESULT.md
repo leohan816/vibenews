@@ -10,7 +10,10 @@ BRANCH: master
 BASE_COMMIT: 60b6983942f92de123e4fe37fd735353cec06611
 WORKER_INPUT_HEAD: 60b6983942f92de123e4fe37fd735353cec06611
 FROZEN_DESIGN_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
-FROZEN_DESIGN_PATHS: 설계문서/18_YouTube_Add_Global_Resume_MVP.md
+DESIGN_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001-DESIGN-001
+DESIGN_VERSION: 2
+FROZEN_DESIGN_PATHS: (14 paths, from WORKER_BRIEF.md) runs/designer/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/DESIGN_RESULT.md; 설계문서/README.md; 설계문서/00_제품_전체지도.md; 설계문서/01_화면_구조_네비게이션.md; 설계문서/02_Listen_오디오_플레이어.md; 설계문서/03_Briefing_예약_카테고리_브리핑.md; 설계문서/10_DataModel_데이터구조.md; 설계문서/11_EventLog_사용행동기록.md; 설계문서/12_Implementation_Roadmap.md; 설계문서/13_FEATURE_INDEX.md; 설계문서/14_Video_Briefing_Quality_Strategy.md; 설계문서/15_Source_Pool_and_Editorial_Curation.md; 설계문서/16_Candidate_Review_and_TTS_Approval_Pipeline.md; 설계문서/18_YouTube_Add_Global_Resume_MVP.md
+DESIGN_REVIEW_EVIDENCE: design-review-001 at report head f46ea708d9768ce883effbb97bcd15cbddfa1227; design-delta-review-001 PASS at report head 8c9a94480fcaca7104edcb832f283c9e541c60b9 (DR1-F1 closed under D-009-A; DR1-F2 retained non-blocking)
 DESIGN_CONFORMANCE_REQUIRED: true
 DESIGN_CONFORMANCE_RESULT: implemented per frozen design §4-§17. Advisor read-only cross-check
   corrections were applied to CONFORM to the design (they revealed incomplete/incorrect
@@ -28,6 +31,8 @@ DESIGN_CONFORMANCE_RESULT: implemented per frozen design §4-§17. Advisor read-
   streaming feed size-cap (Content-Length precheck + incremental accumulation + immediate cancel).
 DESIGN_DEFECT_STATUS: NONE
 DESIGN_DEFECT_DETAILS: NONE
+DESIGN_DEFECT_CHECKPOINT_ALLOWED: true
+DESIGN_DEFECT_CHECKPOINT_HEAD: NOT_APPLICABLE
 RESULT_HEAD: RECORDED_AFTER_RESULT_PUSH_IN_POINTER
 RESULT_STATUS: IMPLEMENTED_AWAITING_IMPLEMENTATION_REVIEW
 LIVE_PRIVATE_ACCEPTANCE: NOT_RUN_PENDING_IMPLEMENTATION_REVIEW
@@ -42,6 +47,13 @@ VALIDATION_CORRECTION_001: Advisor validation found that server/src/http/schemas
   — all green. Delivered as an additive validation-correction content commit (these two files +
   WORKER_RESULT.md) followed by a pointer-only commit; IMPLEMENTATION_REVIEW_SUBJECT_HEAD is the
   correction content head. No secrets touched, no live calls.
+EVIDENCE_ONLY_CORRECTION_002: This WORKER_RESULT.md was updated (Markdown-only) to satisfy the canonical
+  WORK_RESULT schema (RESULT_REPORTING_PROTOCOL section 4 + WORKER_BRIEF.md): added DESIGN_ID,
+  DESIGN_VERSION, the complete 14 FROZEN_DESIGN_PATHS, DESIGN_REVIEW_EVIDENCE, the design-defect
+  checkpoint fields, FORBIDDEN_FILES_UNTOUCHED, and explicit STAGED/UNSTAGED/UNTRACKED. It is a Worker
+  EVIDENCE record delivered as an additive evidence-only commit; it does NOT replace or enter the
+  86-path verdict subject and does NOT change CORRECTION_CONTENT_HEAD 767e0d2, the frozen design,
+  product code, tests, or runtime. All prior truthful evidence above is preserved unchanged.
 CHANGED_FILES: (exact set is the content commit diff from WORKER_INPUT_HEAD; grouped)
 - server (new): src/config.ts, src/db/{connection,migrate}.ts, src/domain/{enums,state-machines,contracts}.ts,
   src/providers/{caption,deepseek-builder,deepseek-verifier,fish-tts}.ts,
@@ -57,6 +69,12 @@ CHANGED_FILES: (exact set is the content commit diff from WORKER_INPUT_HEAD; gro
 - scripts/server-smoke.mjs, .env.example, app.json, tsconfig.json, package.json, package-lock.json
 - docs/{환경변수,실행방법,테스트방법,변경기록}.md + docs/구현로그/2026-07-11_youtube_add_global_resume_mvp.md
 - runs/worker/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/WORKER_RESULT.md (this result, in the content commit)
+FORBIDDEN_FILES_UNTOUCHED: true — the 60b6983..767e0d2 subject diff touches no frozen design subject
+  (설계문서/**, runs/designer/**), no governance/protocol file (docs/agent/**, CLAUDE.md, AGENTS.md), no
+  advisor/** brief or other actor result (runs/reviewer/**, runs/rework/**), and no secret. .env.server.local
+  was never opened, inspected, copied, or committed and remains gitignored. No systemd/Tailscale/state-dir
+  runtime was mutated. Evidence: `git diff --name-only 60b6983..767e0d2` lists only §16.1 allowlist paths
+  plus WORKER_RESULT.md; `git ls-files` tracks no secret/media/transcript.
 LINT_SCOPE_RATIONALE: `expo lint` auto-writes eslint.config.js (a non-allowlist repo path), so
   `npm run lint` invokes ESLint 9 directly with the official Expo flat config
   (--config node_modules/eslint-config-expo/flat.js) over the exact frozen implementation TS/TSX
@@ -92,8 +110,12 @@ TEST_RESULTS:
 - security: no raw caption/provider body/script/audio in Git/logs/fixtures; no provider secret values;
   .env.server.local never opened and gitignored; only allowlist paths changed
 BUILD_RESULTS: NOT_APPLICABLE (no production build produced this pass; Expo bundling is a device step)
-STAGED_FILES: content commit = the exact implementation allowlist paths + this WORKER_RESULT.md; the
-  pointer commit stages only WORKER_RESULT_POINTER.md
+STAGED_FILES: each commit stages only its declared files — content commit e73ce65 = the exact
+  implementation allowlist paths + WORKER_RESULT.md; validation-correction content commit 767e0d2 =
+  server/src/http/schemas.ts + server/src/providers/caption.ts + WORKER_RESULT.md; each pointer/
+  evidence commit stages only its single WORKER_RESULT_POINTER.md or WORKER_RESULT.md (evidence-only).
+UNSTAGED_FILES: none at any commit
+UNTRACKED_FILES: none after each push (worktree clean; verified via git status --porcelain --untracked-files=all)
 RUNTIME_ACCESS: false
 DB_ACCESS: false
 SECRET_ACCESS: false
