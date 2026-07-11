@@ -161,3 +161,32 @@ runtime/product path changed.
 This validation fixes the immutable implementation-review subject at
 `00074e3828bfe7d8fc967f1d5c012dbc1542e2c5`. It does not approve the implementation. Only the existing independent
 Reviewer may issue the `IMPLEMENTATION_REVIEW` verdict.
+
+## Implementation review validation and reload gate
+
+```text
+VALIDATION_PHASE: POST_IMPLEMENTATION_REVIEW
+VALIDATION_STATUS: PASS
+IMPLEMENTATION_REVIEW_ID: implementation-review-001
+REVIEW_TYPE: IMPLEMENTATION_REVIEW
+REVIEWER_VERDICT: PASS
+VERDICT_TARGET_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
+VERDICT_TARGET_PATHS: 22 declared governance Markdown subject paths
+IMPLEMENTATION_REVIEW_REPORT_HEAD: 531ab045bb110f6eb1b48b638c99bfa9f2d924eb
+BLOCKING_FINDINGS: none
+REQUIRED_PATCHES: none
+RISK_ACCEPTANCE_REQUIRED: false
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 0
+CANONICAL_SUBJECT_FROZEN_AFTER_PASS: true
+ALL_REQUIRED_SESSIONS_RELOADED: false
+NEXT_ACTOR: VibeNews Advisor; VibeNews Designer; VibeNews Worker; VibeNews Reviewer
+```
+
+The Advisor directly read both implementation-review files and verified that report commit
+`531ab045bb110f6eb1b48b638c99bfa9f2d924eb` descends from the Advisor review-routing commit, changes only the two
+declared `implementation-review-001` Reviewer paths, is pushed on `origin/master`, uses the containing-commit
+sentinel, and leaves the worktree clean. The report independently confirms all 16 implementation checks, design
+conformance, correction closure, actor ownership, frozen-design/report immutability, exact paths, and runtime zero.
+
+The post-PASS reload gate is open. No canonical subject path may change after this point without creating a new
+subject head and obtaining a new review verdict from the same Reviewer.

@@ -1,7 +1,7 @@
 # VN-GOVERNANCE-DESIGNER-INTEGRATION-001
 
 ```text
-STATUS: IMPLEMENTATION_REVIEW_PENDING
+STATUS: SESSION_RELOAD_PENDING
 REPO: /home/leo/Project/VibeNews
 BRANCH: master
 BASE: b69421da59cb4b99683e8196618d1b8ab6eab040
@@ -20,7 +20,8 @@ ADVISOR_VALIDATION_CORRECTION_ID: validation-correction-001
 CORRECTED_IMPLEMENTATION_SUBJECT_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
 CORRECTION_POINTER_HEAD: 9ac66add344766049b6b185209f936f85889f608
 IMPLEMENTATION_REVIEW_ID: implementation-review-001
-NEXT_ACTOR: VibeNews Reviewer
+IMPLEMENTATION_REVIEW_REPORT_HEAD: 531ab045bb110f6eb1b48b638c99bfa9f2d924eb
+NEXT_ACTOR: VibeNews Advisor; VibeNews Designer; VibeNews Worker; VibeNews Reviewer
 ```
 
 ## Advisor artifacts
@@ -43,6 +44,11 @@ NEXT_ACTOR: VibeNews Reviewer
 - [`reviews/implementation-review-001/REVIEWER_BRIEF.md`](reviews/implementation-review-001/REVIEWER_BRIEF.md)
 - [`reviews/implementation-review-001/REVIEWER_HANDOFF_PROMPT.md`](reviews/implementation-review-001/REVIEWER_HANDOFF_PROMPT.md)
 - [`reviews/implementation-review-001/REVIEWER_RUN_PROMPT.md`](reviews/implementation-review-001/REVIEWER_RUN_PROMPT.md)
+- [`reload/SESSION_RELOAD_INSTRUCTIONS.md`](reload/SESSION_RELOAD_INSTRUCTIONS.md)
+- [`reload/ADVISOR_RELOAD_RUN_PROMPT.md`](reload/ADVISOR_RELOAD_RUN_PROMPT.md)
+- [`reload/DESIGNER_RELOAD_RUN_PROMPT.md`](reload/DESIGNER_RELOAD_RUN_PROMPT.md)
+- [`reload/WORKER_RELOAD_RUN_PROMPT.md`](reload/WORKER_RELOAD_RUN_PROMPT.md)
+- [`reload/REVIEWER_RELOAD_RUN_PROMPT.md`](reload/REVIEWER_RELOAD_RUN_PROMPT.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 
 ## Exclusive result paths
