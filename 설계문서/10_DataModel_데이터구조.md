@@ -5,9 +5,13 @@
 전 화면이 공유하는 TypeScript 타입을 한곳에 정의한다. 실제 구현은 `src/data/types.ts` 이며, 이
 문서와 항상 동기화한다.
 
-## 현재 상태
+## 현재 상태와 정본 범위
 
-**mock** — 타입은 확정, 데이터는 `src/data/mockData.ts` 의 하드코딩 값이다.
+기존 화면 skeleton 타입과 `src/data/mockData.ts`는 현재 입력 head의 사실이다. 아래의 기존 client 타입은
+아직 연결되지 않은 product 영역의 참고 계약이다. YouTube Add, processing, AudioAsset, automatic queue,
+snapshot, playback persistence는 이 문서 마지막의 `YouTube Add · Global Resume MVP 정본`과
+[18번 문서](18_YouTube_Add_Global_Resume_MVP.md)가 우선한다. 실제 MVP data를 mock 배열로 표현하거나 raw
+caption을 client type에 넣지 않는다.
 
 ## 타입 정의
 
@@ -72,8 +76,7 @@ export interface NewsAudioItem {
   title: string;
   categoryId: string;
   durationSec: number;
-  audioUrl: string | null; // mock: null
-  transcript: string | null; // 재생 화면엔 노출 안 함
+  audioAssetId: string | null; // opaque private AudioAsset ID; ready 전 null
   shortSummary: string;
   chapterIndex: number;
   isCompleted: boolean;
@@ -114,7 +117,8 @@ export interface PlaybackState {
   status: PlaybackStatus; // idle/loading/playing/paused/completed/error
   repeatMode: RepeatMode;
   sessionCompleted: boolean; // 마지막 chapter까지 재생 완료
-  usingFallbackAudio: boolean; // audioUrl 없어 샘플 사용 중
+  automaticStatus: 'unheard' | 'in_progress' | 'completed' | 'skipped';
+  revision: number;
   updatedAt: string;
 }
 ```
@@ -519,7 +523,10 @@ export type AllowedUse =
   'production' | 'internal_only' | 'research_only' | 'fallback_only' | 'forbidden';
 ```
 
-### Entity · TopicCluster · SourceLocator · TranscriptSegment
+> `VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001`의 source/derived output은 항상 `internal_only`다. 나머지 값은
+> 기존 장기 source policy vocabulary이며 이 MVP의 public/production/fallback 권한이 아니다.
+
+### Entity · TopicCluster · SourceLocator · Caption evidence metadata
 
 ```ts
 export interface Entity {
@@ -558,10 +565,10 @@ export interface SourceLocator {
   commentId?: string;
 }
 
-export interface TranscriptSegment {
-  startSec?: number;
-  endSec?: number;
-  text: string;
+export interface CaptionEvidenceRef {
+  ref: string;
+  startMs: number;
+  endMs: number;
 }
 ```
 
@@ -580,13 +587,15 @@ export interface ContentItemSource {
   contentHash?: string;
 }
 
-export interface ContentTranscript {
-  status: 'none' | 'available' | 'generated' | 'failed';
-  source: 'caption' | 'auto_sub' | 'whisper' | 'none';
+export interface ContentCaptionMetadata {
+  status: 'none' | 'temporary_available' | 'deleted' | 'failed';
+  source: 'caption' | 'auto_sub' | 'none';
   language: string;
-  segments: TranscriptSegment[];
-  rawTextStoragePolicy: RawContentStoragePolicy; // 기본 temporary_cache_only
-  rawTextExpiresAt: string | null;
+  evidenceRefs: CaptionEvidenceRef[]; // 위치 reference만; text 없음
+  artifactSha256: string | null;
+  byteCount: number;
+  expiresAt: string | null;
+  deletedAt: string | null;
 }
 
 export interface ContentClaim {
@@ -630,11 +639,9 @@ export interface AudioScript {
 
 export interface AudioAsset {
   provider: 'fish_audio';
-  status: 'not_started' | 'generating' | 'generated' | 'failed';
-  voiceId: string;
-  model: string;
-  format: 'mp3' | 'wav' | 'opus';
-  audioUrl: string | null;
+  status: 'pending' | 'generating' | 'ready' | 'failed' | 'deleted';
+  ttsConfigVersion: string; // 실제 model/reference 값이 아닌 nonsecret config version
+  format: 'mp3';
   storageKey: string | null;
   durationSec: number;
   generatedAt: string | null;
@@ -664,7 +671,7 @@ export interface ContentItem {
   id: string;
   source: ContentItemSource;
   sourceLocators: SourceLocator[];
-  transcript: ContentTranscript | null;
+  captionMetadata: ContentCaptionMetadata | null; // raw caption text는 ContentItem에 없음
   analysis: ContentAnalysis;
   taxonomy: ContentTaxonomy;
   audioScript: AudioScript | null;
@@ -749,7 +756,7 @@ export interface VideoBriefingPipelineStep {
   name: string;
   input: string;
   output: string;
-  modelRole: string; // 예: 'qwen-8b:extraction' | 'deepseek:verify'
+  modelRole: string; // 이 MVP: 'deepseek:builder' | 'deepseek:verifier'
   qualityGate: string;
   failureMode: string;
 }
@@ -1027,6 +1034,10 @@ export interface QualityPrediction {
 후보 승인 → 처리 → DeepSeek 검수(9/10) → TTS-ready까지의 운영 게이트. 전략:
 [16_Candidate_Review_and_TTS_Approval_Pipeline](16_Candidate_Review_and_TTS_Approval_Pipeline.md).
 
+> 아래는 장기 editorial skeleton의 legacy 타입이다. 18번 MVP에서는 이 section의 `pass`/state shape를
+> 구현하지 않고 §YouTube Add 정본의 strict Builder/Verifier schemas와 DB enums를 사용한다. 그 MVP의
+> `maxAttempts=2`는 Verifier HTTP submission 총 2회이며 Builder revision은 그 사이 최대 1회다.
+
 ```ts
 export type CandidateApprovalStatus =
   | 'pending'
@@ -1039,13 +1050,12 @@ export type CandidateApprovalStatus =
   | 'tts_ready';
 
 export type ModelRole =
-  | 'worker_candidate_preview' // Qwen 8B
-  | 'builder_content_intelligence' // 더 큰 open-source
-  | 'builder_spoken_script'
-  | 'verifier_deepseek'
+  | 'deepseek_builder_content_intelligence'
+  | 'deepseek_builder_spoken_script'
+  | 'deepseek_verifier'
   | 'human_editor';
 
-export type FinalDecision = 'tts_ready' | 'revise_manually' | 'discard' | 'defer';
+export type FinalDecision = 'tts_ready' | 'revise_manually' | 'reject' | 'defer';
 
 // approval 전/후를 분리. TTS는 review 통과 후에만.
 export type CandidateProcessingState =
@@ -1068,7 +1078,7 @@ export type CandidateProcessingState =
   | 'tts_ready' // 음성 제작 가능 상태
   | 'tts_generated' // 실제 음성 파일 생성 완료
   | 'failed'
-  | 'discarded';
+  | 'deleted';
 
 // Admin에 표시되는 승인용 미리보기(최종 요약 아님).
 export interface CandidatePreview {
@@ -1084,7 +1094,7 @@ export interface CandidatePreview {
   tags: string[];
   entities: string[];
   recommendationReason: string;
-  shortSummary: string; // Qwen 8B 생성. 최종 요약 아님
+  shortSummary: string; // legacy preview field; MVP provider output은 strict Builder schema 사용
   whyItMatters: string;
   likelyInformationDensity: InformationDensity;
   likelyBriefingMode: BriefingMode;
@@ -1139,7 +1149,7 @@ export interface DeepSeekReviewResult {
   reviewedAt: string;
 }
 
-// 자동 수정 루프(최대 2회). 실패 시 human_review_required.
+// legacy future shape. MVP는 Verifier submission 총 2회, Builder revision 최대 1회.
 export interface ReviewLoopState {
   id: string;
   contentItemId: string;
@@ -1156,13 +1166,154 @@ export interface ReviewLoopState {
     | 'human_review_required'
     | 'tts_ready'
     | 'tts_generated'
-    | 'discarded';
+    | 'deleted';
   reviewResults: DeepSeekReviewResult[];
   finalDecision: FinalDecision | null;
   humanReviewer: string | null;
   humanDecisionReason: string | null;
 }
 ```
+
+## YouTube Add · Global Resume MVP 정본
+
+### 저장소와 소유권
+
+- Server SQLite가 source, approval, pipeline, derived content/audio, queue eligibility, immutable session
+  membership, canonical playback revision의 정본이다.
+- Device Expo SQLite는 한 device의 immediate checkpoint/cache/outbox다. server와 충돌하면 versioned
+  mutation 규칙으로 reconcile한다.
+- SecureStore는 opaque device bearer token만 저장한다. playback data의 정본이 아니다.
+- Raw caption은 server temp file에만 있고 DB/client/API/event/backup type이 없다.
+
+### enum
+
+```ts
+export type AutomaticPlaybackStatus = 'unheard' | 'in_progress' | 'completed' | 'skipped';
+export type JobState =
+  | 'queued'
+  | 'captioning'
+  | 'building'
+  | 'verifying'
+  | 'tts_queued'
+  | 'synthesizing'
+  | 'audio_ready'
+  | 'deferred'
+  | 'human_review_required'
+  | 'failed'
+  | 'canceled'
+  | 'deleted';
+export type DeferReason =
+  | 'daily_tts_cap'
+  | 'channel_poll_cap'
+  | 'approval_revoked'
+  | 'lease_recovery'
+  | 'retry_backoff'
+  | 'worker_unavailable'
+  | 'active_content_correction';
+export type SessionStatus = 'active' | 'interrupted' | 'completed';
+export type AudioAssetStatus = 'pending' | 'generating' | 'ready' | 'failed' | 'deleted';
+export type TtsGenerationReceiptStatus =
+  | 'requested'
+  | 'outcome_unknown'
+  | 'provider_failed'
+  | 'generated'
+  | 'staged'
+  | 'finalized'
+  | 'storage_failed'
+  | 'reconciled';
+export type ContentItemState =
+  | 'built'
+  | 'verified'
+  | 'human_review_required'
+  | 'audio_pending'
+  | 'audio_ready'
+  | 'failed'
+  | 'deleted';
+export type ProviderAttemptStatus = 'started' | 'succeeded' | 'failed' | 'timed_out';
+export type ProviderAttemptSubstage =
+  | 'caption'
+  | 'builder_chunk'
+  | 'builder_aggregate'
+  | 'verifier'
+  | 'tts';
+export type CaptionArtifactDeleteStatus = 'pending' | 'deleted' | 'overdue' | 'failed';
+export type PlaybackMode = 'automatic' | 'manual_replay';
+```
+
+### authoritative entity map
+
+| Entity/table | 정본 field/constraint |
+| --- | --- |
+| User | fixed `id='leo'`, `timezone='Asia/Seoul'` |
+| ManualBatch | user, status, explicit `approvedAt`, idempotency key; 1~10 item |
+| ManualBatchItem | ordinal, raw input SHA-256, nullable safe canonical URL/video ID, independent status/safe error; raw submitted URL 미보존 |
+| Channel | stable YouTube channel ID, canonical URL, ON/OFF standing approval + version, poll cursor/due, tombstone; user당 non-deleted 최대 5 |
+| ChannelDiscovery | channel/video unique, published/seen, discovered/deferred/queued/revoked state; limit hit 보존 |
+| SourceVideo | unique video ID, channel ID, public metadata, duration, caption metadata/provenance; original media 없음 |
+| ProcessingJob | source FK, exactly one manual-item/channel-discovery origin FK, approval version, stage/state, eligible/defer, verifier count 0..2, lease/idempotency/error |
+| ProviderAttempt | macro stage + exact substage + ordinal (`builder_chunk` 1..20, 나머지 0) + logical submission 1..2, separate prompt/schema/config version hashes, request/output hash; raw body 없음 |
+| TemporaryCaptionArtifact | relative temp key, hash/bytes/language/kind, create/expire/delete; expire <= create+24h |
+| ContentItem | user/source unique, parsed Builder/Verifier versions/hashes, taxonomy, correction/tombstone, `audioReadyAt` |
+| Category/Subcategory | stable slug/name hierarchy and FKs |
+| TopicCluster/Tag/Entity | normalized unique vocabularies plus ContentItem join tables |
+| AudioAsset | ContentItem FK unique, pending->generating->ready/failed/deleted, opaque storage key/hash/duration; exactly one per non-deleted ContentItem |
+| TtsGenerationReceipt | unique job/provider idempotency receipt, local day, reservation/outcome/hash/bytes/duration/staging status; uncertain outcome은 예약 유지, valid response만 success count |
+| PlaybackItem | `(user,content)`, four-state status, position/duration/manual counts/revision/timestamps |
+| GlobalPlaybackState | one row per user, nullable unique active content/session, position/revision |
+| BriefingSession | entry metadata, device run, snapshot time/status |
+| BriefingSessionItem | immutable `(session,ordinal,content)` membership/order, snapshot state/ready time |
+| PlaybackMutation | globally unique client mutation ID, device run + monotonic sequence, base/applied revision, action/position |
+| DailyTtsUsage | `(user,Asia/Seoul localDate)`, reserved + successful <=10; valid response만 successful, uncertain은 reserved |
+| WorkerSingleton | fixed lease owner/expiry/heartbeat, concurrency 1 |
+| AuditEvent | safe type/entity/status metadata only |
+
+모든 row는 UTC `createdAt/updatedAt`을 가지며 terminal/tombstone entity는 해당 timestamp를 추가한다.
+정확한 SQL field, FK, index, partial unique, migration은
+[18번 §8](18_YouTube_Add_Global_Resume_MVP.md#8-server-domaindata-model)을 그대로 구현한다.
+
+### Builder/Verifier schema ownership
+
+Builder와 Verifier는 generic `modelRole` 문자열로 합치지 않는다.
+
+- `builder.chunk.youtube-mvp.v1` + `builder-chunk-output.v1`
+- `builder.aggregate.youtube-mvp.v1` + `builder-output.v1`
+- `verifier.youtube-mvp.v1` + `verifier-output.v1`
+- BuilderOutput: derived title/summary, taxonomy, evidence-ref claims/numbers, Korean audioScript segments
+- VerifierOutput: verdict, overallScore, five dimension scores, criticalFailures, evidence-ref findings
+- server PASS: score >=9.0 AND critical failure 0 AND model verdict PASS
+- ProviderAttempt unique `(job,substage,ordinal,logicalAttempt)`; 각 Builder chunk가 충돌 없이 독립 기록되고
+  Verifier logical attempt 총합은 최대 2
+
+Provider model/reference의 실제 값과 raw caption/provider body는 schema field가 아니다.
+
+### automatic playback invariant
+
+```text
+one user -> at most one active in_progress ContentItem
+completed/skipped -> automatic eligibility false everywhere
+manual replay -> AutomaticPlaybackStatus unchanged
+new session order -> active in_progress first, then unheard by audioReadyAt,id
+session membership/order -> immutable
+post-snapshot audio_ready -> excluded until a new session
+```
+
+- unheard -> in_progress: native player가 실제 `playing=true`일 때
+- in_progress -> completed: native `didJustFinish` mutation일 때
+- unheard/in_progress -> skipped: explicit user skip일 때
+- pause/seek/exit은 in_progress를 유지하고 position만 update한다.
+- 경과 시간 임계값은 상태 전이나 제외 조건이 아니다.
+
+### transaction/index minimum
+
+- batch/item, channel count+insert, poll claim+3 promotions, TTS reservation/provider-success receipt materialized
+  counts/finalize, session snapshot,
+  playback mutation은 모두 immediate write transaction이다.
+- unique: video ID, active channel per user/channel ID, job/API idempotency, ContentItem user/source,
+  AudioAsset content, session/content, client mutation.
+- claim index: job `(state,eligibleAt,createdAt)`, channel `(status,nextPollAt)`, lease expiry.
+- queue index: ContentItem `(user,audioReadyAt,id)`, PlaybackItem `(user,status)` and unique partial `(user)` where
+  status is in_progress.
+- limits는 CHECK + service transaction 둘 다 검증하고 hit는 `deferred`로 보존한다.
 
 ## 구현 체크리스트
 
@@ -1174,3 +1325,8 @@ export interface ReviewLoopState {
 - [ ] (future) Content Intelligence
       타입(ContentItem/ContentAnalysis/ContentTaxonomy/AudioScript/AudioAsset/SourceLocator/Entity/TopicCluster)
       반영
+- [ ] Server migration이 MVP entity/FK/unique/index/CHECK와 일치
+- [ ] Device migration이 playback journal/outbox/revision을 app restart 뒤 보존
+- [ ] Exactly-one TTS receipt/count per provider success, exactly-one AudioAsset, verifier max-2, daily max-10,
+      single active invariant 검증
+- [ ] Raw caption/original media/secret/provider actual value field가 schema에 없음

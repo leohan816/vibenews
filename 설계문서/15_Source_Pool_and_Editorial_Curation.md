@@ -6,13 +6,14 @@
 
 ## 핵심 원칙 — 품질은 두 단계로 결정된다
 
-1. **요약 품질** — 원본의 핵심 주장·근거·예시·숫자·맥락을 잘 보존해야 한다. 일반 GPT에 스크립트/뉴스를
-   넣고 요약하는 수준은 **최소 기준**이다. VibeNews는 더 구조화된 `AnalyticSummary`/`VideoContentMap`을
+1. **요약 품질** — 원본의 핵심 주장·근거·예시·숫자·맥락을 잘 보존해야 한다. 일반 단문 요약은
+   **최소 기준**이다. VibeNews는 더 구조화된 `AnalyticSummary`/`VideoContentMap`을
    만든다.
 2. **음성용 마사지 품질** — 요약문을 그대로 TTS에 넣지 않는다. `AnalyticSummary`를 바탕으로 사람이 읽는
    듯한 `SpokenAudioScript`로 다시 쓴다. **사용자가 계속 들을지는 이 후처리 품질이 결정한다.**
 
-> 이번 작업은 설계·mock 수준만. 실제 외부 수집/Hot Topic 감지/모델 요약/TTS는 아직 구현하지 않는다.
+> 일반 Source Pool/Hot Topic/다중 source 확장은 future다. 단 18번 private MVP의 manual YouTube URL과
+> 승인 channel은 실제 public-caption/DeepSeek/Fish Audio vertical slice이며 mock으로 대체하지 않는다.
 
 ---
 
@@ -47,10 +48,8 @@ updateFrequency · priority · enabled · notes
 - `updateFrequency`: hourly / daily / weekly / manual
 - `priority`: core / normal / watchlist
 
-**예시(mock)**: AI Agent 관련 YouTube 채널 · GitHub release feed · 건강/보충제 연구 사이트 · K-Beauty 글로벌
-유통 뉴스 · 뷰티 성분 트렌드 사이트.
-
-> 초기에는 **mock source list만** 둔다. 실제 fetch 구현은 하지 않는다.
+장기 예시는 AI Agent 관련 YouTube 채널 · GitHub release feed · 연구/산업 사이트다. 이 MVP에서는
+사용자가 등록한 YouTube channel만 Editorial Source의 제한된 형태로 활성화한다.
 
 ---
 
@@ -80,8 +79,8 @@ novelty.
 | **Category** | 큰 분야 | 고정 8-10 | AI, Health, Finance, Skin Care, Beauty, Business, Developer, Science, Lifestyle, News |
 | **Subcategory** | Category 안의 중간 분류 | 카테고리별 | Health 안의 수면/혈당/장건강/보충제/운동·회복 |
 | **TopicCluster** | 오늘의 흐름(브리핑 단위) | 매일 가변 | "AI 에이전트 운영에서 검증 루프가 중요해지는 흐름" |
-| **Tag** | 세부 주제(여럿) | 콘텐츠당 3-8 | AI Agent, Verification Loop, Claude Code, 혈당관리, 수면회복 |
-| **Entity** | 등장한 이름 | 무제한 | OpenAI, Claude Code, DeepSeek, Fish Audio, GitHub |
+| **Tag** | 세부 주제(여럿) | 콘텐츠당 3-8 | React Native, Verification Loop, Performance, 혈당관리, 수면회복 |
+| **Entity** | 등장한 이름 | 무제한 | Expo, React Native, DeepSeek, Fish Audio, GitHub |
 
 - **Subcategory**는 UI와 개인화에 모두 사용 가능해야 한다.
 - **TopicCluster**는 하루/브리핑 단위로 생성될 수 있다.
@@ -90,7 +89,7 @@ novelty.
 
 ---
 
-## 5. 초기 Category / Subcategory 예시 (mock taxonomy)
+## 5. 초기 Category / Subcategory 예시 (legacy taxonomy)
 
 - **AI**: AI Agent · Claude Code / Codex · Open-source LLM · Voice/TTS/Audio AI · AI Coding Workflow · AI
   Business · AI Safety/Policy
@@ -104,7 +103,8 @@ novelty.
 - **Business**: Startup · E-commerce · Marketing · Global Expansion · Operations · Productivity · Beauty Export ·
   Global Beauty Market
 
-> 초기에는 세부 구현하지 말고 **설계문서 + mock taxonomy로만** 둔다.
+> 18번 MVP에서는 Builder strict output을 parse해 Category/Subcategory/Tag/Entity tables에 저장한다.
+> 일반 taxonomy 편집/자동 확장은 future다.
 
 ### K-Beauty는 top-level Category가 아니다
 
@@ -142,8 +142,9 @@ selectedForProcessing
 **candidateReason**: editorial_source / hot_topic / user_requested / internal_project_relevance /
 recurring_watch
 
-> **모든 후보를 다 처리하지 않는다.** 비용·품질 관리를 위해 score가 높은 후보만 ContentItem으로 승격한다.
-> 승격 전에 **사람(MD/Leo) 승인 게이트**를 거친다 — SourceCandidate → CandidatePreview → 승인 → 승인분만 처리.
+> **모든 후보를 다 처리하지 않는다.** 일반 editorial flow는 사람 review를 유지한다. 이 MVP의 manual
+> batch는 `분석·음성 생성` CTA가 명시적 승인이며, channel auto-processing ON은 해당 channel의 취소
+> 가능한 standing approval다. OFF/human-review-required/cap hit은 TTS나 자동 큐를 우회하지 않는다.
 > 상세: [16_Candidate_Review_and_TTS_Approval_Pipeline](16_Candidate_Review_and_TTS_Approval_Pipeline.md).
 
 ---
@@ -168,6 +169,22 @@ requiresHumanReview
 - 요약 품질은 `VideoContentMap`에서 확인하고, 청취 지속성은 `SpokenAudioScript` 품질에서 확인한다.
 
 ---
+
+## 8. YouTube channel standing approval MVP
+
+- User `leo`는 최대 5개 channel을 stable channel ID로 등록한다.
+- ON 문구는 매시간 새 public-caption video를 자동 처리하는 standing approval임을 명시한다.
+- OFF/delete는 approval version을 올려 아직 시작하지 않은 job을 `approval_revoked`로 defer한다. 이미 만든
+  derived content는 별도 user delete까지 유지한다.
+- poller는 YouTube public Atom feed를 exact channel ID로 매시간 읽고 existing deferred를 먼저 포함해
+  최대 3개만 queue로 승격한다. 나머지 discovery row는 버리지 않는다.
+- D-008 private acceptance channel은 Expo official
+  `UCx_YiR733cfqVPRsQ1n8Fag` / `https://www.youtube.com/channel/UCx_YiR733cfqVPRsQ1n8Fag`다.
+- 선택 채널은 health/finance/legal/election source가 아닌 official technology source다. 실제 caption이나
+  feed entry body는 design/evidence에 보존하지 않는다.
+
+URL canonicalization, feed bounds, cursor/lease, hourly due, selected video/channel evidence의 정본은
+[18번 §6·§9·§15](18_YouTube_Add_Global_Resume_MVP.md#6-source와-caption-계약)다.
 
 ## 관련
 

@@ -1,182 +1,200 @@
 # 02. Listen · 오디오 플레이어
 
 ## 목적
-VibeNews의 첫 화면이자 심장. 뉴스를 "읽는" 앱이 아니라 "듣는" 앱임을 첫 화면에서 각인시킨다.
+
+VibeNews의 첫 화면이자 심장이다. 뉴스를 읽는 feed가 아니라 준비된 개인용 브리핑을 한 번에 시작하고,
+어느 화면에서 돌아와도 같은 항목·위치에서 이어 듣는 AI radio다.
 
 ## 사용자 경험
-- 첫 화면은 뉴스 리스트가 아니라 **큰 중앙 오디오 재생 버튼** 중심.
-- 문구: **"Leo님을 위한 뉴스가 준비되어 있어요."**
-- 재생 버튼 아래 요약:
-  - `오늘 18개 뉴스 · 약 32분 준비됨`
-  - `AI 7개 · 건강 4개 · 투자 3개 · 피부관리 4개`
-- 재생을 누르면 재생 화면(BriefingSession)으로 이동.
 
-### 재생 화면 (BriefingSession)
-- 상단: 카테고리 + Chapter 표시 → 예: `AI · Chapter 2 / 7`
-- 중앙: **음악 앱 스타일 앨범 커버 아트**(카테고리별 그라데이션, 재생 시 살짝 확대). 일반 음악 서비스의 "재생 중" 화면 느낌. (뇌/ambient 비주얼 아님)
-- 뉴스 **제목** + **한 줄 핵심 요약**만 표시 (본문 전체 표시 금지)
-- 진행바
-- 컨트롤: **이전 / 재생·정지 / 다음** (뉴스 단위 이동)
-- 액션: **저장 / 더 알아보기**
-- 브리핑은 하나의 긴 오디오가 아니라 **NewsAudioItem 여러 개로 구성된 playlist/chapter** 구조.
-- 같은 뉴스 다시 듣기 / 이전·다음 이동 가능.
+- 첫 화면은 큰 중앙 재생 버튼과 `Leo님을 위한 뉴스가 준비되어 있어요.` 문구를 중심으로 한다.
+- 준비된 개수/시간, 오늘의 흐름을 보여주되 별도 filter queue를 만들지 않는다.
+- 중앙 play, 오늘의 브리핑, Category, Tag, 오늘의 흐름 play는 모두 같은 user-global automatic state를
+  시작하거나 resume한다.
+- active incomplete가 있으면 `이어듣기 · 2:14 / 6:40`처럼 현재/전체 시간을 보여주고 그 위치에서
+  먼저 재생한다.
+- 하나의 briefing은 여러 `ContentItem`/chapter로 구성되며 immutable session snapshot 순서를 따른다.
 
-## 화면 구성
-- Listen: `헤더 문구` → `큰 원형 재생 버튼` → `준비 요약(개수·시간)` → `카테고리 칩 목록` → `음성 명령 진입 버튼`
-- BriefingSession: `카테고리·챕터` → `CoverArt(앨범 커버)` → `제목` → `한 줄 요약` → `ProgressBar` → `Prev/Play/Next` → `저장/더 알아보기`
+### BriefingSession
 
-## 데이터 모델
-`BriefingSession`, `NewsAudioItem`, `PlaybackState`, `Category` (→ [10_DataModel](10_DataModel_데이터구조.md))
+- 상단: entry context와 `CHAPTER n / total`; context는 queue filter가 아니다.
+- 중앙: Neo-Retro AI Radio signal visual/cover art, 제목과 한 줄 요약만 노출한다.
+- 진행바: 현재/전체 시간, accessible seek.
+- controls: 이전, 재생/일시정지, `다음으로 건너뛰기`.
+- actions: 저장, 더 알아보기, 깊게 듣기, history에서는 manual `다시 듣기`.
+- raw caption, source 본문, provider output은 표시하지 않는다.
 
-## 현재 상태
-- Listen 화면 · ambient visual: **mock**.
-- BriefingSession 재생 엔진: **partial** — 재생/일시정지/이전/다음/seek이 **expo-audio로 실제 동작**한다. 단 오디오는 mock/샘플이고, 뉴스 수집·TTS·AI 요약은 아직 없다. 저장/더 알아보기는 mock 유지.
+## 현재 상태와 MVP 전환
 
-## 실제 오디오 재생 (블록 2 · expo-audio · mock audio)
-BriefingSession의 재생/일시정지/이전/다음/seek을 실제로 동작시킨다. 뉴스 수집·TTS·AI 요약은 아직 하지 않고, mock/샘플 오디오로 **재생 구조만** 만든다.
+입력 head의 재생기는 화면별 `useAudioPlayer` hook과 원격 fallback audio에 의존하는 partial skeleton이다.
+그 상태는 현재 사실일 뿐 `VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001`의 목표 계약이 아니다.
 
-### 라이브러리
-- **expo-audio** (Expo SDK 57 표준. `expo-av`는 deprecated). hook 기반: `useAudioPlayer(source)`, `useAudioPlayerStatus(player)`, `setAudioModeAsync`.
-- iOS 무음 스위치 대응: `setAudioModeAsync({ playsInSilentMode: true })`.
+이 MVP는 다음으로 교체한다.
 
-### AudioPlayerController (역할)
-- `useAudioPlayerController(items)` 훅으로 캡슐화. expo-audio 플레이어 1개로 현재 chapter를 재생한다.
-- 노출 API: `play() / pause() / togglePlay() / next() / previous() / seek(sec)` + 상태(`index, isPlaying, positionSec, durationSec, status, sessionCompleted, usingFallbackAudio`).
-- chapter가 바뀌면 `player.replace(source)`로 오디오를 교체하고, 재생 의도(wantPlaying)가 있으면 이어서 재생한다.
-- 재생 완료(`didJustFinish`) 시 다음 chapter로 자동 이동. 마지막이면 `sessionCompleted`.
+- 실제 Fish Audio 결과이며 server에서 `audio_ready`가 된 private AudioAsset만 automatic play 가능
+- root-lifetime singleton `createAudioPlayer`와 하나의 status listener
+- server canonical state + Expo SQLite device journal/outbox
+- authorized Range audio route와 SecureStore의 opaque device token
+- app restart, tab/push 전환, network interruption을 넘어가는 global resume
 
-### ChapterQueue 구조
-- `BriefingSession.newsAudioItemIds` → `NewsAudioItem[]`(chapterIndex 순)이 재생 큐다.
-- 현재 위치 = `index`(0-based). 각 chapter의 source = `audioUrl ?? fallbackSample(index)`.
+원격 sample/fallback audio는 automatic source resolution에서 제거한다. `audio_ready`가 아니면 재생 버튼을
+disabled/pending/error로 표시한다. sample-only 또는 mock-only 재생은 acceptance가 아니다.
 
-### PlaybackState 확장
-- 설계문서 10 `PlaybackState`에 `durationSec`, `status`(PlaybackStatus), `sessionCompleted`, `usingFallbackAudio`를 추가한다. 런타임 상태는 controller가 관리.
+## Expo SDK 57 player 계약
 
-### 동작 정의
-- **play**: 재생 시작 → `audio_play_started`.
-- **pause**: 일시정지 → `audio_paused`.
-- **next**: `index+1`(마지막이면 무시), 새 chapter load 후 재생 의도 유지 → `chapter_next_clicked`.
-- **previous**: 재생 위치>3초면 현재 chapter 처음으로 seek, 아니면 `index-1` → `chapter_previous_clicked`.
-- **seek(sec)**: `player.seekTo(sec)`. progress bar 탭으로 위치 이동 → `audio_seeked`.
-- **completed**: 현재 chapter 끝 → 다음으로. 마지막 chapter 끝 → `sessionCompleted` → `audio_completed`.
+공식 문서: <https://docs.expo.dev/versions/v57.0.0/sdk/audio/>
 
-### 오디오 파일 fallback 정책
-- `NewsAudioItem.audioUrl`이 있으면 그것을 재생. 없으면(현재 mock: 전부 null) chapter index에 매핑된 **원격 샘플 오디오**(fallback)를 사용한다(`usingFallbackAudio=true`).
-- 샘플 로드 실패 시 `status='error'`로 두되 UI 조작(다음/이전)은 계속 가능하고 **앱은 깨지지 않는다.**
+- root provider가 `createAudioPlayer(null, { updateInterval: 500 })`로 player 하나를 만들고 unmount 시
+  `release()`한다.
+- item 전환은 authorized `AudioSource { uri, headers: { Authorization } }`를 `replace`한 뒤 load를 확인하고
+  `seekTo(lastPositionSec)`한다.
+- `playbackStatusUpdate`의 `playing`, `currentTime`, `duration`, `didJustFinish`, `isLoaded`, `error`를
+  controller state machine에 넣는다.
+- `playing=true`가 처음 확인될 때만 unheard -> in_progress mutation을 보낸다. tap/load/buffer는 상태를
+  바꾸지 않는다.
+- `didJustFinish=true`일 때만 completed mutation을 보내고 snapshot의 다음 eligible item으로 간다.
+- background playback은 SDK 57 config plugin, `setAudioModeAsync({ playsInSilentMode: true,
+  shouldPlayInBackground: true, interruptionMode: 'doNotMix' })`, Android lock-screen activation 계약을
+  함께 적용한다.
+- App config는 playback only로 `enableBackgroundPlayback: true`, `enableBackgroundRecording: false`,
+  `recordAudioAndroid: false`, `microphonePermission: false`를 사용한다.
+- title/artist에 source transcript나 private provider detail을 넣지 않고 derived title과 `VibeNews`만 쓴다.
 
-### 추후 TTS audioUrl 연결 방식
-- TTS 파이프라인이 각 NewsAudioItem에 실제 `audioUrl`을 채우면, controller는 fallback 대신 그 URL을 그대로 재생 — **코드 변경 없이 데이터만으로 전환**된다.
+## 전역 automatic state
 
-### 백그라운드 재생 (future · 이번엔 설계만)
-- 잠금화면/백그라운드 재생은 `setAudioModeAsync({ shouldPlayInBackground: true })` + iOS `UIBackgroundModes: audio`(config plugin)가 필요. **이번 블록에서는 구현하지 않는다(future).**
+상태는 정확히 다음 네 가지다.
 
-### EventLog (추가)
-`audio_play_started` · `audio_paused` · `audio_completed` · `chapter_next_clicked` · `chapter_previous_clicked` · `audio_seeked` (→ [11_EventLog](11_EventLog_사용행동기록.md))
+```text
+unheard | in_progress | completed | skipped
+```
 
-## 구현할 컴포넌트
-- `AudioPlayButton` (큰 중앙 버튼)
-- `CoverArt` (음악 앱 스타일 앨범 커버 — 카테고리 그라데이션 + 재생 시 확대)
-- `ChapterControls` (이전/재생·정지/다음)
-- `ProgressBar` (탭하여 seek 가능, 현재/총 시간 반영)
-- `CategoryChips`
-- `useAudioPlayerController` (expo-audio 래핑 훅 — 재생 로직/큐/상태)
-- `src/lib/audio.ts` (fallback 샘플 오디오 목록·헬퍼)
+| 현재 | event | 다음 | 결과 |
+| --- | --- | --- | --- |
+| unheard | 실제 player start | in_progress | user의 유일 active item |
+| in_progress | pause/seek/background/exit | in_progress | position 저장, active 유지 |
+| in_progress | didJustFinish | completed | 모든 자동 surface에서 제외 |
+| unheard/in_progress | 명시적 skip | skipped | 모든 자동 surface에서 제외 |
+| completed/skipped | manual replay | 동일 | automatic pointer/queue 불변 |
 
-## 구현 전 확인사항
-- 커버 아트 스타일 — 음악 서비스처럼 카테고리별 그라데이션 앨범 커버.
-- 기본 브리핑 카테고리 순서.
+이전 five-second exclusion 규칙은 삭제되었다. 경과 청취 시간이나 duration 비율로 exclude하지 않는다.
 
-## 나중에 연결될 기능
-`expo-audio`/TTS 재생, 배경 재생(잠금화면 컨트롤), 실제 chapter 오디오 스트리밍, 청취 이벤트 기록([11_EventLog](11_EventLog_사용행동기록.md)).
+### snapshot
 
-## 구현 체크리스트
-- [ ] Listen 첫 화면 중앙 재생 버튼 + 개인화 문구
-- [ ] 준비 개수/시간/카테고리 요약 표시
-- [ ] 재생 → BriefingSession 이동
-- [ ] BriefingSession에 제목+한 줄 요약만 노출(본문 X)
-- [ ] 재생/일시정지/이전/다음 **실제 동작**(expo-audio)
-- [ ] chapter 변경 시 해당 오디오 load, 진행바에 재생 시간 반영
-- [ ] progress bar 탭으로 seek
-- [ ] 재생 완료 시 다음 chapter 자동 이동, 마지막이면 session completed
-- [ ] audioUrl 없으면 fallback 샘플 사용, 실패해도 앱 안 깨짐
-- [ ] 저장/더 알아보기 버튼 → 해당 화면 이동(mock 유지)
+새 automatic session은 transaction에서 다음 순서로 membership을 고정한다.
 
-## YouTube → Content Intelligence → Fish Audio 파이프라인 (재생 소스)
-핵심 원칙: **"뉴스/콘텐츠는 공통으로 준비하고, 브리핑은 사용자마다 다르게 조립한다."**
-BriefingSession에서 실제로 재생되는 오디오는 임의의 mock 샘플이 아니라, **ContentItem.audioScript를 Fish Audio TTS로 생성한 audioAsset(mp3)** 이다. `NewsAudioItem`은 이 audioAsset을 참조한다(future).
+1. active `in_progress` 하나가 있으면 첫 번째
+2. snapshot 시각까지 `audio_ready`인 `unheard`
+3. 정렬은 `audioReadyAt ASC`, tie-break `contentItemId ASC`
 
-### 재생 소스의 출처
-- 파이프라인: `YouTube URL → metadata → transcript(temporary cache) → Content Intelligence JSON(ContentItem) → audioScript → Fish Audio TTS → audioAsset(mp3) → Global News Pool 등록 → Personal Briefing Plan 조립 → 재생`.
-- 뉴스/콘텐츠(ContentItem·audioAsset)는 **Global News Pool에 공통으로 1번** 준비되고, 사용자별 **Personal Briefing Plan**이 이를 골라 `BriefingSession`의 chapter 순서로 조립한다.
-- 따라서 `NewsAudioItem.audioUrl`은 원칙적으로 audioAsset.audioUrl을 가리킨다. audioAsset이 아직 없으면(생성 전/실패) 기존 **fallback 샘플 오디오** 정책(위 "오디오 파일 fallback 정책")으로 재생 구조를 유지한다.
+session 시작 뒤 준비된 항목은 active snapshot에 들어오지 않는다. process cold start/명시적 새 session에서
+새 snapshot을 만들 때만 들어온다. snapshot member가 그 뒤 completed/skipped/deleted되면 membership은
+audit상 유지하되 traversal에서는 제외한다.
 
-### audioAsset (재생 자산 · future)
-`ContentItem.audioAsset`은 재생 가능한 오디오 파일 1개를 서술한다. 타입 정본은 [10_DataModel](10_DataModel_데이터구조.md)(`AudioScript`/`AudioAsset`).
+### persistence cadence와 conflict
 
-| 필드 | 의미 | 값 |
-|------|------|-----|
-| `provider` | TTS 제공자 | `fish_audio` |
-| `status` | 생성 상태 | `not_started` / `generating` / `generated` / `failed` |
-| `voiceId` | Fish Audio 보이스 식별자 | (문자열) |
-| `model` | 사용한 TTS 모델 | (문자열) |
-| `format` | 오디오 포맷 | `mp3` / `wav` / `opus` (재생 기본: mp3) |
-| `audioUrl` | 생성된 오디오 파일 URL | `status='generated'`일 때 채워짐 |
-| `durationSec` | 재생 길이(초) | 진행바/준비 시간 요약에 사용 |
+- device Expo SQLite: 재생 중 2초마다, play/pause/seek/item change/skip/completion/background마다 exclusive
+  transaction checkpoint
+- server: 15초 coalesced checkpoint와 control/lifecycle event 즉시 전송
+- device DB는 즉시 durable journal/outbox, server는 queue/status/revision 정본
+- `clientMutationId`와 device-run monotonic sequence로 retry/order를 idempotent하게 하고 optimistic
+  `baseRevision` mismatch는 409로 받는다.
+- 같은 active item이면 outbox를 sequence 순으로 rebase해 explicit backward `SEEK`와 PAUSE/COMPLETE/SKIP
+  의미를 보존한다. Active item/session이 바뀌었으면 이전 item mutation을 stale로 폐기한다. 단순 max
+  position merge는 deliberate rewind를 망가뜨리므로 사용하지 않는다.
 
-- `audioScript`(대본, 텍스트) → **Fish Audio TTS** → `audioAsset`(mp3)로 전환. audioScript는 [10_DataModel](10_DataModel_데이터구조.md)의 `AudioScript`.
-- `status`가 `generated`가 되어 `audioUrl`이 채워지면, `useAudioPlayerController`는 코드 변경 없이 **데이터만으로** fallback 대신 이 URL을 재생한다(위 "추후 TTS audioUrl 연결 방식"과 동일).
+공식 SQLite 계약: <https://docs.expo.dev/versions/v57.0.0/sdk/sqlite/>. DB는 restart를 넘어 지속되며
+WAL, foreign keys, migration, `withExclusiveTransactionAsync`를 사용한다.
 
-### 보안 정책 (필수)
-- **`FISH_AUDIO_API_KEY`는 서버(파이프라인) 환경변수 전용이다. 클라이언트(앱)에 절대 노출하지 않는다.**
-- TTS 호출·audioAsset 생성은 서버 측 파이프라인에서만 수행하고, 앱은 완성된 `audioUrl`만 전달받아 재생한다.
-- VibeNews core는 특정 수집/생성 도구에 직접 의존하지 않는다 — Fish Audio TTS도 SourceAdapter/파이프라인 단계 뒤에 감싸 교체 가능하게 둔다. 원문 전체 저장은 회피하고 audioScript/audioAsset(요약·대본·메타 중심)만 보관한다.
+## 재생 command
 
-### 참조
-- 15단계 파이프라인 전체 흐름·단계 정의: [12_Roadmap](12_Implementation_Roadmap.md).
-- 타입 정본(`AudioScript`/`AudioAsset`, `ContentItem`): [10_DataModel](10_DataModel_데이터구조.md).
+```ts
+type AutomaticEntryPoint =
+  | 'today_briefing'
+  | 'listen_global'
+  | 'category'
+  | 'tag'
+  | 'today_flow';
 
-## BriefingMode와 오디오 길이 (긴 영상)
-BriefingSession에서 실제로 재생되는 오디오의 **길이**는 고정이 아니라 `BriefingMode`에 따라 달라진다.
+interface GlobalPlaybackController {
+  startOrResumeAutomatic(input: {
+    entryPoint: AutomaticEntryPoint;
+    entryContextId?: string;
+  }): Promise<void>;
+  play(): Promise<void>;
+  pause(): Promise<void>;
+  seekTo(positionSec: number): Promise<void>;
+  previous(): Promise<void>;
+  skipToNext(): Promise<void>;
+  startManualReplay(contentItemId: string): Promise<void>;
+  stopManualReplay(): Promise<void>;
+}
+```
 
-- **quick**: 1~2분
-- **standard**: 5~8분
-- **deep**: 10~15분
+- `previous`: current position이 3초보다 크면 현재 item의 0초로 간다. 3초 이하면 이전 automatic item은
+  이미 completed/skipped이므로 비활성화하고, history의 manual replay로만 다시 듣는다.
+- `next`/`skip`: UI label과 accessibility hint를 `다음으로 건너뛰기`로 명시한다. 이 action은 현재
+  unheard/in_progress를 `skipped`로 transaction 처리한 뒤 snapshot의 다음 eligible item으로 이동한다.
+- manual replay: 재생 중 automatic item을 pause/checkpoint하고 같은 singleton player를 사용한다. 별도
+  mode로 play count/last played만 갱신하며 global active/session/position을 보존하고, 종료 뒤 automatic을
+  자동 시작하지 않고 resume prompt를 복원한다.
 
-핵심 원칙: **"긴 영상은 '짧게 줄이는 것'이 아니라 '들을 가치가 있는 브리핑으로 재구성'해야 한다."** 재생 길이는 원본 길이를 기계적으로 축소한 값이 아니라, 콘텐츠의 `InformationDensity`(low/medium/high)에 따라 결정되는 재구성 결과다.
+## generated audio source
 
-### 콘텐츠 유형별 기본값
-- **뉴스/RSS**: 짧고 밀도가 낮으므로 보통 **quick(1~2분)**.
-- **30분급 정보 밀도 높은 영상**: 1~2분으로 뭉개지 않고 **standard(5~8분)** 또는 **deep(10~15분)** 으로 재구성한다. 30분 좋은 영상의 기본값은 standard이며, 정보 밀도에 따라 quick/deep를 조정한다.
+```text
+public YouTube captions (temporary)
+  -> DeepSeek Builder
+  -> separate DeepSeek Verifier (>=9.0, no critical)
+  -> Fish Audio
+  -> exactly one private AudioAsset per ContentItem
+  -> authorized /v1/audio-assets/:id/file Range stream
+```
 
-### 긴 영상의 재생 형태
-- 긴 영상이라고 해서 **하나의 긴 오디오를 강제하지 않는다.**
-- **chapter형**(여러 NewsAudioItem으로 쪼갠 playlist/chapter, 기존 ChapterQueue 구조 재사용) 또는 **standard/deep brief**(하나의 재구성된 브리핑) 형태로 재생할 수 있다.
-- 어느 형태든 재생 엔진(`useAudioPlayerController`)과 진행바/이전·다음 컨트롤은 그대로 동작하며, 달라지는 것은 audioAsset의 `durationSec`과 chapter 구성뿐이다.
+앱은 provider를 호출하지 않고 server secret/model/reference를 모른다. `AudioAsset.status='ready'`,
+non-deleted, user `leo` authorization을 모두 만족해야 URL 대신 opaque audio ID를 받는다. 원본 YouTube
+video/audio는 다운로드하거나 재생 source로 쓰지 않는다.
 
-### 참조
-- 브리핑 스크립트의 품질·구조·재구성 전략(transcript→chunk extraction→VideoContentMap→logic reconstruction→personalized audio script→verifier review→TTS): [14_Video_Briefing_Quality_Strategy](14_Video_Briefing_Quality_Strategy.md).
-- `audioAsset`/`AudioScript` 타입 정본: [10_DataModel](10_DataModel_데이터구조.md).
+## failure/empty/recovery
 
-## 플레이어 화면 디자인 방향 (Neo-Retro AI Radio)
-BriefingSession 재생 화면은 "뉴스 리더"가 아니라 **음악 재생기·AI 라디오·프리미엄 오디오 기기**처럼 보여야 한다. 화면 전체가 "지금 하나의 신호를 듣고 있다"는 감각을 준다. 텍스트는 최소로, 청취가 중심이다. 전체 디자인 정본은 [17_Design_Direction_Neo_Retro_AI_Radio](17_Design_Direction_Neo_Retro_AI_Radio.md).
+- active audio load 실패: position/active를 유지하고 `다시 시도`; 다음 item으로 자동 skip하지 않는다.
+- auth missing/expired: player를 시작하지 않고 Settings의 `서버 연결 코드` 안내.
+- network offline: last durable state를 표시하고 server mutation을 outbox에 유지. audio cache를 새로 영구
+  저장하지 않는다.
+- snapshot eligible item 없음: `아직 준비된 브리핑이 없어요`와 Add 진입.
+- server conflict: latest global state를 reload하고 동일 controller에서 reconcile; 두 audio를 동시에 틀지
+  않는다.
+- deleted/corrected audio: current source를 정지하고 latest allowed version 또는 다음 eligible item을
+  명시적으로 선택한다.
 
-### 화면 톤
-- warm black/deep charcoal 배경 위 soft dark brown/graphite surface, amber orange 주 액센트. 네온/사이버펑크/과한 밝은 색은 쓰지 않는다.
-- 느낌: 옛 라디오·워크맨의 촉감 + 현대 AI 오디오 플레이어. 촉감만 레트로, UI는 현대적이고 담백하다.
-- 화면은 "읽는 페이지"가 아니라 **재생 중인 기기의 전면 패널**처럼 읽혀야 한다.
+## EventLog
 
-### 위→아래 레이아웃
-- **상단 채널/챕터 라벨**: `AI CHANNEL · CHAPTER 2 / 7` 형태의 작은 대문자 라벨. 지금 어떤 브리핑 채널의 몇 번째 챕터를 듣는지 조용히 알려준다.
-- **중앙 signal visual**: soft waveform / glowing orb / signal 형태의 은은한 비주얼(재생 중 살짝 숨쉬듯 움직임). amber 계열 glow, 과하지 않게. "신호를 잡아 듣는다"는 signal metaphor를 시각화한다. (뇌/ambient 추상화가 아니라 오디오 기기의 발광 패널 느낌)
-- **챕터 제목 + 한 줄 요약**: 뉴스 제목과 한 줄 핵심 요약만. 본문·긴 텍스트는 표시하지 않는다(청취 중심).
-- **진행바**: 음악 플레이어식 progress bar(현재/총 시간, 탭하여 seek). 챕터 단위 재생 위치를 보여준다.
-- **컨트롤**: **이전 / 재생·정지 / 다음**. 중앙 재생·정지 버튼이 가장 크고 amber 액센트, 이전/다음은 보조 톤. 오디오 기기 버튼처럼 촉감 있게.
-- **액션 버튼**: **저장** · **더 알아보기** · **깊게 듣기(Deep Listen)**. 저장은 "저장한 신호", 깊게 듣기는 같은 신호를 더 긴 deep 브리핑으로 이어 듣는 진입점.
+`automatic_session_started`, `automatic_resume_started`, `audio_play_started`, `audio_paused`, `audio_seeked`,
+`audio_completed`, `audio_skipped`, `automatic_item_advanced`, `manual_replay_started`,
+`manual_replay_completed`, `playback_checkpoint_deferred`, `playback_conflict_reconciled`를 safe ID/status/time
+metadata로만 남긴다. URL, caption, script, token, provider body는 payload에 없다.
 
-### 원칙
-- 텍스트 최소·청취 중심: 화면에서 읽을 것을 늘리지 않는다. 정보는 귀로, 화면은 "듣는 상태"를 보여준다.
-- less feed / more player: 리스트가 아니라 지금 재생 중인 하나의 신호에 집중시킨다.
-- warm premium retro: 촉감은 레트로 라디오, 조작감·정보 위계는 현대 오디오 플레이어.
+## 구현 경계
 
-### 용어 매핑
-- AI CHANNEL = 브리핑 채널(Channel), CHAPTER = 다음 챕터(Chapter), 저장 = 저장한 신호(Saved Signal), 깊게 듣기 = Deep Listen. (한국어 UI 라벨은 정본 용어를 따른다.)
+- `src/audio/global-audio-controller.ts`
+- `src/audio/global-playback-context.tsx`
+- `src/audio/global-playback-machine.ts`
+- `src/storage/device-db.ts`
+- `src/storage/playback-journal.ts`
+- `src/api/client.ts`, `src/api/contracts.ts`
+- `src/app/(tabs)/index.tsx`, `src/app/briefing-session.tsx`, root provider
+- 기존 `src/hooks/use-audio-player-controller.ts`의 screen-local ownership은 제거한다. 호출부를 한 번에
+  옮기기 위해 남길 경우 root context를 읽는 compatibility facade만 허용하며 player를 만들 수 없다.
+
+상세 server/API/schema/security/acceptance 정본은
+[18_YouTube_Add_Global_Resume_MVP](18_YouTube_Add_Global_Resume_MVP.md)다.
+
+## 구현/acceptance 체크리스트
+
+- [ ] 모든 automatic entry point가 같은 active/session/revision 사용
+- [ ] A 2:14 resume, D active-snapshot 제외와 cold-start 새 snapshot 포함
+- [ ] completed/skipped가 Listen/Today/Category/Tag/Flow 모두에서 제외
+- [ ] manual replay가 automatic state를 바꾸지 않음
+- [ ] process exit/network loss/outbox conflict 뒤 position 복구
+- [ ] 한 native player/listener만 존재하고 screen switch에서 중복 음성 없음
+- [ ] background/lock-screen 실제 device 동작
+- [ ] private generated AudioAsset만 재생; mock/sample acceptance 0
+- [ ] current/total time, controls, errors, screen reader, reduce-motion 검증

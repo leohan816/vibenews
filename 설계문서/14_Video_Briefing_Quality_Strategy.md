@@ -7,9 +7,10 @@
 - 긴 YouTube 영상(20~60분), 인터뷰, 강의, 기술/건강/투자/비즈니스 영상을 **성의 없이 짧게 압축하지
   않고**, 들을 가치가 있는 오디오 브리핑으로 재구성하는 기준을 정의한다.
 - VibeNews의 **긴 영상 처리 표준**을 만든다.
-- Qwen 8B · DeepSeek · Fish Audio 같은 모델/도구를 **구현하기 전에** "좋은 영상 브리핑이 무엇인가"를
-  먼저 고정한다.
-- 이 문서는 설계·기준이며, 실제 모델/수집/TTS 구현은 아직 하지 않는다(future).
+- DeepSeek Builder · 별도 DeepSeek Verifier · Fish Audio가 따라야 할 "좋은 영상 브리핑" 기준을
+  고정한다.
+- 일반 long-video 확장은 future지만, 18번 private YouTube MVP는 이 품질 기준을 실제 provider gate로
+  구현한다. alternate/local LLM이나 mock output은 그 MVP의 acceptance가 아니다.
 
 30분짜리 영상을 단순히 1~2분으로 압축하면 알맹이가 빠진다. 그래서 긴 영상 전용 **품질 기준 · 처리
 파이프라인 · 샘플 라이브러리 · 검수 구조**가 필요하다.
@@ -163,9 +164,9 @@ transcript → chunk extraction → VideoContentMap → logic reconstruction
 
 ---
 
-## 6. Qwen 8B / DeepSeek 역할 분리 (설계 레벨, 구현 없음)
+## 6. DeepSeek Builder / DeepSeek Verifier 역할 분리
 
-**Qwen 8B 후보 역할**
+**DeepSeek Builder 역할**
 
 - transcript chunk summary
 - chunk별 keyClaims 추출
@@ -177,7 +178,7 @@ transcript → chunk extraction → VideoContentMap → logic reconstruction
 - VideoContentMap 초안 생성
 - audioScript draft
 
-**Qwen 8B에 맡기기 어려운 일**
+**Builder 단독 output을 최종 판정으로 쓰면 안 되는 일**
 
 - 긴 유튜브 전체를 한 번에 깊게 분석
 - 여러 소스 간 사실관계 검증
@@ -186,7 +187,7 @@ transcript → chunk extraction → VideoContentMap → logic reconstruction
 - 방송용 스크립트 최종 품질 보장
 - 사용자 사업/프로젝트와 연결되는 전략적 해석의 최종 판단
 
-**DeepSeek(또는 더 좋은 verifier/editor model) 역할**
+**별도 DeepSeek Verifier 역할**
 
 - VideoContentMap 검수 / draftAudioScript 검수
 - 빠진 핵심 확인 / 왜곡된 주장 확인 / 과장 표현 제거
@@ -194,15 +195,16 @@ transcript → chunk extraction → VideoContentMap → logic reconstruction
 - 숫자·인명·제품명·회사명 human check 표시
 - 억지 개인화 연결 제거 / `revisedAudioScript` 생성
 
-DeepSeek verifier는 처음부터 전체 transcript를 다시 읽고 새로 쓰는 모델이 **아니다.** Qwen 8B가 만든
-구조화 결과를 검사하는 **senior editor**로 쓴다.
+DeepSeek Verifier는 Builder와 system prompt, context constructor, JSON schema, configured model selector를
+공유하지 않는다. normalized source evidence index와 strict-parsed Builder output을 별도 senior-editor
+rubric으로 검사한다. Builder의 숨은 context나 prompt를 재사용하지 않는다.
 
 **검수 비용 원칙**
 
 - 검수 모델에 원본 transcript 전체를 매번 넣지 않는다.
-- `VideoContentMap + chunk summaries + evidence snippets + draftAudioScript`를 넣는다 → 검수 토큰
-  절감.
-- 중요한 영상/건강/투자/법률성 콘텐츠만 second-pass 검수.
+- `VideoContentMap + evidence refs + draftAudioScript`를 넣어 fidelity를 검증한다. Raw source text는
+  temp lifecycle 밖으로 보존하지 않는다.
+- 이 MVP에서는 모든 item이 Verifier를 거치며 score >=9.0과 critical failure 0을 모두 만족해야 한다.
 
 | 방식                              | 비용   |
 | --------------------------------- | ------ |
@@ -296,8 +298,8 @@ transcript
 
 ### 9-4. 영상 요약 품질 목표
 
-- 일반 GPT 요약 수준은 **최소 기준**이다.
-- 목표 = GPT 요약 **+ 구조 재구성 + 개인화 연결 + 음성용 rewrite + verifier review**.
+- 일반 단문 요약 수준은 **최소 기준**이다.
+- 목표 = 일반 요약 **+ 구조 재구성 + 개인화 연결 + 음성용 rewrite + verifier review**.
 - 요약문을 그대로 읽지 않는다. `SpokenAudioScript`는 사람이 읽는 것처럼 **마사지된 최종
   낭독문**이어야 한다.
 
@@ -330,7 +332,7 @@ VibeNews의 품질은 **두 단계**로 결정된다.
 - 모든 후보를 처리하지 않는다. Source Pool -> SourceCandidate 단계에서 **fetch/analyze 전에** 품질을 미리 예측해, 어느 후보를 ContentItem으로 승격할지·어느 파이프라인(quick/standard/deep)에 태울지·검수를 붙일지 판단한다(비용·품질 관리).
 - 소스 4유형(Editorial / Hot Topic / User Requested / Internal Project)에 따라 예측 기본값이 다르다. 예: Editorial Source는 신뢰 높음, Hot Topic Source는 과장 위험 높음.
 
-### QualityPrediction 필드 (설계 레벨, mock)
+### QualityPrediction 필드 (장기 source-pool 예측)
 
 | 필드 | 의미 | 예시 값 |
 | ---- | ---- | ------- |
@@ -365,9 +367,15 @@ VibeNews의 품질은 **두 단계**로 결정된다.
 
 이 문서의 품질 기준은 승인 파이프라인의 gate로 동작한다. AI가 모든 콘텐츠를 자동으로 음성화하지 않는다.
 
-- **Rubric 채점**: DeepSeek verifier가 `revisedAudioScript`를 rubric 10점 만점으로 채점한다. **9점 이상만 TTS-ready.**
-- **자동 수정 루프**: 9점 미만이면 재작성한다. **자동 수정 최대 2회**, 그래도 9점 미달이면 자동 통과시키지 않고 **human review**로 넘긴다.
-- **승인 전 비용 차단**: MD/Leo 승인(Admin) 전에는 비싼 분석·스크립트·DeepSeek 검수·**TTS를 실행하지 않는다.** 승인분만 full analysis/script/verify로 진입하고, 9/10점 이상 통과분만 TTS로 넘어간다.
-- 순서: SourceCandidate → CandidatePreview → 승인 → (분석/스크립트/DeepSeek 검수) → 9점 이상 TTS-ready.
+- **Rubric 채점**: 별도 DeepSeek Verifier의 strict output을 server가 다시 계산한다. `overallScore >= 9.0`,
+  `criticalFailures=[]`, `verdict=PASS`를 모두 만족해야 TTS-ready다.
+- **자동 수정 루프**: Verifier 호출은 총 최대 2회다. attempt 1 REVISE면 DeepSeek Builder가 finding
+  code/evidence ref로 한 번 수정하고 attempt 2를 받는다. 이후 non-pass는 `human_review_required`다.
+- **승인 전 비용 차단**: manual `분석·음성 생성` CTA 또는 channel auto-processing ON standing approval
+  전에는 caption/provider/TTS를 실행하지 않는다.
+- 순서: 승인 → public caption → DeepSeek Builder → 별도 DeepSeek Verifier → server gate → Fish Audio.
+- `human_review_required`는 TTS와 automatic queue에 절대 들어가지 않는다.
 
 상세 파이프라인: [16_Candidate_Review_and_TTS_Approval_Pipeline](16_Candidate_Review_and_TTS_Approval_Pipeline.md).
+Provider interface, strict schemas, source bounds, max attempts의 실행 정본은
+[18번 §6~7](18_YouTube_Add_Global_Resume_MVP.md#6-source와-caption-계약)이다.
