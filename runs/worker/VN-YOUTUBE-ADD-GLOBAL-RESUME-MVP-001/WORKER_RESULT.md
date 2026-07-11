@@ -31,6 +31,17 @@ DESIGN_DEFECT_DETAILS: NONE
 RESULT_HEAD: RECORDED_AFTER_RESULT_PUSH_IN_POINTER
 RESULT_STATUS: IMPLEMENTED_AWAITING_IMPLEMENTATION_REVIEW
 LIVE_PRIVATE_ACCEPTANCE: NOT_RUN_PENDING_IMPLEMENTATION_REVIEW
+VALIDATION_CORRECTION_001: Advisor validation found that server/src/http/schemas.ts and
+  server/src/providers/caption.ts were stored as Git BINARY because their control-character regex was
+  written with LITERAL control bytes (byte sequence `5b 00 2d 1f 7f 5d` = `[<NUL>-<0x1F><0x7F>]` at
+  schemas.ts:13 and caption.ts:37). Fixed by replacing the literal bytes with ASCII source escapes
+  as the source escape sequence slash-u0000 through slash-u001F plus slash-u007F, giving the identical match set of 0x00 to 0x1F plus 0x7F, with no behavior change.
+  Verified: reliable perl scan finds no control byte (0x00-0x08,0x0b,0x0c,0x0e-0x1f,0x7f) in ANY
+  tracked *.ts/*.tsx; `git diff --numstat 60b6983..<correction>` treats both files (and every changed
+  TS/TSX) as text (line counts, never `-`). Re-ran typecheck/lint/unit(46)/integration(51)/runtime(2)
+  — all green. Delivered as an additive validation-correction content commit (these two files +
+  WORKER_RESULT.md) followed by a pointer-only commit; IMPLEMENTATION_REVIEW_SUBJECT_HEAD is the
+  correction content head. No secrets touched, no live calls.
 CHANGED_FILES: (exact set is the content commit diff from WORKER_INPUT_HEAD; grouped)
 - server (new): src/config.ts, src/db/{connection,migrate}.ts, src/domain/{enums,state-machines,contracts}.ts,
   src/providers/{caption,deepseek-builder,deepseek-verifier,fish-tts}.ts,
