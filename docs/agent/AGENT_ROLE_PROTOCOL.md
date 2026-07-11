@@ -7,7 +7,13 @@ Status: canonical
 ```text
 Leo/GPT
 -> VibeNews Advisor
--> VibeNews Designer, VibeNews Worker, or VibeNews Reviewer
+-> VibeNews Designer
+-> VibeNews Advisor
+-> VibeNews Reviewer when DESIGN_REVIEW is required
+-> VibeNews Advisor
+-> VibeNews Worker
+-> VibeNews Advisor
+-> VibeNews Reviewer for IMPLEMENTATION_REVIEW
 -> VibeNews Advisor
 -> Leo/GPT
 ```
@@ -59,8 +65,8 @@ The one-time `VN-GOVERNANCE-BOOTSTRAP-001` Advisor implementation exception is p
 SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
 ```
 
-No new Advisor implementation exception exists. Later canonical governance is authored by the Designer and the
-Worker under this protocol, never by the Advisor.
+No new Advisor implementation exception exists. Later canonical governance is designed by the Designer, implemented
+into canonical Markdown by the Worker, and never implemented by the Advisor.
 
 ## 4. Designer authority
 
