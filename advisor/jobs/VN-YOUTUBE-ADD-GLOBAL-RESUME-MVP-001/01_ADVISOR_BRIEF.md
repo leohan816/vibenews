@@ -1,174 +1,177 @@
-# 01 Advisor Brief and Decision Gate — VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
+# 01 Advisor Brief and Decision ACK — VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
-## Gate result
+## Current gate result
 
 ```text
 ADVISOR_DIAGNOSIS: COMPLETE
+DECISION_ACK_SOURCE: Leo/GPT explicit D-001 through D-008 resolution
+DECISION_ACK_STATUS: ACKNOWLEDGED
 DESIGN_DEPTH: FULL_DESIGN
 DESIGN_REVIEW_REQUIRED: true
-DESIGN_ROUTING_ALLOWED: false
-BLOCK_REASON: unresolved high-risk platform/copyright, credential/provider, database/backend, automated-cost, retention, identity, and approval-policy decisions
+DESIGN_ROUTING_ALLOWED: true
+BLOCK_REASON: none
+UNRESOLVED_DECISIONS: none
+NEXT_ACTOR: VibeNews Designer
 ```
 
-Canonical `RUN_PROTOCOL.md` section 3 forbids routing past intake while any of those triggers remains unresolved.
-Designer, Reviewer, and Worker have therefore not been launched. Advisor has not designed or implemented the
-feature.
+This ACK supersedes only the unresolved-decision state recorded at intake. It does not replace the preserved product
+intent, playback-policy correction, safety constraints, acceptance scenarios, repository facts, or role boundaries
+in `00_INTAKE.md`. No completed discovery is restarted.
 
-## Unknown Gate
-
-```text
-CONFIRMED_FACTS:
-- Current explicit playback correction supersedes and deletes the five-second exclusion behavior.
-- The app is a frontend skeleton with no backend, DB, auth, persistent playback store, ingestion, model, TTS, or automated tests.
-- YouTube official API cannot download arbitrary third-party public captions without owner edit permission/OAuth.
-- Official channel push notifications require a web-accessible callback server; a public feed can alternatively be polled.
-- No required provider, database, or storage credentials are available.
-- The existing documents name Fish Audio for TTS, DeepSeek for the 9/10 verifier, and a larger Builder model, but these are design-era candidates, not deployed contracts.
-- The current Candidate Review canonical product design requires MD/Leo approval before expensive processing, while this mission explicitly requests automatic channel processing.
-
-ASSUMPTIONS:
-- None of the unresolved material decisions below is silently inferred.
-- “User-global” may mean one-device fixed-user MVP or authenticated multi-device state; those are materially different and require selection.
-- Add-button submission may be intended as explicit approval and channel registration as standing approval, but this has not been confirmed.
-
-UNKNOWNS:
-- Permitted public-caption extraction mechanism and accepted YouTube/platform/copyright posture.
-- Backend/DB/object-storage/deployment boundary for a real channel watcher and generated audio.
-- Builder, verifier, and TTS providers/model IDs plus secure credentials and retention/training settings.
-- Per-user/batch/channel/day cost and concurrency limits.
-- Transcript TTL, derived-audio retention, provenance display, deletion/correction policy, and allowed deployment audience.
-- Authentication/user identity boundary for globally persistent playback state.
-- Exact manual replay interaction with the single active auto-resume pointer.
-- Authorized test video/channel for the required live vertical slice.
-
-COST_IF_WRONG:
-- A non-official caption route may violate platform/copyright expectations or fail unpredictably.
-- Client-side secrets or an incorrect backend boundary can expose credentials and user data.
-- Unbounded registered-channel automation can create uncontrolled model/TTS costs.
-- A wrong playback state model can replay completed items, lose resume position, or create conflicting per-screen histories.
-- Mock-only implementation would falsely claim the required MVP vertical slice.
-
-REVERSIBILITY:
-- Advisor intake Markdown is reversible in a later authorized commit.
-- Provider calls, external audio publication, channel subscriptions, and schema deployment are not treated as freely reversible.
-
-REQUIRED_LEO_DECISIONS: D-001 through D-008 below
-REQUIRED_EXTERNAL_REVIEW: platform/copyright policy acceptance for third-party public captions and derived audio before non-private deployment
-SAFE_DEFAULT: do not route Designer, freeze design, call providers, install extraction tools, create schema, or implement runtime
-REPO_TOPOLOGY_DECISION: SINGLE_REPO
-```
-
-## Required Leo/GPT decisions
+## Leo/GPT decision ACK
 
 ### D-001 — Public-caption acquisition
 
-Recommended for this MVP: explicitly authorize a server/container-only `yt-dlp` caption adapter with
-`--skip-download`, public captions only, no cookies/login/video/audio download, strict timeout/size limits, temporary
-files outside the repo, and fail-closed behavior. Accept that this is not the official YouTube captions API and needs
-reliability/platform-policy monitoring.
-
-Alternative: official API only. That limits the MVP to videos whose captions the authenticated owner may edit and
-conflicts with the current no-login arbitrary-link goal.
-
 ```text
-D-001_DECISION_REQUIRED: authorize constrained yt-dlp adapter, or restrict to owner-authorized captions
+DECISION: constrained server-side yt-dlp for public captions only
+LOGIN: forbidden
+COOKIES: forbidden
+ORIGINAL_VIDEO_DOWNLOAD: forbidden
+ORIGINAL_AUDIO_DOWNLOAD: forbidden
+TRANSCRIPT_RETENTION: temporary only; hard-delete within 24 hours
 ```
 
-### D-002 — Vertical-slice infrastructure boundary
+The design must fail closed when a public caption cannot be obtained and must bound process time, output size,
+temporary paths, and cleanup. It must not imply that this route is the official arbitrary-public-caption YouTube API.
 
-Recommended: repository-contained local Node API/worker for the validated MVP, local server database/object directory
-for pipeline artifacts, and Expo SQLite for device playback state; channel feeds are polled while the worker is
-running. Production hosting, multi-device sync, and public WebSub callback are a later reviewed deployment phase.
-
-Alternative: choose a production backend now and provide its exact platform, Postgres/object storage, scheduler,
-public callback, region, retention, and deployment authority.
+### D-002 — Private vertical-slice boundary
 
 ```text
-D-002_DECISION_REQUIRED: local validated vertical slice, or exact production backend
+DECISION: existing Hetzner development server
+SERVER_RUNTIME: repository-contained Node API and background worker
+SERVER_DATABASE: local private database
+GENERATED_AUDIO_STORAGE: private server storage
+DEVICE_STATE: persistent local device playback state
+CHANNEL_DISCOVERY: hourly polling
+PRODUCTION_DEPLOYMENT: out of scope
+MULTI_DEVICE_AUTH: out of scope
 ```
 
-### D-003 — Model and TTS provider contract
-
-Recommended default from current documents: Builder = server-side Anthropic current approved model; Verifier =
-DeepSeek API with a separately versioned rubric prompt; TTS = Fish Audio. Required secrets must be placed by Leo in
-an ignored server environment file or secret manager, never chat or Git. Exact model IDs and provider retention/
-training settings must be recorded before calls.
+### D-003 — Provider contract
 
 ```text
-D-003_DECISION_REQUIRED: approve providers/model-selection rule and securely provision required keys
+BUILDER_PROVIDER: DeepSeek
+VERIFIER_PROVIDER: DeepSeek
+BUILDER_MODEL: configured server value; never copy its value into Git, logs, reports, or chat
+VERIFIER_MODEL: configured server value; never copy its value into Git, logs, reports, or chat
+BUILDER_VERIFIER_SEPARATION: separate prompts, contexts, and schemas
+VERIFIER_PASS_THRESHOLD: overallScore >= 9.0 and no critical failure
+VERIFIER_ATTEMPTS_MAX: 2 total attempts
+TTS_PROVIDER: Fish Audio
+TTS_MODEL_AND_REFERENCE_VOICE: configured server values; never copy values into Git, logs, reports, or chat
+FORBIDDEN_LLM_PROVIDERS_THIS_MVP: Anthropic API; OpenAI API; Kimi API; local runtime LLM
+REPLACEABLE_INTERFACES: BuilderProvider; VerifierProvider; TtsProvider; CaptionProvider
 ```
 
-### D-004 — Human approval versus channel automation
+The configured values in `.env.server.local` are runtime-only inputs. The Advisor verified only file existence,
+mode `600`, Git-ignore status, and absence from tracked files; no secret value was read into or copied to an artifact
+or output.
 
-Recommended interpretation of the new mission:
-
-- pressing “분석·음성 생성” is explicit approval for that manual batch;
-- registering a channel creates revocable standing approval for new public-caption videos from only that channel;
-- standing approval remains constrained by caps and DeepSeek 9/10; human-review items stop and never reach TTS/queue;
-- all other discovered candidates keep the existing MD/Leo approval gate.
+### D-004 — Approval mapping
 
 ```text
-D-004_DECISION_REQUIRED: confirm or replace this approval mapping
+MANUAL_BATCH_APPROVAL: pressing “분석·음성 생성” is explicit approval for that batch
+CHANNEL_APPROVAL: auto-processing ON is revocable standing approval for that channel
+HUMAN_REVIEW_REQUIRED: never reaches TTS or automatic queue
 ```
 
-### D-005 — Automatic-cost and rate caps
-
-Recommended conservative MVP caps: 10 links per batch, 5 registered channels per user, one channel poll per hour,
-at most 3 unseen videos per channel per poll, at most 10 successful TTS generations per user/day, pipeline
-concurrency 1, and no retry beyond the existing two verifier attempts. Cap hits defer rather than discard.
+### D-005 — Limits
 
 ```text
-D-005_DECISION_REQUIRED: accept these caps or provide exact replacements
+LINKS_PER_BATCH_MAX: 10
+REGISTERED_CHANNELS_MAX: 5
+CHANNEL_POLL_INTERVAL: hourly
+UNSEEN_VIDEOS_PER_CHANNEL_PER_POLL_MAX: 3
+SUCCESSFUL_TTS_GENERATIONS_PER_DAY_MAX: 10
+PIPELINE_CONCURRENCY: 1
+VERIFIER_ATTEMPTS_MAX: 2
+LIMIT_BEHAVIOR: defer; never discard
 ```
 
 ### D-006 — Retention, provenance, deletion, and audience
 
-Recommended private/internal MVP policy: raw transcript hard-deleted within 24 hours and never exposed/exported;
-store source URL/video ID/channel ID/title/published time and processing provenance; retain derived structured content,
-script, and audio until user deletion; support deletion/correction state before wider deployment; no public feed or
-third-party redistribution in this phase.
-
 ```text
-D-006_DECISION_REQUIRED: accept this policy and private/internal audience, or provide exact policy
+AUDIENCE: private/internal MVP only
+PUBLIC_FEED: forbidden
+THIRD_PARTY_REDISTRIBUTION: forbidden
+ORIGINAL_VIDEO_RETENTION: forbidden
+ORIGINAL_AUDIO_RETENTION: forbidden
+RAW_TRANSCRIPT_RETENTION: temporary only; hard-delete within 24 hours
+DERIVED_RETENTION: analysis, script, provenance, and generated audio remain until user deletion
 ```
 
-### D-007 — User identity and resume persistence
-
-Recommended vertical-slice boundary: fixed local `userId=leo`, one active automatic `in_progress` ContentItem per
-user, persisted through Expo SQLite across app restarts. Schema and API remain user-keyed for later real auth, but
-multi-device sync/auth is out of this slice.
-
-Manual replay of a completed item must not replace or reclassify the saved automatic resume target; it uses
-`manual_replay` playback context and updates only `playCount`/`lastPlayedAt`.
+### D-007 — Identity and playback state
 
 ```text
-D-007_DECISION_REQUIRED: accept fixed-user/device MVP and manual-replay isolation, or require auth/multi-device now
+USER_ID: leo
+PLAYBACK_PERSISTENCE: global and durable across app restarts
+PLAYBACK_STATES: unheard; in_progress; completed; skipped
+AUTO_ENTRY_PRIORITY: in_progress first, then unheard by audioReadyAt ASC
+AUTO_QUEUE_EXCLUSIONS: completed; skipped
+MANUAL_REPLAY: never re-enters automatic queue and never replaces automatic resume
 ```
 
-### D-008 — Authorized live acceptance source
+The five-second exclusion rule remains deleted and must not reappear in design, migration, code, tests, or copy.
 
-Provide one YouTube video URL with public captions and one channel ID/URL that Leo authorizes for the private test,
-or explicitly authorize the Advisor/Designer to select a low-risk official technology video/channel. No health,
-finance, legal, election, private, login-gated, or captionless source will be selected automatically.
+### D-008 — Private acceptance sources
 
 ```text
-D-008_DECISION_REQUIRED: user-provided source, or authorize low-risk official-source selection
+SELECTION_AUTHORITY: Advisor and Designer may select one low-risk official technology video with public captions and one official technology channel
+FORBIDDEN_SOURCE_CLASSES: health; finance; legal; election; private; login-gated; captionless
+USE_BOUNDARY: private acceptance only
 ```
 
-## Exact response contract
-
-Leo/GPT may resume this job by returning values for `D-001` through `D-008`. The recommended bundle may be accepted
-with one statement, provided required secrets are installed outside Git before the live pipeline phase. After every
-decision is resolved, the Advisor will recheck repo/head/clean state and continue without repeating discovery:
+## Resolved Unknown Gate
 
 ```text
-Advisor Designer brief
--> VibeNews-designer FULL_DESIGN
--> independent design-review-001
--> Advisor freeze
+CONFIRMED_FACTS:
+- D-001 through D-008 are explicit Leo/GPT authority and are resolved.
+- The original intake intent and corrected global-resume contract remain current.
+- The target is a private, fixed-user vertical slice on the existing development server, not a public or production service.
+- Provider and reference-voice runtime configuration is prepared outside Git in .env.server.local.
+- The secret file exists, has mode 600, is Git-ignored, and is not tracked; values remain undisclosed.
+- Current repository topology remains SINGLE_REPO.
+
+ASSUMPTIONS:
+- The current repository host is the authorized workspace for designing the existing-development-server slice; deployment mechanics still require explicit, reversible Worker instructions in the frozen design.
+- Provider availability, public-caption availability, and the selected official channel's future uploads are runtime acceptance conditions, not permission to substitute mocks.
+- Fixed userId=leo identifies this private slice only and does not imply production identity or multi-device synchronization.
+
+UNKNOWNS:
+- The exact low-risk official technology video and channel will be selected and recorded by the Designer within D-008 authority.
+- Exact packages, schema form, API routes, polling mechanics, device persistence technology, cleanup mechanism, and rollback are design choices bounded by D-001 through D-008.
+- External provider or YouTube availability at acceptance time can fail transiently and requires truthful failure evidence and bounded retry behavior.
+
+COST_IF_WRONG:
+- An unbounded collector or retry loop can violate the approved cost and platform boundary.
+- Incorrect persistence or queue identity can replay excluded content or lose the global resume target.
+- A leaked server secret, retained original media, or persistent transcript violates explicit authority.
+- A mock-only or sample-audio path would not satisfy the mission.
+
+REVERSIBILITY:
+- Design artifacts and repository-contained code are Git-reversible.
+- Database migrations, generated audio, provider calls, and server deployment require explicit backup/rollback/cleanup design.
+
+REQUIRED_LEO_DECISIONS: none
+REQUIRED_EXTERNAL_REVIEW: required before any future non-private deployment or redistribution; not a blocker for this private slice
+SAFE_DEFAULT: fail closed; defer limit hits; no TTS/queue entry without captions and verifier PASS; no automatic entry for human-review-required, failed, incomplete, completed, or skipped content
+REPO_TOPOLOGY_DECISION: SINGLE_REPO
+```
+
+## Required mission sequence
+
+```text
+VibeNews-designer FULL_DESIGN
+-> independent DESIGN_REVIEW design-review-001
+-> Advisor exact design freeze
 -> VibeNews Worker implementation
--> independent implementation-review-001
--> bounded owner patch and same-Reviewer delta review if needed
--> final audit/content/pointer publish
--> Leo/GPT pointer-only result
+-> independent IMPLEMENTATION_REVIEW implementation-review-001
+-> bounded same-owner correction and same-Reviewer delta review when required
+-> real private YouTube-to-DeepSeek-to-Fish-Audio acceptance
+-> global resume/exclusion playback acceptance
+-> required post-PASS session reloads
+-> Advisor final audit and pointer
+-> Leo/GPT
 ```
+
+No design-only, mock-only, sample-audio-only, or partial pipeline result is mission completion.
