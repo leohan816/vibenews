@@ -1,7 +1,7 @@
 # VN-GOVERNANCE-DESIGNER-INTEGRATION-001
 
 ```text
-STATUS: IMPLEMENTATION_VALIDATION_CORRECTION_PENDING
+STATUS: IMPLEMENTATION_REVIEW_PENDING
 REPO: /home/leo/Project/VibeNews
 BRANCH: master
 BASE: b69421da59cb4b99683e8196618d1b8ab6eab040
@@ -17,7 +17,10 @@ FROZEN_DESIGN_HEAD: b05ad62aa503567f64a36f449c84c31679ba9aee
 WORKER_RESULT_HEAD: 647efaa47cb5eda5c7e90ea2304fa00d0c23776b
 WORKER_POINTER_HEAD: f4b318a0059992a06512d4dc033110bd3d2bb988
 ADVISOR_VALIDATION_CORRECTION_ID: validation-correction-001
-NEXT_ACTOR: VibeNews Worker
+CORRECTED_IMPLEMENTATION_SUBJECT_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
+CORRECTION_POINTER_HEAD: 9ac66add344766049b6b185209f936f85889f608
+IMPLEMENTATION_REVIEW_ID: implementation-review-001
+NEXT_ACTOR: VibeNews Reviewer
 ```
 
 ## Advisor artifacts
@@ -37,6 +40,9 @@ NEXT_ACTOR: VibeNews Worker
 - [`implementation/validation-correction-001/WORKER_CORRECTION_BRIEF.md`](implementation/validation-correction-001/WORKER_CORRECTION_BRIEF.md)
 - [`implementation/validation-correction-001/WORKER_CORRECTION_HANDOFF_PROMPT.md`](implementation/validation-correction-001/WORKER_CORRECTION_HANDOFF_PROMPT.md)
 - [`implementation/validation-correction-001/WORKER_CORRECTION_RUN_PROMPT.md`](implementation/validation-correction-001/WORKER_CORRECTION_RUN_PROMPT.md)
+- [`reviews/implementation-review-001/REVIEWER_BRIEF.md`](reviews/implementation-review-001/REVIEWER_BRIEF.md)
+- [`reviews/implementation-review-001/REVIEWER_HANDOFF_PROMPT.md`](reviews/implementation-review-001/REVIEWER_HANDOFF_PROMPT.md)
+- [`reviews/implementation-review-001/REVIEWER_RUN_PROMPT.md`](reviews/implementation-review-001/REVIEWER_RUN_PROMPT.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 
 ## Exclusive result paths

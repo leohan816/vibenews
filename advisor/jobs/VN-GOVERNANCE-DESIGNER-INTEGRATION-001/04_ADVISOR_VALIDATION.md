@@ -128,3 +128,36 @@ No Reviewer verdict has yet been issued for the implementation, so this is an Ad
 than a Reviewer-triggered implementation rework. It does not consume either automatic implementation rework attempt.
 Only the same Worker may correct the exact two canonical paths and write the declared correction evidence. The
 implementation subject is not review-ready until the Advisor validates the corrected content/pointer commits.
+
+## Corrected implementation validation
+
+```text
+VALIDATION_PHASE: PRE_IMPLEMENTATION_REVIEW
+VALIDATION_STATUS: PASS_FOR_INDEPENDENT_IMPLEMENTATION_REVIEW
+CORRECTION_ID: validation-correction-001
+PREVIOUS_IMPLEMENTATION_SUBJECT_HEAD: 647efaa47cb5eda5c7e90ea2304fa00d0c23776b
+CORRECTED_IMPLEMENTATION_SUBJECT_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
+CORRECTION_POINTER_HEAD: 9ac66add344766049b6b185209f936f85889f608
+FROZEN_DESIGN_HEAD: b05ad62aa503567f64a36f449c84c31679ba9aee
+FROZEN_DESIGN_UNCHANGED: true
+DESIGN_REVIEW_REPORT_HEAD: 544a6e8cdfed528acb52758c1aaf5c9d44206b28
+ADVISOR_FINDINGS_CLOSED: AIV-001; AIV-002; AIV-003
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 0
+RUNTIME_CHANGE_STATUS: ZERO
+DIRTY_STATE: clean
+IMPLEMENTATION_REVIEW_READY: true
+IMPLEMENTATION_REVIEW_ID: implementation-review-001
+NEXT_ACTOR: VibeNews Reviewer
+```
+
+The Advisor directly read both corrected canonical files and both correction result files. The correction content
+commit descends from the Advisor correction-routing head and changes only the two authorized canonical paths plus
+`REWORK_RESULT.md`; its pointer commit changes only `REWORK_RESULT_POINTER.md`. Anchored field checks confirm that the
+full Designer schema is explicit, design and implementation review subject identities are distinct, the permanent
+chain is sequential through Advisor, and canonical governance is designed by Designer but implemented by Worker.
+Frozen-design and design-review paths remain immutable, all commits are pushed, the worktree is clean, and no
+runtime/product path changed.
+
+This validation fixes the immutable implementation-review subject at
+`00074e3828bfe7d8fc967f1d5c012dbc1542e2c5`. It does not approve the implementation. Only the existing independent
+Reviewer may issue the `IMPLEMENTATION_REVIEW` verdict.
