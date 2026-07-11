@@ -1,3 +1,5 @@
+// Briefing management moved from a bottom tab to a push route (설계문서/18 §5.1). Reachable from
+// Listen and from Add's secondary action; Briefing/ScheduleBriefing/BriefingSession capability stays.
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
@@ -14,7 +16,6 @@ export default function BriefingScreen() {
 
   return (
     <Screen title="Briefing" subtitle="카테고리별로 준비된 브리핑" status="mock">
-      {/* 예약 요약 배너 → 예약 설정 진입 */}
       <Card onPress={() => router.push('/schedule-briefing')}>
         <View style={styles.bannerRow}>
           <ThemedText type="smallBold">⏰ 예약 브리핑</ThemedText>
@@ -28,7 +29,6 @@ export default function BriefingScreen() {
         </ThemedText>
       </Card>
 
-      {/* 카테고리 큰 카드 → 해당 카테고리 재생 */}
       {categories.map((c) => (
         <CategoryCard key={c.id} category={c} onPress={() => router.push('/briefing-session')} />
       ))}

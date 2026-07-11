@@ -30,10 +30,10 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="briefing"
+        name="add"
         options={{
-          title: "Briefing",
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🗂️" focused={focused} />,
+          title: "Add",
+          tabBarIcon: ({ focused }) => <TabIcon emoji="➕" focused={focused} />,
         }}
       />
       <Tabs.Screen

@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { setItemAsync, WHEN_UNLOCKED_THIS_DEVICE_ONLY } from 'expo-secure-store';
 
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
@@ -43,6 +44,8 @@ export default function SettingsScreen() {
         />
         <ToggleRow label="원문 전체 저장 금지 (지식만 저장)" defaultOn disabled />
       </Section>
+
+      <ServerTokenSection />
 
       <ThemedView type="backgroundElement" style={styles.freeNote}>
         <ThemedText type="smallBold">현재 모든 기능 무료</ThemedText>
@@ -108,9 +111,76 @@ function ToggleRow({
   );
 }
 
+// Manual device-token provisioning into SecureStore (설계문서/18 §11). The token is stored encrypted
+// on-device only, cleared from React state after save, and never logged or placed in env/Git.
+function ServerTokenSection() {
+  const [token, setToken] = useState('');
+  const [saved, setSaved] = useState(false);
+  const save = async () => {
+    const value = token.trim();
+    if (value.length === 0) return;
+    await setItemAsync('vibenews.device-token.v1', value, { keychainAccessible: WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+    setToken('');
+    setSaved(true);
+  };
+  return (
+    <Section title="서버 연결">
+      <View style={styles.tokenBody}>
+        <ThemedText type="small" themeColor="textSecondary">
+          서버 연결 코드 (콘솔에서 발급, 한 번만 입력)
+        </ThemedText>
+        <TextInput
+          value={token}
+          onChangeText={(t) => {
+            setToken(t);
+            setSaved(false);
+          }}
+          secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+          textContentType="none"
+          placeholder="연결 코드 붙여넣기"
+          placeholderTextColor="#6b5d50"
+          style={styles.tokenInput}
+          accessibilityLabel="서버 연결 코드 입력"
+        />
+        <Pressable
+          onPress={save}
+          accessibilityRole="button"
+          accessibilityLabel="서버 연결 코드 저장"
+          style={({ pressed }) => [styles.saveBtn, pressed ? styles.pressed : undefined]}
+        >
+          <ThemedText type="smallBold">{saved ? '저장됨 ✅' : '저장'}</ThemedText>
+        </Pressable>
+      </View>
+    </Section>
+  );
+}
+
 const styles = StyleSheet.create({
   section: {
     gap: Spacing.two,
+  },
+  tokenBody: {
+    gap: Spacing.two,
+    paddingVertical: Spacing.two,
+  },
+  tokenInput: {
+    borderRadius: Spacing.two,
+    borderWidth: 1,
+    borderColor: '#33281F',
+    color: '#F4EBE0',
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    fontSize: 14,
+  },
+  saveBtn: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.two,
+    borderRadius: Spacing.two,
+    borderWidth: 1,
+    borderColor: '#FFA23A',
   },
   sectionBody: {
     borderRadius: Spacing.four,

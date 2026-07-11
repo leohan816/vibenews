@@ -1,0 +1,21 @@
+# VibeNews backup (online SQLite VACUUM INTO + integrity verify). Oneshot, driven by the timer.
+# Authored artifact — NOT installed or started by the implementation pass.
+[Unit]
+Description=VibeNews online backup + verify
+
+[Service]
+Type=oneshot
+User=vibenews
+Group=vibenews
+WorkingDirectory=/opt/vibenews
+EnvironmentFile=/etc/vibenews/.env.server.local
+ExecStart=/usr/bin/node --import tsx server/src/bin/backup.ts
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/vibenews-dev
+StateDirectory=vibenews-dev
+CapabilityBoundingSet=
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX

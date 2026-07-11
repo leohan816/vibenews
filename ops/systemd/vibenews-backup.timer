@@ -1,0 +1,11 @@
+# Drives vibenews-backup.service daily. Authored artifact — NOT installed by the implementation pass.
+[Unit]
+Description=VibeNews daily backup timer
+
+[Timer]
+OnCalendar=*-*-* 04:30:00 Asia/Seoul
+Persistent=true
+Unit=vibenews-backup.service
+
+[Install]
+WantedBy=timers.target

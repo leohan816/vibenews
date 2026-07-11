@@ -68,7 +68,6 @@ export interface PlaybackState {
   status: PlaybackStatus;
   repeatMode: RepeatMode;
   sessionCompleted: boolean;
-  usingFallbackAudio: boolean;
   updatedAt: string;
 }
 

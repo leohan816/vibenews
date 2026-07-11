@@ -1,0 +1,29 @@
+# VibeNews processing worker (single-writer lease; Builder→Verifier→Fish pipeline).
+# Authored artifact — NOT installed or started by the implementation pass. Live provider calls
+# remain NOT_RUN pending independent implementation review.
+[Unit]
+Description=VibeNews processing worker (single-writer)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vibenews
+Group=vibenews
+WorkingDirectory=/opt/vibenews
+EnvironmentFile=/etc/vibenews/.env.server.local
+ExecStart=/usr/bin/node --import tsx server/src/bin/worker.ts
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/vibenews-dev
+StateDirectory=vibenews-dev
+CapabilityBoundingSet=
+LockPersonality=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
