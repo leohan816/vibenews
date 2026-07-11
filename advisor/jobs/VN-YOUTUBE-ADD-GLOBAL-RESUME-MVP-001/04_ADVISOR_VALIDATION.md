@@ -69,3 +69,31 @@ Advisor validation permits only independent `DESIGN_REVIEW` of the immutable con
 It does not approve, accept risk for, or freeze the design. A `PASS_WITH_RISK` that requires material Leo/GPT risk
 acceptance is not freezeable by Advisor. `NEEDS_PATCH` must return stable finding IDs for a bounded same-Designer
 revision and same-Reviewer delta review.
+
+## Initial design review validation
+
+```text
+VALIDATION_PHASE: POST_DESIGN_REVIEW
+VALIDATION_STATUS: BLOCKED_PENDING_LEO_GPT_DECISION
+DESIGN_REVIEW_ID: design-review-001
+REVIEW_TYPE: DESIGN_REVIEW
+REVIEWER_VERDICT: NEEDS_PATCH
+VERDICT_TARGET_HEAD: f8a0dc01b7eede5ac9cfd0fc39157cb08cd7f984
+DESIGN_REVIEW_REPORT_HEAD: f46ea708d9768ce883effbb97bcd15cbddfa1227
+BLOCKING_FINDING_IDS: DR1-F1
+NON_BLOCKING_FINDING_IDS: DR1-F2
+DESIGN_REVISION_ATTEMPTS_USED: 0
+DESIGN_FREEZE_STATUS: NOT_FROZEN
+REQUIRED_LEO_DECISION: D-009
+NEXT_ACTOR: Leo/GPT
+```
+
+The Advisor directly read both Reviewer files and verified that report commit
+`f46ea708d9768ce883effbb97bcd15cbddfa1227` is pushed, descends from the Advisor review-routing commit, changes only
+the two declared `design-review-001` report paths, uses the required containing-commit sentinel, targets the exact
+14-path design content head, and leaves the worktree clean.
+
+`DR1-F1` finds that provider-side no-training/data-control unverifiability was introduced as a hard acceptance
+blocker without Leo/GPT authority. The report requires a same-Designer bounded revision after the material outcome is
+explicitly decided. `DR1-F2` independently accepts the Tailscale private-transport selection as a bounded D-002/D-006
+choice and requires no patch. Advisor does not freeze, revise the design, or infer D-009.
