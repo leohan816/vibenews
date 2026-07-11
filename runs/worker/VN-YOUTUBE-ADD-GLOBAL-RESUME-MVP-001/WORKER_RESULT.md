@@ -54,6 +54,12 @@ EVIDENCE_ONLY_CORRECTION_002: This WORKER_RESULT.md was updated (Markdown-only) 
   EVIDENCE record delivered as an additive evidence-only commit; it does NOT replace or enter the
   86-path verdict subject and does NOT change CORRECTION_CONTENT_HEAD 767e0d2, the frozen design,
   product code, tests, or runtime. All prior truthful evidence above is preserved unchanged.
+EVIDENCE_CORRECTION_003: Markdown-only, evidence-only. The lint warning count is exactly 47 (0 errors,
+  exit 0); two historical assertions that said 45 warnings (LINT_SCOPE_RATIONALE and TEST_RESULTS) are
+  corrected to 47. The Advisor independently reran the unchanged implementation subject and reproduced
+  typecheck exit 0, lint exit 0 with 47 warnings, unit 46/46, integration 51/51, runtime 2/2. This
+  updates only WORKER_RESULT.md; it does not change the 86-path verdict subject,
+  IMPLEMENTATION_REVIEW_SUBJECT_HEAD 767e0d2, the frozen design, product code, tests, or runtime.
 CHANGED_FILES: (exact set is the content commit diff from WORKER_INPUT_HEAD; grouped)
 - server (new): src/config.ts, src/db/{connection,migrate}.ts, src/domain/{enums,state-machines,contracts}.ts,
   src/providers/{caption,deepseek-builder,deepseek-verifier,fish-tts}.ts,
@@ -83,7 +89,7 @@ LINT_SCOPE_RATIONALE: `expo lint` auto-writes eslint.config.js (a non-allowlist 
   `npm run lint` invokes ESLint 9 directly with the official Expo flat config
   (--config node_modules/eslint-config-expo/flat.js) over the exact frozen implementation TS/TSX
   surfaces only. In-scope findings are fixed, not suppressed (e.g. add.tsx effect setState moved after
-  the await to clear react-hooks/set-state-in-effect). exit 0 (0 errors, 45 advisory warnings shown).
+  the await to clear react-hooks/set-state-in-effect). exit 0 (0 errors, 47 advisory warnings shown).
 OUT_OF_SCOPE_FINDING (unchanged, not in §16.1 allowlist): src/hooks/use-color-scheme.web.ts:11
   react-hooks/set-state-in-effect — a pre-existing stock Expo web-hydration hook outside this job's
   implementation scope. Left unchanged (out of scope, not an in-scope suppression). Recorded for a
@@ -103,7 +109,7 @@ COMMANDS_EXECUTED:
 - stale/secret sweeps (sample|fallback, five.second|5초, anthropic|openai|kimi|qwen, cookie|netrc|write-thumbnail|download.*(video|audio), DEEPSEEK_/FISH_ value leak); allowlist diff check; git ls-files media/secret check
 TEST_RESULTS:
 - typecheck app + server: exit 0
-- lint (frozen implementation scope, official Expo flat config): exit 0 (0 errors, 45 warnings)
+- lint (frozen implementation scope, official Expo flat config): exit 0 (0 errors, 47 warnings; Advisor independently reproduced exit 0 with 47 warnings against the unchanged subject)
 - unit: 46 pass / 0 fail
 - integration: 51 pass / 0 fail (pipeline real-audio persistence + revise/verify-fail/copyright/cap;
   worker/poller/caption/feed wiring; feed streaming size-cap; enqueue: manual API claimable, duplicate
