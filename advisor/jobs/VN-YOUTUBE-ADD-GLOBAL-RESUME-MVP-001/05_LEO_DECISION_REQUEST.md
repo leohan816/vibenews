@@ -3,7 +3,7 @@
 ## D-009 — provider-side no-training/data-control acceptance gate
 
 ```text
-DECISION_STATUS: REQUIRED
+DECISION_STATUS: RESOLVED
 JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 ACTOR: VibeNews Advisor
 SOURCE_REVIEW_ID: design-review-001
@@ -12,7 +12,9 @@ BLOCKING_FINDING_ID: DR1-F1
 DESIGN_CONTENT_HEAD: f8a0dc01b7eede5ac9cfd0fc39157cb08cd7f984
 DESIGN_FREEZE_STATUS: NOT_FROZEN
 DESIGN_REVISION_ATTEMPTS_USED: 0
-NEXT_ACTOR: Leo/GPT
+DECISION_ACK: D-009-A — RECORD WITHOUT BLOCKING
+DECISION_ACK_PATH: advisor/jobs/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/06_D009_DECISION_ACK.md
+NEXT_ACTOR: VibeNews Designer
 ```
 
 ### Why a decision is required
@@ -49,3 +51,8 @@ This preserves the already-selected DeepSeek/Fish path and avoids inventing a ne
 
 Advisor will route same-Designer revision attempt 1 limited to `DR1-F1`, then return the revised immutable subject to
 the same Reviewer for `DESIGN_DELTA_REVIEW`. Only a passing delta may be frozen and routed to Worker.
+
+## Resolution
+
+Leo/GPT selected `D-009-A — RECORD WITHOUT BLOCKING`. The complete binding minimization, recording, prohibited-claim,
+escalation, and live-evidence contract is preserved in `06_D009_DECISION_ACK.md`.

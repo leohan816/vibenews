@@ -4,7 +4,7 @@
 
 ```text
 ADVISOR_DIAGNOSIS: COMPLETE
-DECISION_ACK_SOURCE: Leo/GPT explicit D-001 through D-008 resolution
+DECISION_ACK_SOURCE: Leo/GPT explicit D-001 through D-009 resolution
 DECISION_ACK_STATUS: ACKNOWLEDGED
 DESIGN_DEPTH: FULL_DESIGN
 DESIGN_REVIEW_REQUIRED: true
@@ -126,6 +126,8 @@ USE_BOUNDARY: private acceptance only
 ```text
 CONFIRMED_FACTS:
 - D-001 through D-008 are explicit Leo/GPT authority and are resolved.
+- D-009-A records provider policy uncertainty without blocking this low-risk public-content MVP; its exact scope,
+  minimization, prohibited claims, escalation gates, and acceptance labels are in `06_D009_DECISION_ACK.md`.
 - The original intake intent and corrected global-resume contract remain current.
 - The target is a private, fixed-user vertical slice on the existing development server, not a public or production service.
 - Provider and reference-voice runtime configuration is prepared outside Git in .env.server.local.
@@ -175,3 +177,18 @@ VibeNews-designer FULL_DESIGN
 ```
 
 No design-only, mock-only, sample-audio-only, or partial pipeline result is mission completion.
+
+## D-009 — Provider-policy assurance
+
+```text
+DECISION: D-009-A — RECORD WITHOUT BLOCKING
+SCOPE: current private/internal low-risk public YouTube technology-video MVP only
+PROVIDER_POLICY_UNCERTAINTY_BLOCKS_THIS_MVP: false
+PROVIDER_SIDE_DELETION_ASSURANCE: NOT_VERIFIED
+PROVIDER_SIDE_NO_TRAINING_ASSURANCE: NOT_VERIFIED
+PRODUCTION_PRIVACY_APPROVAL: NOT_GRANTED
+HARD_ESCALATION_FOR_EXPANDED_OR_SENSITIVE_SCOPE: required
+```
+
+The complete binding record is `06_D009_DECISION_ACK.md`. It does not weaken D-001 through D-008, does not authorize
+private/sensitive/customer content, and does not allow local deletion to be represented as provider-side proof.
