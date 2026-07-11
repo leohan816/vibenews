@@ -97,3 +97,62 @@ the two declared `design-review-001` report paths, uses the required containing-
 blocker without Leo/GPT authority. The report requires a same-Designer bounded revision after the material outcome is
 explicitly decided. `DR1-F2` independently accepts the Tailscale private-transport selection as a bounded D-002/D-006
 choice and requires no patch. Advisor does not freeze, revise the design, or infer D-009.
+
+## Design revision and pre-delta-review validation
+
+```text
+VALIDATION_PHASE: PRE_DESIGN_DELTA_REVIEW
+VALIDATION_STATUS: PASS_FOR_INDEPENDENT_DESIGN_DELTA_REVIEW
+JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
+ACTOR: VibeNews Advisor
+DESIGN_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001-DESIGN-001
+DESIGN_VERSION: 2
+REVISION_ID: design-revision-001
+REVISION_ATTEMPT: 1
+FINDING_IDS_IN_SCOPE: DR1-F1
+LEO_GPT_DECISION: D-009-A — RECORD WITHOUT BLOCKING
+PREVIOUS_DESIGN_CONTENT_HEAD: f8a0dc01b7eede5ac9cfd0fc39157cb08cd7f984
+DESIGN_CONTENT_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
+DESIGN_POINTER_HEAD: 9d130d43d3b14dedc795803ab01ff0a9ea4ef6a7
+DESIGN_DELTA_REVIEW_ID: design-delta-review-001
+DESIGN_REVISION_ATTEMPTS_USED: 1
+BLOCKING_OPEN_DECISIONS: none
+FROZEN_DESIGN_HEAD: PENDING_REVIEWER_PASS
+RUNTIME_CHANGE_STATUS: ZERO
+PRODUCT_CODE_CHANGE_STATUS: ZERO
+DIRTY_STATE: clean before Advisor routing
+NEXT_ACTOR: VibeNews Reviewer
+```
+
+### Direct evidence checked
+
+- The Advisor fetched `origin/master` and verified `master`, clean staged/unstaged/untracked state, and
+  `HEAD == origin/master == 9d130d43d3b14dedc795803ab01ff0a9ea4ef6a7` before this routing edit.
+- Revision content `5c97382841d00ceb8b18e27998c5e68bbe468555` descends from the previous content through only the declared
+  prior pointer, review routing/report, D-009 decision, and revision-routing evidence. Its direct parent is the exact
+  Advisor D-009 ACK/routing head `5c93fe01fefa1927244588e114ffa1a0f565c6ff`.
+- The revision commit changes exactly the eight authorized delta paths. All 14 design subject paths exist, and the
+  six unchanged product design blobs are byte-identical to
+  `f8a0dc01b7eede5ac9cfd0fc39157cb08cd7f984`.
+- Pointer head `9d130d43d3b14dedc795803ab01ff0a9ea4ef6a7` has the revision content head as its parent and changes only
+  `runs/designer/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/DESIGN_RESULT_POINTER.md`.
+- The Advisor directly read the complete revised `DESIGN_RESULT.md` and all seven changed product design documents,
+  4,902 lines total. The six unchanged subjects had already been directly read during initial validation and were
+  revalidated by immutable blob identity.
+- Version 2 records D-009-A, closes only `DR1-F1`, declares no current-scope open decision, preserves D-001 through
+  D-008, and leaves Tailscale's accepted operator prerequisite unchanged.
+- Provider uncertainty is now explicitly limited/unverified and nonblocking for this current slice. The two provider
+  records, public policy/API facts, role-specific value-free runtime binding, exact five acceptance labels,
+  prohibited-claim boundary, and local-control-before-label rule are present.
+- DeepSeek and Fish role payload allowlists exclude the required private/personal/sensitive/user/history/secret
+  material. All ten expanded/ambiguous scope reasons stop before network and require a new Leo/GPT decision.
+- `git diff --check` passed. The revision has no stale `FISH_AUDIO_*` aliases, credential-looking literal values,
+  broken relative Markdown targets, implementation/runtime/package change, caption/media artifact, or secret file.
+- No secret file or value was opened, read, printed, copied, or used as evidence.
+
+### Gate decision
+
+Advisor validation permits the same fixed Reviewer to perform only `DESIGN_DELTA_REVIEW` of immutable content head
+`5c97382841d00ceb8b18e27998c5e68bbe468555` and all 14 design subject paths, with `DR1-F1` in scope. It does not
+freeze the design. A `PASS` permits the exact freeze gate; `PASS_WITH_RISK` waits for Leo/GPT acceptance;
+`NEEDS_PATCH` may consume the second and final automatic design-revision attempt; `FAIL` stops.
