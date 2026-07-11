@@ -1,7 +1,7 @@
 # VN-GOVERNANCE-DESIGNER-INTEGRATION-001
 
 ```text
-STATUS: SESSION_RELOAD_PENDING
+STATUS: VALIDATED_AWAITING_POINTER_PUBLISH
 REPO: /home/leo/Project/VibeNews
 BRANCH: master
 BASE: b69421da59cb4b99683e8196618d1b8ab6eab040
@@ -21,7 +21,12 @@ CORRECTED_IMPLEMENTATION_SUBJECT_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
 CORRECTION_POINTER_HEAD: 9ac66add344766049b6b185209f936f85889f608
 IMPLEMENTATION_REVIEW_ID: implementation-review-001
 IMPLEMENTATION_REVIEW_REPORT_HEAD: 531ab045bb110f6eb1b48b638c99bfa9f2d924eb
-NEXT_ACTOR: VibeNews Advisor; VibeNews Designer; VibeNews Worker; VibeNews Reviewer
+REVIEWER_FINAL_VERDICT: PASS
+ALL_REQUIRED_SESSIONS_RELOADED: true
+RUNTIME_CHANGE_STATUS: ZERO
+FINAL_CONTENT_HEAD: RECORDED_IN_11_FINAL_POINTER_AFTER_THIS_INDEX_IS_COMMITTED
+SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
+NEXT_ACTOR: VibeNews Advisor for final content and pointer publish
 ```
 
 ## Advisor artifacts
@@ -32,6 +37,7 @@ NEXT_ACTOR: VibeNews Advisor; VibeNews Designer; VibeNews Worker; VibeNews Revie
 - [`03_DESIGNER_HANDOFF_PROMPT.md`](03_DESIGNER_HANDOFF_PROMPT.md)
 - [`03_DESIGNER_RUN_PROMPT.md`](03_DESIGNER_RUN_PROMPT.md)
 - [`04_ADVISOR_VALIDATION.md`](04_ADVISOR_VALIDATION.md)
+- [`05_FINAL_AUDIT.md`](05_FINAL_AUDIT.md)
 - [`reviews/design-review-001/REVIEWER_BRIEF.md`](reviews/design-review-001/REVIEWER_BRIEF.md)
 - [`reviews/design-review-001/REVIEWER_HANDOFF_PROMPT.md`](reviews/design-review-001/REVIEWER_HANDOFF_PROMPT.md)
 - [`reviews/design-review-001/REVIEWER_RUN_PROMPT.md`](reviews/design-review-001/REVIEWER_RUN_PROMPT.md)
@@ -50,6 +56,7 @@ NEXT_ACTOR: VibeNews Advisor; VibeNews Designer; VibeNews Worker; VibeNews Revie
 - [`reload/WORKER_RELOAD_RUN_PROMPT.md`](reload/WORKER_RELOAD_RUN_PROMPT.md)
 - [`reload/REVIEWER_RELOAD_RUN_PROMPT.md`](reload/REVIEWER_RELOAD_RUN_PROMPT.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
+- [`11_FINAL_POINTER.md`](11_FINAL_POINTER.md)
 
 ## Exclusive result paths
 
@@ -58,5 +65,6 @@ NEXT_ACTOR: VibeNews Advisor; VibeNews Designer; VibeNews Worker; VibeNews Revie
 - Worker: `runs/worker/VN-GOVERNANCE-DESIGNER-INTEGRATION-001/`
 - Rework/correction: `runs/rework/VN-GOVERNANCE-DESIGNER-INTEGRATION-001/`
 
-Only the listed Advisor intake, validation, routing, loop-state, and index artifacts are Advisor-authored. Designer,
-Worker, Reviewer, canonical, runtime, and product content remain outside Advisor write ownership.
+Only the listed Advisor intake, validation, routing, loop-state, audit, index, and final-pointer artifacts are
+Advisor-authored. Designer, Worker, Reviewer, canonical, runtime, and product content remain outside Advisor write
+ownership.

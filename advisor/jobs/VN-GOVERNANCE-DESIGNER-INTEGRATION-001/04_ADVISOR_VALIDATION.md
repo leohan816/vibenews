@@ -190,3 +190,116 @@ conformance, correction closure, actor ownership, frozen-design/report immutabil
 
 The post-PASS reload gate is open. No canonical subject path may change after this point without creating a new
 subject head and obtaining a new review verdict from the same Reviewer.
+
+## Four-session protocol reload validation
+
+```text
+VALIDATION_PHASE: POST_IMPLEMENTATION_REVIEW_SESSION_RELOAD
+VALIDATION_STATUS: PASS
+RELOAD_ROUTING_HEAD: 378ed56a1d39f0f9ed135fddfe459a08c151d9ac
+REVIEWED_SUBJECT_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
+IMPLEMENTATION_REVIEW_REPORT_HEAD: 531ab045bb110f6eb1b48b638c99bfa9f2d924eb
+REVIEWER_VERDICT: PASS
+VIBENEWS_ADVISOR_RELOADED: true
+VIBENEWS_DESIGNER_RELOADED: true
+VIBENEWS_WORKER_RELOADED: true
+VIBENEWS_REVIEWER_RELOADED: true
+ALL_REQUIRED_SESSIONS_RELOADED: true
+CANONICAL_FILES_MATCH_REVIEWED_SUBJECT: true
+RELOAD_WRITE_PERFORMED: false
+RUNTIME_CHANGE_STATUS: ZERO
+DIRTY_STATE_AFTER_RELOAD: clean
+FINALIZATION_READY: true
+NEXT_ACTOR: VibeNews Advisor
+```
+
+The Advisor directly rechecked all four fixed tmux sessions after the implementation `PASS`. Each session existed at
+`/home/leo/Project/VibeNews`; the Advisor and Designer panes ran Codex, while Worker and Reviewer ran their existing
+Claude Code contexts. No new tmux session, agent, subagent, or substitute context was created. Each actor opened the
+reload instruction, verified the immutable subject and review report, directly read all eight entry/canonical files,
+and returned only to Advisor. Git blob comparisons showed every canonical working-tree file was byte-identical to
+the Reviewer-passed subject. Reload did not write, stage, commit, push, or change any runtime/product path.
+
+### Advisor reload return
+
+```text
+ROLE_PROTOCOL_RELOADED
+ACTOR: VibeNews Advisor
+ACTOR_ID: vibenews-advisor
+SESSION_NAME: VibeNews-advisor
+WORKSPACE: /home/leo/Project/VibeNews (branch master)
+FILES_READ: CLAUDE.md; AGENTS.md; docs/agent/ROLE_INDEX.md; docs/agent/AGENT_ROLE_PROTOCOL.md; docs/agent/DESIGN_PROTOCOL.md; docs/agent/RUN_PROTOCOL.md; docs/agent/RESULT_REPORTING_PROTOCOL.md; docs/agent/SESSION_RELOAD_PROTOCOL.md
+ENTRY_FILES_READ: CLAUDE.md; AGENTS.md
+CANONICAL_FILES_READ: docs/agent/ROLE_INDEX.md; docs/agent/AGENT_ROLE_PROTOCOL.md; docs/agent/DESIGN_PROTOCOL.md; docs/agent/RUN_PROTOCOL.md; docs/agent/RESULT_REPORTING_PROTOCOL.md; docs/agent/SESSION_RELOAD_PROTOCOL.md
+DESIGN_PROTOCOL_READ: true
+ROLE_SUMMARY: Preserve Leo/GPT intent; investigate, scope, route, validate, freeze or unfreeze, reload, and audit without authoring design or implementation.
+DESIGN_GATE_SUMMARY: Designer is mandatory; Advisor selects depth and freezes only exact reviewed design content with no unresolved blocker.
+FORBIDDEN_SUMMARY: No design or implementation authoring, actor-result impersonation, self-review, or material-risk acceptance without Leo/GPT.
+READINESS_MARKER: READY_UNDER_FIVE_ACTOR_PROTOCOL
+SUBJECT_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
+RETURN_TO: Advisor
+STOP_AFTER_RETURN: true
+```
+
+### Designer reload return
+
+```text
+ROLE_PROTOCOL_RELOADED
+ACTOR: VibeNews Designer
+ACTOR_ID: vibenews-designer
+SESSION_NAME: VibeNews-designer
+WORKSPACE: /home/leo/Project/VibeNews
+FILES_READ: CLAUDE.md; AGENTS.md; docs/agent/ROLE_INDEX.md; docs/agent/AGENT_ROLE_PROTOCOL.md; docs/agent/DESIGN_PROTOCOL.md; docs/agent/RUN_PROTOCOL.md; docs/agent/RESULT_REPORTING_PROTOCOL.md; docs/agent/SESSION_RELOAD_PROTOCOL.md
+ENTRY_FILES_READ: CLAUDE.md; AGENTS.md
+CANONICAL_FILES_READ: docs/agent/ROLE_INDEX.md; docs/agent/AGENT_ROLE_PROTOCOL.md; docs/agent/DESIGN_PROTOCOL.md; docs/agent/RUN_PROTOCOL.md; docs/agent/RESULT_REPORTING_PROTOCOL.md; docs/agent/SESSION_RELOAD_PROTOCOL.md
+DESIGN_PROTOCOL_READ: true
+ROLE_SUMMARY: Mandatory Designer for every QUICK/STANDARD/FULL mission; owns design results and bounded revisions, exposes material decisions, and returns only to Advisor.
+DESIGN_GATE_SUMMARY: Advisor validates and freezes exact reviewed design content; Designer revisions are finding-bounded with same-Reviewer delta review and two-attempt maximum.
+FORBIDDEN_SUMMARY: No implementation, review, approval, freeze/unfreeze, routing, direct Leo/GPT return, scope broadening, file write, or subagent.
+READINESS_MARKER: READY_UNDER_FIVE_ACTOR_PROTOCOL
+SUBJECT_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
+RETURN_TO: Advisor
+STOP_AFTER_RETURN: true
+```
+
+### Worker reload return
+
+```text
+ROLE_PROTOCOL_RELOADED
+ACTOR: VibeNews Worker
+ACTOR_ID: WORKER
+SESSION_NAME: VibeNews
+WORKSPACE: /home/leo/Project/VibeNews (branch master)
+FILES_READ: CLAUDE.md; AGENTS.md; docs/agent/ROLE_INDEX.md; docs/agent/AGENT_ROLE_PROTOCOL.md; docs/agent/DESIGN_PROTOCOL.md; docs/agent/RUN_PROTOCOL.md; docs/agent/RESULT_REPORTING_PROTOCOL.md; docs/agent/SESSION_RELOAD_PROTOCOL.md
+ENTRY_FILES_READ: CLAUDE.md; AGENTS.md
+CANONICAL_FILES_READ: docs/agent/ROLE_INDEX.md; docs/agent/AGENT_ROLE_PROTOCOL.md; docs/agent/DESIGN_PROTOCOL.md; docs/agent/RUN_PROTOCOL.md; docs/agent/RESULT_REPORTING_PROTOCOL.md; docs/agent/SESSION_RELOAD_PROTOCOL.md
+DESIGN_PROTOCOL_READ: true
+ROLE_SUMMARY: Implement only the exact Advisor-frozen design within the brief allowlist; record conformance and return design defects and all results only to Advisor.
+DESIGN_GATE_SUMMARY: Implementation starts only from the reviewed frozen design; design and implementation rework counters remain separate and bounded.
+FORBIDDEN_SUMMARY: No scope broadening, self-approval, direct Leo/GPT return, actor-owned path edits, substitute agent, branch rewrite, or expired-Advisor-exception reactivation.
+READINESS_MARKER: READY_UNDER_FIVE_ACTOR_PROTOCOL
+SUBJECT_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
+RETURN_TO: Advisor
+STOP_AFTER_RETURN: true
+```
+
+### Reviewer reload return
+
+```text
+ROLE_PROTOCOL_RELOADED
+ACTOR: VibeNews Reviewer
+ACTOR_ID: vibenews-reviewer
+SESSION_NAME: VibeNews-reviewer
+WORKSPACE: /home/leo/Project/VibeNews (branch master, origin https://github.com/leohan816/vibenews.git, HEAD=origin/master=378ed56, clean)
+FILES_READ: CLAUDE.md; AGENTS.md; docs/agent/ROLE_INDEX.md; docs/agent/AGENT_ROLE_PROTOCOL.md; docs/agent/DESIGN_PROTOCOL.md; docs/agent/RUN_PROTOCOL.md; docs/agent/RESULT_REPORTING_PROTOCOL.md; docs/agent/SESSION_RELOAD_PROTOCOL.md
+ENTRY_FILES_READ: CLAUDE.md; AGENTS.md
+CANONICAL_FILES_READ: docs/agent/ROLE_INDEX.md; docs/agent/AGENT_ROLE_PROTOCOL.md; docs/agent/DESIGN_PROTOCOL.md; docs/agent/RUN_PROTOCOL.md; docs/agent/RESULT_REPORTING_PROTOCOL.md; docs/agent/SESSION_RELOAD_PROTOCOL.md
+DESIGN_PROTOCOL_READ: true
+ROLE_SUMMARY: Independently review immutable design and implementation subjects as distinct REVIEW_ID-scoped passes from actual Git evidence and return only to Advisor.
+DESIGN_GATE_SUMMARY: Design passes verify design-content identity; implementation passes verify frozen-design conformance; report commits never change the verdict subject.
+FORBIDDEN_SUMMARY: No patching, editing, freezing, implementing, self-review, actor impersonation, scope broadening, new context, or routing outside Advisor.
+READINESS_MARKER: READY_UNDER_FIVE_ACTOR_PROTOCOL
+SUBJECT_HEAD: 00074e3828bfe7d8fc967f1d5c012dbc1542e2c5
+RETURN_TO: Advisor
+STOP_AFTER_RETURN: true
+```
