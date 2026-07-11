@@ -1,7 +1,7 @@
 # VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
 ```text
-STATUS: IMPLEMENTATION_REVIEW_ROUTING
+STATUS: IMPLEMENTATION_REWORK_ROUTING
 REPO: /home/leo/Project/VibeNews
 ORIGIN: https://github.com/leohan816/vibenews.git
 BRANCH: master
@@ -47,13 +47,18 @@ IMPLEMENTATION_REVIEW_ID: implementation-review-001
 IMPLEMENTATION_REVIEW_SUBJECT_HEAD: 767e0d2bdc6d31e9950858c4267adf75c90f5fae
 IMPLEMENTATION_REVIEW_SUBJECT_PATH_COUNT: 86
 ADVISOR_PRE_IMPLEMENTATION_REVIEW_VALIDATION: PASS
-IMPLEMENTATION_REVIEW_STATUS: ROUTED
-IMPLEMENTATION_REVIEW_REPORT_HEAD: NOT_APPLICABLE
-IMPLEMENTATION_REWORK_ATTEMPTS_USED: 0
+ADVISOR_POST_IMPLEMENTATION_REVIEW_VALIDATION: NEEDS_PATCH_ROUTED
+IMPLEMENTATION_REVIEW_STATUS: NEEDS_PATCH_REWORK_ROUTED
+IMPLEMENTATION_REVIEW_REPORT_HEAD: 263678ed5ea71975b23007cb0a84cd167ee9d54c
+IMPLEMENTATION_REVIEW_VERDICT: NEEDS_PATCH
+IMPLEMENTATION_REVIEW_BLOCKING_FINDINGS: IR-F1
+ACTIVE_IMPLEMENTATION_REWORK_ATTEMPT: 1
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 1
 IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 2
+PLANNED_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
 RUNTIME_CHANGE_STATUS: ZERO
 SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
-NEXT_ACTOR: VibeNews Reviewer
+NEXT_ACTOR: VibeNews Worker
 ```
 
 ## Advisor artifacts
@@ -81,6 +86,8 @@ NEXT_ACTOR: VibeNews Reviewer
 - [`reviews/implementation-review-001/REVIEWER_BRIEF.md`](reviews/implementation-review-001/REVIEWER_BRIEF.md)
 - [`reviews/implementation-review-001/REVIEWER_HANDOFF_PROMPT.md`](reviews/implementation-review-001/REVIEWER_HANDOFF_PROMPT.md)
 - [`reviews/implementation-review-001/REVIEWER_RUN_PROMPT.md`](reviews/implementation-review-001/REVIEWER_RUN_PROMPT.md)
+- [`implementation/rework/1/REWORK_HANDOFF_PROMPT.md`](implementation/rework/1/REWORK_HANDOFF_PROMPT.md)
+- [`implementation/rework/1/REWORK_RUN_PROMPT.md`](implementation/rework/1/REWORK_RUN_PROMPT.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 
 ## Current transition
@@ -96,7 +103,10 @@ design content head `5c97382841d00ceb8b18e27998c5e68bbe468555`. The fixed `VibeN
 `e73ce657c731d29b3cfb8309866b076c3770081d`; Advisor validation corrected literal control bytes without behavior change
 and froze the implementation verdict target at `767e0d2bdc6d31e9950858c4267adf75c90f5fae` across exactly 86 product
 paths. Later Worker commits update evidence only. Advisor independently reproduced typecheck/lint and all 99 synthetic
-tests, verified immutable design/review objects and clean Git state, and now routes `implementation-review-001` to the
-fixed `VibeNews-reviewer`. Bounded correction/delta review if required, real private provider acceptance, global
-resume/exclusion acceptance, required reloads, final audit, and final pointer remain mandatory. Partial, mock-only, and
-sample-audio work cannot close the mission.
+tests, verified immutable design/review objects and clean Git state, and routed `implementation-review-001` to the
+fixed `VibeNews-reviewer`. The Reviewer returned `NEEDS_PATCH` at report head
+`263678ed5ea71975b23007cb0a84cd167ee9d54c` with one blocking finding, `IR-F1`: `accept-private.ts` is a sentinel stub,
+not the executable frozen acceptance runner. Advisor now routes same-Worker implementation rework attempt 1, bounded
+to that file plus one integration test, followed by same-Reviewer `implementation-delta-review-001-a1`. Real private
+provider acceptance, global resume/exclusion acceptance, required reloads, final audit, and final pointer remain
+mandatory. Partial, mock-only, and sample-audio work cannot close the mission.

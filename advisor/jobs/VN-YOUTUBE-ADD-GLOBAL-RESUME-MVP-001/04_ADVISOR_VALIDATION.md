@@ -254,3 +254,35 @@ Advisor validation permits only independent `IMPLEMENTATION_REVIEW` of immutable
 The Reviewer must inspect the full code/diff and run independent synthetic checks. `NEEDS_PATCH` returns stable finding
 IDs for a bounded same-Worker correction followed by same-Reviewer `IMPLEMENTATION_DELTA_REVIEW`. Real private provider
 and device acceptance remains blocked until the implementation review gate passes.
+
+## Initial implementation-review validation
+
+```text
+VALIDATION_PHASE: POST_IMPLEMENTATION_REVIEW
+VALIDATION_STATUS: NEEDS_PATCH_ROUTED_TO_BOUNDED_REWORK
+IMPLEMENTATION_REVIEW_ID: implementation-review-001
+REVIEW_TYPE: IMPLEMENTATION_REVIEW
+REVIEWER_VERDICT: NEEDS_PATCH
+VERDICT_TARGET_HEAD: 767e0d2bdc6d31e9950858c4267adf75c90f5fae
+IMPLEMENTATION_REVIEW_REPORT_HEAD: 263678ed5ea71975b23007cb0a84cd167ee9d54c
+BLOCKING_FINDING_IDS: IR-F1
+IMPLEMENTATION_REWORK_ATTEMPT: 1
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 1
+IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 2
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
+ALLOWED_PATCH_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN_PENDING_IMPLEMENTATION_REVIEW
+NEXT_ACTOR: VibeNews Worker
+```
+
+The Advisor directly read the complete Reviewer result and pointer and verified report commit
+`263678ed5ea71975b23007cb0a84cd167ee9d54c` is pushed, descends from review-routing head
+`cab7dace463bdce88c3bec2ccbc88bff08f6e98a`, changes only the two declared Reviewer report paths, targets the exact
+86-path implementation subject, and leaves the worktree clean.
+
+`IR-F1` is bounded and does not require a design revision or new Leo/GPT decision. The reviewed
+`server/src/bin/accept-private.ts` unconditionally reports `NOT_RUN` and has no real config/provider/pipeline/playback
+or evidence path, while frozen sections 14.1, 14.4, and 16.1 require executable real private-acceptance tooling before
+the post-review live run. Advisor therefore routes same-Worker implementation rework attempt 1 in only that file plus
+one new allowlisted integration test. Live provider/YouTube/device execution and secret access remain forbidden in the
+rework; the same fixed Reviewer must perform `implementation-delta-review-001-a1` on the returned immutable subject.
