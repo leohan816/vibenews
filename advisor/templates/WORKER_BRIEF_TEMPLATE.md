@@ -7,9 +7,17 @@ TARGET_ACTOR: VibeNews Worker
 TARGET_PROJECT: VibeNews
 TARGET_REPO:
 TARGET_BRANCH:
+TARGET_SESSION_NAME: VibeNews
 BASE_COMMIT:
 ORIGINAL_LEO_GPT_INSTRUCTION:
 MISSION_SUCCESS_CRITERIA:
+DESIGN_ID:
+DESIGN_VERSION:
+FROZEN_DESIGN_HEAD:
+FROZEN_DESIGN_PATHS:
+DESIGN_REVIEW_EVIDENCE:
+DESIGN_CONFORMANCE_REQUIRED: true
+DESIGN_DEFECT_CHECKPOINT_ALLOWED: false
 ALLOWED_PATHS:
 FORBIDDEN_PATHS:
 REQUIRED_OUTPUTS:
@@ -37,4 +45,8 @@ RETURN_RESULT_TO: Advisor
 STOP_AFTER_RETURN: true
 ```
 
-Do not issue this brief while the Unknown Gate contains a required unresolved decision or review.
+Issue this brief only after the Advisor has frozen the design (`FROZEN_DESIGN_HEAD` present) and the Unknown Gate has
+no required unresolved decision or review. The Worker implements only the frozen design in the exact allowlist,
+treats the frozen design subjects as immutable, and never edits design, Reviewer, or Advisor artifacts. A
+contradictory, incomplete, unsafe, or materially undecided frozen design is returned as `BLOCKED_DESIGN_DEFECT` to
+Advisor per `DESIGN_PROTOCOL.md`.

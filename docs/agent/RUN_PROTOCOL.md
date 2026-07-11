@@ -4,8 +4,8 @@ Status: canonical
 
 ## 1. Entry and preflight
 
-Every actor opens `CLAUDE.md`, `AGENTS.md`, and all canonical files in `docs/agent/` directly. Do not act from
-memory or a prior chat summary.
+Every actor opens `CLAUDE.md`, `AGENTS.md`, and all canonical files in `docs/agent/` directly, including
+`DESIGN_PROTOCOL.md`. Do not act from memory or a prior chat summary.
 
 Before writes, the Advisor records and verifies:
 
@@ -19,9 +19,9 @@ DIRTY_STATE
 ```
 
 Required read-only checks include repository top-level, origin, current branch, HEAD, short/porcelain status, and
-recent history. Never guess a repository, create or switch a branch, create or clone a repository, merge, force
-push, or rewrite history to satisfy preflight. A branch/origin/topology mismatch or unresolved topology requires a
-safe stop before any write.
+recent history. Never guess a repository, create or switch a branch, create or clone a repository, merge, force push,
+or rewrite history to satisfy preflight. A branch/origin/topology mismatch or unresolved topology requires a safe stop
+before any write.
 
 ## 2. Repository topology
 
@@ -39,7 +39,7 @@ repository when a separate canonical governance repository exists. `BLOCKED_UNRE
 
 ## 3. Unknown Gate
 
-Before any Worker brief, the Advisor records:
+Before any Designer or Worker brief, the Advisor records:
 
 ```text
 CONFIRMED_FACTS
@@ -53,61 +53,60 @@ SAFE_DEFAULT
 REPO_TOPOLOGY_DECISION
 ```
 
-Escalate discovery and do not create a Worker handoff when the mission involves unresolved PII/identity; copyright,
+Escalate discovery and do not route past intake when the mission involves unresolved PII/identity; copyright,
 licensing, or redistribution; article/video/social source storage; credentials, cookies, or accounts; WAF/login
 bypass; database/schema/migration; irreversible collection, deletion, or publication; provider retention/training;
 ranking, recommendation, or personalization; automatic publishing or notifications; AI-news factuality; source
 attribution/provenance; deletion/correction requests; provider cost/rate limits; election, medical, financial, or
-legal high-risk content; cross-module canonical conflicts; or repository-topology conflicts.
+legal high-risk content; cross-module canonical conflicts; or repository-topology conflicts. Any such trigger forces
+at least `FULL_DESIGN` and mandatory design review under `DESIGN_PROTOCOL.md`.
 
-Wait for Leo/GPT decisions and any required external review. The safe default is no implementation and no risky
-state change.
+Wait for Leo/GPT decisions and any required external review. The safe default is no design freeze, no implementation,
+and no risky state change.
 
 ## 4. Standard mission sequence
 
-1. Advisor preflight and evidence-based diagnosis.
-2. Advisor brief with success criteria, allowed paths, forbidden paths, and Unknown Gate.
-3. Worker handoff and short launcher when implementation is required.
-4. Worker result/pointer commit and push, returned only to Advisor.
-5. Advisor validates repository, diff, tests/build, result ownership, commit, push, and origin.
-6. Independent Reviewer handoff and short launcher against an immutable subject head and path set.
-7. Reviewer direct inspection and report-only result/pointer commit and push.
-8. Advisor handles verdict and routes a bounded patch when allowed.
-9. Same Reviewer performs ancestry-checked, path-filtered delta re-review.
-10. Required fixed sessions reload canonical protocols.
-11. Advisor final validation, final audit, content commit, pointer-only publish commit, origin verification, and
+1. Advisor preflight, evidence-based diagnosis, Unknown Gate, and design-depth selection with rationale.
+2. Advisor bounded Designer brief, handoff, and short launcher against an immutable input head.
+3. Designer writes design content only, then pointer only, and returns to Advisor.
+4. Advisor validates the design; a blocking decision returns to Leo/GPT, otherwise the Advisor routes required
+   `DESIGN_REVIEW`.
+5. Reviewer independently reports the design verdict to Advisor.
+6. Advisor routes at most two Designer revisions and same-Reviewer `DESIGN_DELTA_REVIEW` passes as needed.
+7. Advisor records the exact `FROZEN_DESIGN_HEAD` only after the freeze gate in `DESIGN_PROTOCOL.md`.
+8. Advisor briefs Worker with the exact frozen head, subject paths, implementation paths, tests, and access limits.
+9. Worker implements against the frozen head and returns to Advisor, or uses the design-defect flow.
+10. Advisor validates implementation evidence and routes `IMPLEMENTATION_REVIEW` against an immutable subject.
+11. Reviewer directly inspects design conformance and implementation and reports a report-only verdict.
+12. Advisor handles the verdict and routes a bounded same-Worker rework with its own counter and unique review ID
+    when allowed; the same Reviewer performs `IMPLEMENTATION_DELTA_REVIEW`.
+13. After final PASS, required fixed sessions reload the canonical protocols.
+14. Advisor final validation, final audit, content commit, pointer-only publish commit, origin verification, and
     pointer-only return to Leo/GPT.
 
-Actors may not skip or combine role-owned phases.
+Actors may not skip or combine role-owned phases. Design authoring, implementation, and review never share a session.
 
-## 5. Verdict and patch loop
+## 5. Verdict and patch loops
 
-- `PASS`: proceed to Advisor validation and required reloads.
-- `PASS_WITH_RISK`: do not close. Return every risk to Leo/GPT and wait for explicit acceptance.
-- `NEEDS_PATCH`: route only the required bounded patch. Re-review must use the same Reviewer.
-- `FAIL`: stop immediately. Do not substitute another Reviewer or improvise a patch.
+Valid verdicts for every review pass are `PASS`, `PASS_WITH_RISK`, `NEEDS_PATCH`, and `FAIL`.
 
-Automatic patch/re-review is limited to two attempts. A delta review verifies the previous subject as an ancestor,
-reads the exact path-filtered diff from previous subject to new subject, confirms unrelated changes are absent, and
-issues its verdict only for the declared new subject head and paths.
+- `PASS`: proceed to Advisor validation, then freeze (design) or required reloads (implementation).
+- `PASS_WITH_RISK`: do not close or freeze. Return every risk to Leo/GPT and wait for explicit acceptance.
+- `NEEDS_PATCH`: route only the required bounded change. Re-review must use the same Reviewer.
+- `FAIL`: stop immediately. Do not substitute another Reviewer or improvise a change.
 
-For the one-time governance bootstrap, a `NEEDS_PATCH` verdict permits only an Advisor-authored governance-Markdown
-patch. The Advisor creates `advisor/jobs/VN-GOVERNANCE-BOOTSTRAP-001/09_ADVISOR_PATCH_RECORD.md` only when a patch
-actually occurs, with:
+Design and implementation keep separate two-attempt counters:
 
-```text
-PATCH_ATTEMPT:
-REVIEW_FINDING_IDS:
-FILES_CHANGED:
-WHY_IN_SCOPE:
-PREVIOUS_SUBJECT_HEAD:
-NEW_SUBJECT_HEAD: RECORDED_AFTER_PATCH_PUSH
-UNRELATED_CHANGES: none
-RETURN_TO: same VibeNews Reviewer
-```
+- A design `NEEDS_PATCH` routes a Designer-owned revision under `DESIGN_PROTOCOL.md`; the Advisor never patches
+  design. The initial design review is not an attempt; at most two automatic revisions are allowed, then
+  `DESIGN_REVISION_LIMIT_REACHED` returns to Leo/GPT.
+- An implementation `NEEDS_PATCH` routes a Worker-owned bounded rework; at most two automatic reworks are allowed,
+  then the Advisor returns to Leo/GPT.
 
-The Advisor stages only that bounded patch, commits and pushes `PATCH_HEAD`, and routes the same Reviewer to the
-new immutable subject. It must not use a future Worker `09_REWORK_HANDOFF_PROMPT.md` as an Advisor patch record.
+A delta review verifies the previous subject as an ancestor, reads the exact path-filtered diff from previous to new
+subject, confirms unrelated changes and unexpected paths are absent, and issues its verdict only for the declared new
+subject head and paths. No Advisor implementation exception exists; the bootstrap exception remains
+`SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED`.
 
 ## 6. Git and exclusive write ownership
 
@@ -118,9 +117,10 @@ new immutable subject. It must not use a future Worker `09_REWORK_HANDOFF_PROMPT
   untracked state.
 - Do not use blanket staging. Stage only the declared paths and inspect the cached diff.
 - Include no unrelated dirty file, secret, credential, cookie, private raw data, or full copyrighted source.
-- Briefs, handoffs, launchers, results, pointers, reviews, loop state, validation, final audit, and governance reports
-  are versioned unless excluded for security, privacy, copyright, or size.
-- Reviewer result commits are Reviewer-owned and report-only. Advisor may not create or amend them.
+- Designer results, Reviewer reports, Worker results, briefs, handoffs, launchers, pointers, loop state, validation,
+  final audit, and governance reports are versioned unless excluded for security, privacy, copyright, or size.
+- Designer results are Designer-owned; Reviewer results at `runs/reviewer/<JOB_ID>/<REVIEW_ID>/` are Reviewer-owned
+  and report-only; the Advisor may not create or amend either.
 
 ## 7. Subject and report lineage
 
@@ -134,20 +134,27 @@ REPORT_PATHS
 REPORT_HEAD
 ```
 
-A verdict covers only the declared subject head and subject paths. The Reviewer report commit does not change the
-subject. If a report-only commit changes a subject path, independence is violated and the review fails.
+The design adds `DESIGN_CONTENT_HEAD`, `DESIGN_POINTER_HEAD`, `DESIGN_REVIEW_REPORT_HEAD`, `FROZEN_DESIGN_HEAD`,
+`WORKER_RESULT_HEAD`, and `IMPLEMENTATION_REVIEW_REPORT_HEAD` as distinct identities. A verdict covers only the
+declared subject head and subject paths. `FROZEN_DESIGN_HEAD` equals the reviewed design content head, never a
+pointer or report head. A Reviewer report commit does not change its subject; if a report-only commit changes a
+subject path, independence is violated and the review fails.
 
 No versioned file may claim the exact SHA of the commit that contains that file. Use
-`RECORDED_AFTER_REPORT_PUSH_IN_CHAT` or `RECORDED_AFTER_RESULT_PUSH_IN_CHAT`, then capture the actual containing SHA
-in the post-push pointer and a later Advisor audit.
+`RECORDED_AFTER_REPORT_PUSH_IN_CHAT`, `RECORDED_AFTER_RESULT_PUSH_IN_POINTER`, or
+`RECORDED_AFTER_POINTER_PUSH_IN_CHAT`, then capture the actual containing SHA in the post-push pointer and a later
+Advisor audit.
 
-After final Reviewer `PASS`, canonical subject paths are frozen. Any later canonical change creates a new subject
-head and requires the same Reviewer to review it. Post-PASS additions to a final content commit are limited to
-validation, audit, reload, loop-state, index final state, and governance-summary artifacts.
+After final Reviewer `PASS`, canonical subject paths are frozen. Any later canonical change creates a new subject head
+and requires the same Reviewer to review it. Post-PASS additions to a final content commit are limited to validation,
+audit, reload, loop-state, index final state, and governance-summary artifacts.
 
 ## 8. Finalization lineage
 
 ```text
+DESIGN_CONTENT_HEAD
+DESIGN_REVIEW_REPORT_HEAD
+FROZEN_DESIGN_HEAD
 AUTHORING_BASE
 AUTHORING_HEAD
 INITIAL_REVIEW_REPORT_HEAD
@@ -157,9 +164,9 @@ FINAL_CONTENT_HEAD
 POINTER_PUBLISH_HEAD
 ```
 
-Use `NOT_APPLICABLE` for absent patch/delta heads. `FINAL_CONTENT_HEAD` contains the Reviewer-passed canonical
-subject plus reload records, Advisor validation, final audit, loop state, governance report, and final index state.
-`POINTER_PUBLISH_HEAD` is a separate final commit containing only `11_FINAL_POINTER.md`.
+Use `NOT_APPLICABLE` for absent patch/delta heads. `FINAL_CONTENT_HEAD` contains the Reviewer-passed canonical subject
+plus reload records, Advisor validation, final audit, loop state, governance report, and final index state.
+`POINTER_PUBLISH_HEAD` is a separate final commit containing only the final pointer.
 
 Because the final audit is inside `FINAL_CONTENT_HEAD`, it records:
 
@@ -173,11 +180,11 @@ returned only after the pointer commit is pushed.
 
 ## 9. File-first and launcher contract
 
-All actors use file-first reporting. Full briefs, evidence, findings, results, and audits go into declared Markdown
-files. Chat returns only the concise pointer block, never the full report. Result and pointer files must both exist
-before an actor reports completion.
+All actors use file-first reporting. Full briefs, designs, evidence, findings, results, and audits go into declared
+Markdown files. Chat returns only the concise pointer block, never the full report. Result and pointer files must both
+exist before an actor reports completion.
 
-Every Worker, Reviewer, rework, and reload run begins from a short launcher with:
+Every Designer, design-revision, Worker, Reviewer, rework, and reload run begins from a short launcher with:
 
 ```text
 TARGET_ACTOR
@@ -193,13 +200,15 @@ DO_NOT_BROADEN_SCOPE: true
 NO_NEW_AGENT_OR_SUBAGENT: true
 ```
 
-The actor opens `READ_AND_EXECUTE`, reads every referenced real file, performs only its named role, writes both
-declared files when applicable, returns only the pointer block, and stops.
+Designer, Worker, and Reviewer launchers additionally carry their immutable input head (`INPUT_HEAD`,
+`FROZEN_DESIGN_HEAD`, or `SUBJECT_HEAD`). The actor opens `READ_AND_EXECUTE`, reads every referenced real file,
+performs only its named role, writes both declared files when applicable, returns only the pointer block, and stops.
 
 ## 10. VibeNews product safeguards
 
-For product work, write or update the relevant `설계문서/` design before implementation, discuss material product
-decisions with Leo/GPT, and implement only after approval. One major feature block gets one design document. Update
+Product design authorship belongs to the Designer under an Advisor brief; the relevant `설계문서/` design is written
+and frozen before implementation, one major feature block gets one design document, and material product decisions are
+routed to Leo/GPT before implementation. The Worker implements product code only against a frozen design and updates
 the implementation documentation after implementation.
 
 Before writing Expo code, read the exact Expo SDK 57 documentation at
@@ -209,5 +218,7 @@ in proportion to the mission.
 
 ## 11. Conflict stop
 
-Record the conflicting files, exact statements, unresolved consequences, safe default, and required Leo/GPT
-decision. Then return `BLOCKED_DECISION_REQUIRED` and stop. Never resolve authority conflicts through assumption.
+Record the conflicting files, exact statements, unresolved consequences, safe default, and required Leo/GPT decision.
+Then return `BLOCKED_DECISION_REQUIRED` and stop. A frozen design that is contradictory, incomplete, unsafe, or
+materially undecided at implementation time is instead returned as `BLOCKED_DESIGN_DEFECT` to the Advisor per
+`DESIGN_PROTOCOL.md`. Never resolve authority conflicts through assumption.

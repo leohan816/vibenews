@@ -8,12 +8,16 @@ TARGET_BRANCH: <EXACT_BRANCH>
 TARGET_SESSION_NAME: <EXISTING_EXACT_REVIEWER_SESSION_NAME>
 REQUIRED_SKILL: <EXACT_SKILL_OR_NOT_APPLICABLE>
 READ_AND_EXECUTE: <JOB_REVIEWER_HANDOFF_PATH>
+REVIEW_TYPE: DESIGN_REVIEW | DESIGN_DELTA_REVIEW | IMPLEMENTATION_REVIEW | IMPLEMENTATION_DELTA_REVIEW
+REVIEW_ID: <UNIQUE_REVIEW_ID>
 SUBJECT_HEAD: <IMMUTABLE_SUBJECT_HEAD>
+PREVIOUS_SUBJECT_HEAD: <IMMUTABLE_PREVIOUS_SUBJECT_HEAD_OR_NOT_APPLICABLE>
 RETURN_RESULT_TO: Advisor
 DO_NOT_EXECUTE_FROM_MEMORY: true
 DO_NOT_BROADEN_SCOPE: true
 NO_NEW_AGENT_OR_SUBAGENT: true
 
-Open READ_AND_EXECUTE directly. Read every referenced real file. Perform only the VibeNews Reviewer role. Write the
-declared Reviewer result and pointer files. Return only the concise pointer block to Advisor and STOP.
+Open READ_AND_EXECUTE directly. Read every referenced real file and the immutable subject. Perform only the named
+VibeNews Reviewer pass. Write the declared Reviewer result and pointer files under the unique REVIEW_ID path. Return
+only the concise pointer block to Advisor and STOP.
 ```

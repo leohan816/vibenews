@@ -13,31 +13,109 @@ MAX_CHAT_OUTPUT_LINES: 15
 
 Every actor directly reads all new and changed Markdown in its scope. Memory and chat summaries are not evidence.
 Full evidence lives in the result file; chat contains only status and exact paths. The result and pointer must both
-exist before return.
+exist before return. No versioned file claims its own containing SHA; use the required sentinel and record the actual
+head only after push.
 
 ## 2. Paths
 
 ```text
+Designer: runs/designer/<JOB_ID>/DESIGN_RESULT.md
+          runs/designer/<JOB_ID>/DESIGN_RESULT_POINTER.md
+Reviewer: runs/reviewer/<JOB_ID>/<REVIEW_ID>/REVIEW_RESULT.md
+          runs/reviewer/<JOB_ID>/<REVIEW_ID>/REVIEW_RESULT_POINTER.md
 Worker:   runs/worker/<JOB_ID>/WORKER_RESULT.md
           runs/worker/<JOB_ID>/WORKER_RESULT_POINTER.md
-Reviewer: runs/reviewer/<JOB_ID>/REVIEW_RESULT.md
-          runs/reviewer/<JOB_ID>/REVIEW_RESULT_POINTER.md
 Rework:   runs/rework/<JOB_ID>/REWORK_RESULT.md
           runs/rework/<JOB_ID>/REWORK_RESULT_POINTER.md
 Advisor:  advisor/jobs/<JOB_ID>/05_FINAL_AUDIT.md
           advisor/jobs/<JOB_ID>/11_FINAL_POINTER.md
 ```
 
-## 3. Worker result
+`REVIEW_ID` is a lower-case slug unique within `JOB_ID` and never reused, for example `design-review-001`,
+`design-delta-review-001-a1`, `implementation-review-001`, or `implementation-delta-review-001-a1`. A new review never
+overwrites an old report.
+
+## 3. Designer result
+
+```text
+DESIGN_RESULT
+JOB_ID:
+DESIGN_ID:
+DESIGN_VERSION:
+ACTOR: VibeNews Designer
+DESIGN_DEPTH:
+ORIGINAL_LEO_GPT_INTENT:
+DESIGN_SUBJECT_PATHS:
+DESIGN_AUTHORIZED_WRITE_PATHS:
+SUPERSEDES_DESIGN_CONTENT_HEAD:
+REVISION_ID:
+REVIEW_FINDING_IDS_ADDRESSED:
+PROPOSED_DESIGN:
+ROLE_AND_AUTHORITY_DESIGN:
+FLOWS_STATE_INTERFACES:
+FAILURE_HANDLING:
+SECURITY_PRIVACY_COPYRIGHT_POLICY_COST:
+NON_GOALS:
+IMPLEMENTATION_BOUNDARIES:
+TEST_AND_REVIEW_CRITERIA:
+MIGRATION:
+CONFIRMED_FACTS:
+ASSUMPTIONS:
+UNKNOWNS:
+OPEN_DECISIONS:
+DESIGN_REVIEW_RECOMMENDATION:
+RESIDUAL_RISKS:
+DESIGN_STATUS:
+DESIGN_CONTENT_HEAD: RECORDED_AFTER_DESIGN_CONTENT_PUSH_IN_POINTER
+RESULT_PATH:
+POINTER_PATH:
+RETURN_TO: Advisor
+STOP_AFTER_RETURN: true
+```
+
+For an initial design, `SUPERSEDES_DESIGN_CONTENT_HEAD`, `REVISION_ID`, and `REVIEW_FINDING_IDS_ADDRESSED` are
+`NOT_APPLICABLE`. `DESIGN_STATUS` can be `READY_FOR_DESIGN_REVIEW` only with no blocking open decision.
+
+Designer pointer:
+
+```text
+DESIGN_RESULT_WRITTEN
+JOB_ID:
+DESIGN_ID:
+DESIGN_VERSION:
+ACTOR: VibeNews Designer
+DESIGN_STATUS:
+DESIGN_CONTENT_HEAD: actual content commit
+RESULT_FILE:
+POINTER_FILE:
+DESIGN_POINTER_HEAD: RECORDED_AFTER_POINTER_PUSH_IN_CHAT
+PUSHED: true
+RETURN_TO: Advisor
+NEXT_ACTOR: Advisor
+STOP
+```
+
+## 4. Worker result
 
 ```text
 WORK_RESULT
 JOB_ID:
-ACTOR:
+ACTOR: VibeNews Worker
 REPO:
 WORKSPACE:
 BRANCH:
 BASE_COMMIT:
+DESIGN_ID:
+DESIGN_VERSION:
+FROZEN_DESIGN_HEAD:
+FROZEN_DESIGN_PATHS:
+DESIGN_REVIEW_EVIDENCE:
+DESIGN_CONFORMANCE_REQUIRED: true
+DESIGN_CONFORMANCE_RESULT:
+DESIGN_DEFECT_STATUS:
+DESIGN_DEFECT_DETAILS:
+DESIGN_DEFECT_CHECKPOINT_ALLOWED:
+DESIGN_DEFECT_CHECKPOINT_HEAD:
 RESULT_HEAD:
 RESULT_STATUS:
 CHANGED_FILES:
@@ -60,6 +138,10 @@ RETURN_TO: Advisor
 STOP_AFTER_RETURN: true
 ```
 
+When the result file is inside the Worker content commit, its internal `RESULT_HEAD` uses
+`RECORDED_AFTER_RESULT_PUSH_IN_POINTER`; the actual content head is recorded in the separate pointer commit. When a
+Worker result stands in its own result commit, `RESULT_HEAD` uses `RECORDED_AFTER_RESULT_PUSH_IN_CHAT`.
+
 Worker chat:
 
 ```text
@@ -69,32 +151,41 @@ ACTOR: VibeNews Worker
 RESULT_STATUS:
 RESULT_FILE:
 POINTER_FILE:
-RESULT_COMMIT:
+WORKER_CONTENT_HEAD:
+WORKER_POINTER_HEAD:
 PUSHED:
 RETURN_TO: Advisor
 NEXT_ACTOR: Advisor
 STOP
 ```
 
-When the result files are inside the result commit, their internal `RESULT_HEAD` uses
-`RECORDED_AFTER_RESULT_PUSH_IN_CHAT`.
+A `BLOCKED_DESIGN_DEFECT` uses the same result file with `RESULT_STATUS: BLOCKED_DESIGN_DEFECT`, records the defect
+evidence and any authorized checkpoint head, and returns only to Advisor.
 
-## 4. Reviewer result
+## 5. Reviewer result
 
 ```text
 REVIEW_RESULT
 JOB_ID:
 ACTOR: VibeNews Reviewer
-REVIEW_PASS:
+REVIEW_TYPE: DESIGN_REVIEW | DESIGN_DELTA_REVIEW | IMPLEMENTATION_REVIEW | IMPLEMENTATION_DELTA_REVIEW
+REVIEW_ID:
+REVIEW_PASS: initial | delta
+DESIGN_ID:
+FROZEN_DESIGN_HEAD:
 SUBJECT_BASE:
 VERDICT_TARGET_HEAD:
 VERDICT_TARGET_PATHS:
+PREVIOUS_SUBJECT_HEAD:
+FINDING_IDS_IN_SCOPE:
+EXPECTED_INTERLEAVED_EVIDENCE_PATHS:
 REPORT_PATHS:
 REPORT_HEAD: RECORDED_AFTER_REPORT_PUSH_IN_CHAT
 FILES_READ:
 DIFF_READ:
 COMMANDS_EXECUTED:
 VERDICT:
+DESIGN_CONFORMANCE_CHECK:
 BLOCKING_FINDINGS:
 NON_BLOCKING_FINDINGS:
 AUTHORITY_CONFLICTS:
@@ -107,12 +198,15 @@ RETURN_TO: Advisor
 STOP_AFTER_RETURN: true
 ```
 
-Reviewer chat:
+`DESIGN_CONFORMANCE_CHECK` is `NOT_APPLICABLE` for `DESIGN_REVIEW`/`DESIGN_DELTA_REVIEW` and required for
+implementation passes. Reviewer chat:
 
 ```text
 REVIEW_RESULT_WRITTEN
 JOB_ID:
 ACTOR: VibeNews Reviewer
+REVIEW_TYPE:
+REVIEW_ID:
 REVIEW_PASS:
 VERDICT:
 VERDICT_TARGET_HEAD:
@@ -127,22 +221,28 @@ STOP
 
 Valid verdicts are `PASS`, `PASS_WITH_RISK`, `NEEDS_PATCH`, and `FAIL`.
 
-## 5. Rework result
+## 6. Rework result
 
 Rework uses the Worker evidence fields, changes the heading to `REWORK_RESULT`, and records the original finding IDs,
-previous subject head, new subject head sentinel, exact changed paths, and confirmation that unrelated changes are
-absent. It returns only to Advisor and stops.
+`FROZEN_DESIGN_HEAD`, previous subject head, new subject head sentinel, exact changed paths, the separate
+`IMPLEMENTATION_REWORK_ATTEMPTS_USED` counter, and confirmation that unrelated changes are absent. It returns only to
+Advisor and stops, and its delta review is `IMPLEMENTATION_DELTA_REVIEW` by the same Reviewer.
 
-## 6. Advisor final chat
+## 7. Advisor final chat
 
 ```text
 MISSION_RESULT
 MISSION:
+DESIGN_ID:
+FROZEN_DESIGN_HEAD:
+DESIGN_REVIEW_REPORT_HEAD:
+IMPLEMENTATION_REVIEW_REPORT_HEAD:
 VERDICT:
 FINAL_AUDIT:
 FINAL_POINTER:
 FINAL_CONTENT_HEAD:
 POINTER_PUBLISH_HEAD:
+ALL_REQUIRED_SESSIONS_RELOADED:
 PUSHED:
 DECISION_REQUIRED:
 SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED

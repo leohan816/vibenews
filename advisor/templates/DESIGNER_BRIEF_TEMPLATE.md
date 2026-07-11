@@ -1,0 +1,40 @@
+# Designer Brief Template
+
+```text
+JOB_ID:
+DESIGN_ID:
+DESIGN_VERSION:
+MISSION:
+ORIGINAL_LEO_GPT_INTENT:
+TARGET_ACTOR: VibeNews Designer
+TARGET_PROJECT: VibeNews
+TARGET_REPO:
+TARGET_BRANCH:
+TARGET_SESSION_NAME: VibeNews-designer
+INPUT_HEAD:
+DESIGN_DEPTH: QUICK_DESIGN | STANDARD_DESIGN | FULL_DESIGN
+DESIGN_DEPTH_RATIONALE:
+DESIGN_REVIEW_REQUIRED:
+DESIGN_REVIEW_SKIP_REASON:
+DESIGN_SUBJECT_PATHS:
+DESIGN_AUTHORIZED_WRITE_PATHS:
+FORBIDDEN_PATHS:
+REQUIRED_DIRECT_READS:
+SUCCESS_CRITERIA:
+CONFIRMED_FACTS:
+ASSUMPTIONS:
+UNKNOWNS:
+OPEN_DECISIONS:
+REQUIRED_LEO_DECISIONS:
+SAFE_DEFAULT:
+REPO_TOPOLOGY_DECISION:
+FILE_FIRST_REPORTING: true
+CHAT_OUTPUT_MODE: POINTER_ONLY
+RETURN_RESULT_TO: Advisor
+STOP_AFTER_RETURN: true
+```
+
+The Designer authors design only. It may write product design subjects under `설계문서/` only when they appear
+exactly in `DESIGN_AUTHORIZED_WRITE_PATHS`. Do not issue this brief while the Unknown Gate contains a required
+unresolved decision or review, and select depth by `DESIGN_PROTOCOL.md`; if any trigger points deeper, the deeper
+depth wins.
