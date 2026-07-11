@@ -194,3 +194,63 @@ The Worker implementation pass is intentionally separated from real external acc
 server/app/tests/ops/acceptance tooling and pass synthetic local checks without reading live secrets or making live
 YouTube/DeepSeek/Fish calls. After independent implementation review and any required bounded correction/delta review,
 the same reviewed code will be routed to the real private server/provider/device acceptance required by the mission.
+
+## Pre-implementation-review validation
+
+```text
+VALIDATION_PHASE: PRE_IMPLEMENTATION_REVIEW
+VALIDATION_STATUS: PASS_FOR_INDEPENDENT_IMPLEMENTATION_REVIEW
+JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
+ACTOR: VibeNews Advisor
+WORKER_INPUT_HEAD: 60b6983942f92de123e4fe37fd735353cec06611
+INITIAL_WORKER_CONTENT_HEAD: e73ce657c731d29b3cfb8309866b076c3770081d
+IMPLEMENTATION_REVIEW_SUBJECT_HEAD: 767e0d2bdc6d31e9950858c4267adf75c90f5fae
+IMPLEMENTATION_REVIEW_SUBJECT_PATH_COUNT: 86
+WORKER_EVIDENCE_HEAD: d008d9ed0a498fc56d00e555eb64d7e402df9edb
+WORKER_POINTER_HEAD: 8fe7f16405954f26722d4266161e5bdf5f4dec51
+FROZEN_DESIGN_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
+INITIAL_DESIGN_REVIEW_REPORT_HEAD: f46ea708d9768ce883effbb97bcd15cbddfa1227
+DESIGN_DELTA_REVIEW_REPORT_HEAD: 8c9a94480fcaca7104edcb832f283c9e541c60b9
+IMPLEMENTATION_REVIEW_ID: implementation-review-001
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 0
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN_PENDING_IMPLEMENTATION_REVIEW
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+DIRTY_STATE: clean before Advisor review routing
+NEXT_ACTOR: VibeNews Reviewer
+```
+
+### Direct evidence checked
+
+- Fetched `origin/master` and verified `/home/leo/Project/VibeNews`, the configured GitHub origin, `master`, clean
+  staged/unstaged/untracked state, and `HEAD == origin/master == 8fe7f16405954f26722d4266161e5bdf5f4dec51` before
+  this Advisor routing edit.
+- Verified all four fixed sessions exist: `VibeNews-advisor`, `VibeNews-designer`, `VibeNews`, and
+  `VibeNews-reviewer`.
+- Verified `.env.server.local` exists, has permission `600`, is Git-ignored, and is not tracked. Its content and values
+  were never opened, read, printed, copied, hashed, sourced, or used as evidence.
+- Read the complete final Worker result and pointer. The canonical result schema, 14 frozen-design paths, both
+  design-review heads, exact subject/evidence separation, access statuses, limitations, and live-acceptance sentinel are
+  present at the declared evidence heads.
+- Verified `60b6983..767e0d2` contains exactly 86 implementation subjects plus the two interleaved Worker evidence
+  paths. The verdict target excludes both evidence files. The correction commit updates only
+  `server/src/http/schemas.ts`, `server/src/providers/caption.ts`, and `WORKER_RESULT.md`; later evidence/pointer commits
+  do not alter any verdict subject.
+- An immutable Git-blob scan found no forbidden control byte in any changed file at the subject head. `git diff
+  --numstat` treats every file as text; `git diff --check` is clean.
+- All 14 frozen-design subjects and both design-review report pairs are byte-unchanged from their immutable heads.
+  Base, frozen design, design-review reports, initial content, corrected subject, evidence heads, and pointer heads have
+  the required ancestry.
+- Advisor independently reran the unchanged subject: typecheck passed; scoped official Expo flat-config lint passed
+  with 0 errors and 47 warnings; unit 46/46, integration 51/51, and runtime-local 2/2 passed. The exact warning count was
+  corrected in Worker evidence without changing the verdict subject.
+- No live YouTube caption, DeepSeek, or Fish request was made; no systemd/Tailscale/runtime state was changed; no private
+  acceptance or physical-device playback result is claimed.
+
+### Gate decision
+
+Advisor validation permits only independent `IMPLEMENTATION_REVIEW` of immutable subject head
+`767e0d2bdc6d31e9950858c4267adf75c90f5fae` and the exact 86 declared paths. This is not an implementation verdict.
+The Reviewer must inspect the full code/diff and run independent synthetic checks. `NEEDS_PATCH` returns stable finding
+IDs for a bounded same-Worker correction followed by same-Reviewer `IMPLEMENTATION_DELTA_REVIEW`. Real private provider
+and device acceptance remains blocked until the implementation review gate passes.
