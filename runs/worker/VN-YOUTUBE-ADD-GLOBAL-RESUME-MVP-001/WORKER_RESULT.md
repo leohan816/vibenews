@@ -73,8 +73,12 @@ FORBIDDEN_FILES_UNTOUCHED: true — the 60b6983..767e0d2 subject diff touches no
   (설계문서/**, runs/designer/**), no governance/protocol file (docs/agent/**, CLAUDE.md, AGENTS.md), no
   advisor/** brief or other actor result (runs/reviewer/**, runs/rework/**), and no secret. .env.server.local
   was never opened, inspected, copied, or committed and remains gitignored. No systemd/Tailscale/state-dir
-  runtime was mutated. Evidence: `git diff --name-only 60b6983..767e0d2` lists only §16.1 allowlist paths
-  plus WORKER_RESULT.md; `git ls-files` tracks no secret/media/transcript.
+  runtime was mutated. Evidence: `git diff --name-only 60b6983..767e0d2` lists the 86 §16.1 implementation
+  allowlist paths plus BOTH Worker evidence files — WORKER_RESULT.md and WORKER_RESULT_POINTER.md (the
+  pointer interleaved via the earlier pointer commit c624f99) — and nothing else. This 60b6983..767e0d2
+  range introduces no original video/audio, no raw transcript, no provider request/response body, and no
+  secret artifact (the repository may legitimately track unrelated pre-existing image assets, which this
+  range neither adds nor modifies).
 LINT_SCOPE_RATIONALE: `expo lint` auto-writes eslint.config.js (a non-allowlist repo path), so
   `npm run lint` invokes ESLint 9 directly with the official Expo flat config
   (--config node_modules/eslint-config-expo/flat.js) over the exact frozen implementation TS/TSX
