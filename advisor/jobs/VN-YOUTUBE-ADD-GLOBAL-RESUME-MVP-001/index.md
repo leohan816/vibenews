@@ -1,7 +1,7 @@
 # VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
 ```text
-STATUS: DESIGN_DELTA_REVIEW_ROUTING
+STATUS: WORKER_IMPLEMENTATION_ROUTING
 REPO: /home/leo/Project/VibeNews
 ORIGIN: https://github.com/leohan816/vibenews.git
 BRANCH: master
@@ -28,14 +28,20 @@ PLANNED_DESIGN_DELTA_REVIEW_ID: design-delta-review-001
 DESIGN_REVISION_ATTEMPTS_USED: 1
 DESIGN_REVISION_STATUS: PUBLISHED_AND_ADVISOR_VALIDATED
 DESIGN_DELTA_REVIEW_ID: design-delta-review-001
-DESIGN_DELTA_REVIEW_REPORT_HEAD: PENDING
-DESIGN_DELTA_REVIEW_VERDICT: PENDING
+DESIGN_DELTA_REVIEW_REPORT_HEAD: 8c9a94480fcaca7104edcb832f283c9e541c60b9
+DESIGN_DELTA_REVIEW_VERDICT: PASS
+FINAL_DESIGN_REVIEW_VERDICT: PASS
+DESIGN_REVIEW_GATE_STATUS: PASSED_VIA_DELTA
 ADVISOR_PRE_DESIGN_DELTA_REVIEW_VALIDATION: PASS
-FROZEN_DESIGN_HEAD: NOT_APPLICABLE
-WORKER_LAUNCHED: false
+FROZEN_DESIGN_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
+FROZEN_DESIGN_PATHS: runs/designer/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/DESIGN_RESULT.md; 설계문서/README.md; 설계문서/00_제품_전체지도.md; 설계문서/01_화면_구조_네비게이션.md; 설계문서/02_Listen_오디오_플레이어.md; 설계문서/03_Briefing_예약_카테고리_브리핑.md; 설계문서/10_DataModel_데이터구조.md; 설계문서/11_EventLog_사용행동기록.md; 설계문서/12_Implementation_Roadmap.md; 설계문서/13_FEATURE_INDEX.md; 설계문서/14_Video_Briefing_Quality_Strategy.md; 설계문서/15_Source_Pool_and_Editorial_Curation.md; 설계문서/16_Candidate_Review_and_TTS_Approval_Pipeline.md; 설계문서/18_YouTube_Add_Global_Resume_MVP.md
+DESIGN_FREEZE_STATUS: FROZEN
+WORKER_BRIEF_CREATED: true
+WORKER_LAUNCHED: true
+WORKER_INPUT_HEAD: PENDING_ADVISOR_ROUTING_PUSH
 RUNTIME_CHANGE_STATUS: ZERO
 SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
-NEXT_ACTOR: VibeNews Reviewer
+NEXT_ACTOR: VibeNews Worker
 ```
 
 ## Advisor artifacts
@@ -57,6 +63,9 @@ NEXT_ACTOR: VibeNews Reviewer
 - [`reviews/design-delta-review-001/REVIEWER_BRIEF.md`](reviews/design-delta-review-001/REVIEWER_BRIEF.md)
 - [`reviews/design-delta-review-001/REVIEWER_HANDOFF_PROMPT.md`](reviews/design-delta-review-001/REVIEWER_HANDOFF_PROMPT.md)
 - [`reviews/design-delta-review-001/REVIEWER_RUN_PROMPT.md`](reviews/design-delta-review-001/REVIEWER_RUN_PROMPT.md)
+- [`implementation/WORKER_BRIEF.md`](implementation/WORKER_BRIEF.md)
+- [`implementation/WORKER_HANDOFF_PROMPT.md`](implementation/WORKER_HANDOFF_PROMPT.md)
+- [`implementation/WORKER_RUN_PROMPT.md`](implementation/WORKER_RUN_PROMPT.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 
 ## Current transition
@@ -66,8 +75,10 @@ D-001 through D-008 are acknowledged exactly as Leo/GPT supplied them. FULL_DESI
 `design-review-001`. The Reviewer returned `NEEDS_PATCH` on `DR1-F1`; Leo/GPT selected D-009-A. Same-Designer
 `design-revision-001` attempt 1 returned version-2 content head
 `5c97382841d00ceb8b18e27998c5e68bbe468555` and separate pointer head
-`9d130d43d3b14dedc795803ab01ff0a9ea4ef6a7`. Advisor direct validation passed, so the same fixed Reviewer is now
-routed to `design-delta-review-001` for `DR1-F1`. Exact Advisor freeze, Worker implementation, independent
+`9d130d43d3b14dedc795803ab01ff0a9ea4ef6a7`. Same-Reviewer `design-delta-review-001` returned `PASS` at report head
+`8c9a94480fcaca7104edcb832f283c9e541c60b9`, closing `DR1-F1` without new risk acceptance. Advisor froze the exact
+design content head `5c97382841d00ceb8b18e27998c5e68bbe468555` and now routes the complete implementation plus synthetic test pass
+to the fixed `VibeNews` Worker. Independent
 implementation review/correction, real private provider acceptance, global resume/exclusion acceptance, required
 reloads, final audit, and final pointer remain required. Partial, mock-only, and sample-audio work cannot close the
 mission.

@@ -156,3 +156,41 @@ Advisor validation permits the same fixed Reviewer to perform only `DESIGN_DELTA
 `5c97382841d00ceb8b18e27998c5e68bbe468555` and all 14 design subject paths, with `DR1-F1` in scope. It does not
 freeze the design. A `PASS` permits the exact freeze gate; `PASS_WITH_RISK` waits for Leo/GPT acceptance;
 `NEEDS_PATCH` may consume the second and final automatic design-revision attempt; `FAIL` stops.
+
+## Design delta review validation and exact freeze
+
+```text
+VALIDATION_PHASE: POST_DESIGN_DELTA_REVIEW
+VALIDATION_STATUS: PASS
+DESIGN_REVIEW_ID: design-delta-review-001
+REVIEW_TYPE: DESIGN_DELTA_REVIEW
+REVIEWER_VERDICT: PASS
+VERDICT_TARGET_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
+VERDICT_TARGET_PATHS: runs/designer/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/DESIGN_RESULT.md; 설계문서/README.md; 설계문서/00_제품_전체지도.md; 설계문서/01_화면_구조_네비게이션.md; 설계문서/02_Listen_오디오_플레이어.md; 설계문서/03_Briefing_예약_카테고리_브리핑.md; 설계문서/10_DataModel_데이터구조.md; 설계문서/11_EventLog_사용행동기록.md; 설계문서/12_Implementation_Roadmap.md; 설계문서/13_FEATURE_INDEX.md; 설계문서/14_Video_Briefing_Quality_Strategy.md; 설계문서/15_Source_Pool_and_Editorial_Curation.md; 설계문서/16_Candidate_Review_and_TTS_Approval_Pipeline.md; 설계문서/18_YouTube_Add_Global_Resume_MVP.md
+PREVIOUS_SUBJECT_HEAD: f8a0dc01b7eede5ac9cfd0fc39157cb08cd7f984
+DESIGN_DELTA_REVIEW_REPORT_HEAD: 8c9a94480fcaca7104edcb832f283c9e541c60b9
+DESIGN_REVISION_ATTEMPTS_USED: 1
+DESIGN_VERSION: 2
+FROZEN_DESIGN_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
+FROZEN_DESIGN_PATHS: runs/designer/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/DESIGN_RESULT.md; 설계문서/README.md; 설계문서/00_제품_전체지도.md; 설계문서/01_화면_구조_네비게이션.md; 설계문서/02_Listen_오디오_플레이어.md; 설계문서/03_Briefing_예약_카테고리_브리핑.md; 설계문서/10_DataModel_데이터구조.md; 설계문서/11_EventLog_사용행동기록.md; 설계문서/12_Implementation_Roadmap.md; 설계문서/13_FEATURE_INDEX.md; 설계문서/14_Video_Briefing_Quality_Strategy.md; 설계문서/15_Source_Pool_and_Editorial_Curation.md; 설계문서/16_Candidate_Review_and_TTS_Approval_Pipeline.md; 설계문서/18_YouTube_Add_Global_Resume_MVP.md
+DESIGN_FREEZE_STATUS: FROZEN
+BLOCKING_FINDINGS: none
+REQUIRED_PATCHES: none
+RISK_ACCEPTANCE_REQUIRED: false; D-009-A already accepted the bounded residual risk
+NEXT_ACTOR: VibeNews Worker
+```
+
+The Advisor directly read both delta-review files and verified that report commit
+`8c9a94480fcaca7104edcb832f283c9e541c60b9` is pushed, has the Advisor review-routing head
+`842aebd8338b56ae27ed39dd364e466275c15aea` as its parent, changes only the two declared
+`design-delta-review-001` report paths, uses the required containing-commit sentinel, targets exactly design version 2
+and all 14 design paths, closes `DR1-F1`, requires no patch or new risk acceptance, and leaves the worktree clean.
+
+The immutable design is therefore frozen at `5c97382841d00ceb8b18e27998c5e68bbe468555`. Neither the Designer pointer
+head nor either Reviewer report head replaces that identity. Any later frozen-subject change invalidates the freeze
+and must use the bounded Designer revision and same-Reviewer delta-review flow before Worker may resume.
+
+The Worker implementation pass is intentionally separated from real external acceptance. It must build the complete
+server/app/tests/ops/acceptance tooling and pass synthetic local checks without reading live secrets or making live
+YouTube/DeepSeek/Fish calls. After independent implementation review and any required bounded correction/delta review,
+the same reviewed code will be routed to the real private server/provider/device acceptance required by the mission.
