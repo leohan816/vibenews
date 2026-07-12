@@ -735,3 +735,42 @@ The Advisor independently reran every listed check without live calls, secret ac
 This permits only same-Reviewer a4 review; it does not close `IR-F1-D1(g)-L`, authorize live acceptance yet, accept the
 owner test seams as safe, or claim mission completion. Reviewer must decide actual production-default owner enforcement,
 all no-replacement paths, valid-key idempotence, stale fail-closed behavior, and every earlier closure.
+
+## Implementation delta review a4 PASS and live-acceptance routing
+
+```text
+VALIDATION_PHASE: ADVISOR_POST_IMPLEMENTATION_DELTA_REVIEW_A4
+REVIEW_ID: implementation-delta-review-001-a4
+REVIEW_REPORT_HEAD: 4d600337fbcaa08ff0d4fecd1c4a684430d81700
+REVIEW_VERDICT: PASS
+VERDICT_TARGET_HEAD: 1b39a51a100c8b5e2925699620e24602a4df9445
+FINDING_CLOSED: IR-F1-D1(g)-L
+CUMULATIVE_IMPLEMENTATION_FINDINGS: all IR-F1 and IR-F1-D1(a)-(g)-L closed
+FINAL_IMPLEMENTATION_REVIEW_VERDICT: PASS
+IMPLEMENTATION_REVIEW_GATE_STATUS: PASSED_VIA_A4
+LIVE_ACCEPTANCE_ID: live-private-acceptance-001
+LIVE_PRIVATE_ACCEPTANCE: ROUTED_NOT_RUN
+DEVICE_GLOBAL_PLAYBACK_ACCEPTANCE: NOT_RUN
+RUNTIME_CHANGE_STATUS: ZERO_BEFORE_LIVE_ROUTE
+SECRET_VALUE_ACCESS: ZERO_BEFORE_LIVE_ROUTE
+NEXT_ACTOR: VibeNews Worker
+```
+
+Advisor fetched and directly read the complete a4 result/pointer. Report commit
+`4d600337fbcaa08ff0d4fecd1c4a684430d81700` is report-only, descends from routing head
+`e495deeed90e690d524a8e4394c14e0124b4c48e`, changes exactly the two declared Reviewer paths, targets immutable
+87-path subject `1b39a51a100c8b5e2925699620e24602a4df9445`, and leaves origin/worktree clean. The same Reviewer independently
+inspected the actual lifecycle, ran the deterministic suites, closed `IR-F1-D1(g)-L`, and confirmed every earlier
+closure without new risk or authority conflict.
+
+D-011-A therefore opens the already-approved real private acceptance without another counter-based decision. Advisor
+routes the reviewed code to the same fixed Worker for exactly one bounded real public YouTube-to-DeepSeek-to-Fish run,
+private generated-audio/runtime evidence, channel/access/policy/local-control verification, and no device PASS claim.
+The Worker may consume prepared server secrets only inside sanitized server processes and mutate only the private
+development runtime state. Product/design changes, Tailscale/access-policy mutation, secret output/copy, alternate
+providers/sources, sample audio, and completion claims remain forbidden.
+
+Advisor separately verified current public policy metadata on `2026-07-12` through the agent-reach documented Jina
+Reader fallback; the wrapper command was unavailable. The routing artifact records only official URLs, dates, safe
+document-set hashes, statement/control codes, and the exact limited/unverified labels. No private content or credential
+was used. Live acceptance and device/global playback remain mandatory before reloads and final audit.
