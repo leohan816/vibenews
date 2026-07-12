@@ -140,7 +140,7 @@ same-Reviewer, two-finding, two-product-path, no-live-call/no-secret boundary is
 ## D-011 — exceptional rework exhausted with one audit-key lifecycle guard open
 
 ```text
-DECISION_STATUS: OPEN
+DECISION_STATUS: RESOLVED
 JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 ACTOR: VibeNews Advisor
 SOURCE_REVIEW_ID: implementation-delta-review-001-a3
@@ -156,7 +156,9 @@ EXCEPTIONAL_REWORK_ATTEMPTS_MAX: 1
 ALL_REWORK_BUDGET_EXHAUSTED: true
 LIVE_PRIVATE_ACCEPTANCE: NOT_RUN
 ADVISOR_RECOMMENDATION: D-011-A
-NEXT_ACTOR: Leo/GPT
+DECISION_ACK: D-011-A — AUTHORIZE EXACTLY ONE FINAL LIFECYCLE MICRO-CORRECTION
+DECISION_ACK_PATH: advisor/jobs/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/08_D011_DECISION_ACK.md
+NEXT_ACTOR: VibeNews Advisor
 ```
 
 ### Why a decision is required
@@ -214,3 +216,9 @@ This is the shortest safe path to the already-required live acceptance and does 
 - Return to Designer with an explicitly scoped proposal to permit or govern audit-key rotation after loss, then require
   independent design review, a new freeze, implementation, and implementation review.
 - This is broader and less safe than D-011-A and is not recommended because frozen section 4.2 is explicit.
+
+### Resolution
+
+Leo/GPT selected `D-011-A — AUTHORIZE EXACTLY ONE FINAL LIFECYCLE MICRO-CORRECTION`. The complete same-Worker,
+same-Reviewer, one-finding, two-product-path, deterministic-only, fail-closed lifecycle and a4 terminal contract is
+preserved in `08_D011_DECISION_ACK.md`.

@@ -632,3 +632,29 @@ when old binding rows exist but the key file is missing. That violates frozen §
 tampering. All authorized rework is consumed. The Advisor does not route attempt 4, patch code, run live acceptance, or
 claim completion. `D-011` in `05_LEO_DECISION_REQUEST.md` requests the new authority required for a single narrow
 lifecycle micro-correction or a hold/design-policy decision.
+
+## D-011 lifecycle micro-correction decision ACK
+
+```text
+VALIDATION_PHASE: LEO_GPT_DECISION_ACK
+DECISION_ID: D-011
+DECISION: D-011-A — AUTHORIZE EXACTLY ONE FINAL LIFECYCLE MICRO-CORRECTION
+ACK_STATUS: ACKNOWLEDGED
+ACK_PATH: advisor/jobs/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/08_D011_DECISION_ACK.md
+SOURCE_REVIEW_REPORT_HEAD: d228be432e5645b06e2ad8847293a2adebb8ca88
+FINDING_ID_IN_SCOPE: IR-F1-D1(g)-L
+PREVIOUS_SUBJECT_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
+FINAL_LIFECYCLE_MICRO_CORRECTION_AUTHORIZED: true
+ALLOWED_PRODUCT_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
+SAME_WORKER_REQUIRED: true
+SAME_REVIEWER_REQUIRED: true
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a4
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN
+NEXT_ACTOR: VibeNews Advisor
+```
+
+This ACK supplies exact mission-specific authority for the final lifecycle guard only. It leaves the frozen design and
+D-001 through D-010 unchanged, permits only synthetic local proof during correction, and does not authorize the
+Advisor to patch product code or substitute any actor. The next transition is an Advisor-authored handoff to the same
+fixed Worker followed by the same fixed Reviewer's `implementation-delta-review-001-a4`. A4 `PASS` opens the already
+approved real private acceptance; any other verdict returns the exact evidence to Leo/GPT.
