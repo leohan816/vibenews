@@ -222,3 +222,53 @@ This is the shortest safe path to the already-required live acceptance and does 
 Leo/GPT selected `D-011-A — AUTHORIZE EXACTLY ONE FINAL LIFECYCLE MICRO-CORRECTION`. The complete same-Worker,
 same-Reviewer, one-finding, two-product-path, deterministic-only, fail-closed lifecycle and a4 terminal contract is
 preserved in `08_D011_DECISION_ACK.md`.
+
+## D-012 — live acceptance blocked on operator-owned access tooling
+
+```text
+DECISION_STATUS: OPEN
+JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
+ACTOR: VibeNews Advisor
+SOURCE_ACCEPTANCE_ID: live-private-acceptance-001
+SOURCE_ACCEPTANCE_CONTENT_HEAD: 5bcc0b649783077d5209242f462af80dc5618d3a
+SOURCE_ACCEPTANCE_POINTER_HEAD: 0203dd34ebed518ba2694027231a79f6cc948b00
+SOURCE_ACCEPTANCE_STATUS: BLOCKED
+BLOCKED_CODE: RUNTIME_ACCESS_TOOLING_UNAVAILABLE
+PROVIDER_CALLS: ZERO
+SECRET_VALUE_CONSUMPTION: ZERO
+RUNTIME_MUTATION: ZERO
+MISSION_COMPLETE: false
+ADVISOR_RECOMMENDATION: D-012-A
+NEXT_ACTOR: Leo/GPT
+```
+
+### Why a decision is required
+
+The reviewed implementation passed a4. Its first live preflight then found no Tailscale CLI or daemon on this host.
+The frozen acceptance requires independent Serve, tailnet, Funnel-disabled, and bounded authorized-device reachability
+evidence. Installing Tailscale, joining a tailnet, or configuring Serve changes operator-owned host/network state and is
+outside the Worker's acceptance authority. No live command, provider call, secret consumption, or runtime mutation was
+attempted.
+
+### Exact choices
+
+#### D-012-A — operator provisions prerequisites (Advisor recommendation)
+
+Leo/operator installs and joins official Tailscale through a trusted console, configures private Serve HTTPS to the
+configured loopback API with Funnel off, ensures the authorized Leo device is online, and verifies/provisions the
+configured absolute `yt-dlp` executable. Do not return any secret, URL, address, identifier, token, or credential. Once
+complete, reply only `D-012-A`; the Advisor will resume the same reviewed subject and remaining acceptance sequence.
+
+#### D-012-B — authorize bounded package installation only
+
+Authorize the same fixed Worker to install only the official Tailscale package and caption binary, then pause before
+identity login, tailnet join, Serve configuration, or device authorization. This cannot complete the prerequisite
+without subsequent operator action and is not recommended.
+
+#### D-012-C — hold the mission
+
+Keep the reviewed implementation and evidence unchanged. Do not execute live acceptance, touch runtime state, consume
+secrets, or claim mission completion until later Leo/GPT direction.
+
+This request does not reopen D-001 through D-011, alter the frozen design, authorize a substitute actor, or permit any
+secret to be copied into chat or Git.

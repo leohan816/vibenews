@@ -1,13 +1,13 @@
 # VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
 ```text
-STATUS: IMPLEMENTATION_PASS_LIVE_PRIVATE_ACCEPTANCE_ROUTED
+STATUS: LIVE_PRIVATE_ACCEPTANCE_BLOCKED_OPERATOR_PREREQUISITE_D012
 REPO: /home/leo/Project/VibeNews
 ORIGIN: https://github.com/leohan816/vibenews.git
 BRANCH: master
 ADVISOR_INPUT_HEAD: 42790e7102a144b052d1385aac93f73bc9dc77bf
 DECISION_ACK_STATUS: D_009_D_010_AND_D_011_ACKNOWLEDGED
-UNRESOLVED_DECISIONS: none
+UNRESOLVED_DECISIONS: D-012
 DESIGN_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001-DESIGN-001
 DESIGN_VERSION: 2
 DESIGN_DEPTH: FULL_DESIGN
@@ -91,7 +91,7 @@ EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPTS_USED: 1
 EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 1
 EXCEPTIONAL_IMPLEMENTATION_FINDINGS: IR-F1-D1(b); IR-F1-D1(g)
 PLANNED_IMPLEMENTATION_DELTA_REVIEW_ID_AFTER_EXCEPTION: implementation-delta-review-001-a3
-RUNTIME_CHANGE_STATUS: ZERO
+RUNTIME_CHANGE_STATUS: ZERO_LIVE_PREFLIGHT_BLOCKED
 ALL_IMPLEMENTATION_REWORK_BUDGET_EXHAUSTED: true
 SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
 FINAL_LIFECYCLE_MICRO_CORRECTION_AUTHORIZED: true
@@ -107,11 +107,16 @@ IMPLEMENTATION_DELTA_REVIEW_A4_VERDICT: PASS
 FINAL_IMPLEMENTATION_REVIEW_VERDICT: PASS
 IMPLEMENTATION_REVIEW_GATE_STATUS: PASSED_VIA_A4
 LIVE_ACCEPTANCE_ID: live-private-acceptance-001
-LIVE_ACCEPTANCE_INPUT_HEAD: RECORDED_AFTER_ACCEPTANCE_ROUTING_COMMIT
-LIVE_PRIVATE_ACCEPTANCE_STATUS: ROUTED_NOT_RUN
-DEVICE_GLOBAL_PLAYBACK_ACCEPTANCE_STATUS: NOT_RUN
-REQUIRED_LEO_DECISION: none
-NEXT_ACTOR: VibeNews Worker
+LIVE_ACCEPTANCE_INPUT_HEAD: e0100d040cb9307fe4fb0653c60e9aecdc3300e1
+LIVE_ACCEPTANCE_CONTENT_HEAD: 5bcc0b649783077d5209242f462af80dc5618d3a
+LIVE_ACCEPTANCE_POINTER_HEAD: 0203dd34ebed518ba2694027231a79f6cc948b00
+LIVE_PRIVATE_ACCEPTANCE_STATUS: BLOCKED_RUNTIME_ACCESS_TOOLING_UNAVAILABLE
+LIVE_ACCEPTANCE_PROVIDER_CALLS: ZERO
+LIVE_ACCEPTANCE_SECRET_VALUE_CONSUMPTION: ZERO
+LIVE_ACCEPTANCE_RUNTIME_MUTATION: ZERO
+DEVICE_GLOBAL_PLAYBACK_ACCEPTANCE_STATUS: BLOCKED_NOT_RUN
+REQUIRED_LEO_DECISION: D-012
+NEXT_ACTOR: Leo/GPT
 ```
 
 ## Advisor artifacts
@@ -126,6 +131,7 @@ NEXT_ACTOR: VibeNews Worker
 - [`06_D009_DECISION_ACK.md`](06_D009_DECISION_ACK.md)
 - [`07_D010_DECISION_ACK.md`](07_D010_DECISION_ACK.md)
 - [`08_D011_DECISION_ACK.md`](08_D011_DECISION_ACK.md)
+- [`09_LIVE_ACCEPTANCE_BLOCKED.md`](09_LIVE_ACCEPTANCE_BLOCKED.md)
 - [`design/revisions/1/DESIGN_REVISION_BRIEF.md`](design/revisions/1/DESIGN_REVISION_BRIEF.md)
 - [`design/revisions/1/DESIGN_REVISION_HANDOFF_PROMPT.md`](design/revisions/1/DESIGN_REVISION_HANDOFF_PROMPT.md)
 - [`design/revisions/1/DESIGN_REVISION_RUN_PROMPT.md`](design/revisions/1/DESIGN_REVISION_RUN_PROMPT.md)
@@ -163,6 +169,7 @@ NEXT_ACTOR: VibeNews Worker
 - [`reviews/implementation-delta-review-001-a4/REVIEWER_RUN_PROMPT.md`](reviews/implementation-delta-review-001-a4/REVIEWER_RUN_PROMPT.md)
 - [`acceptance/LIVE_ACCEPTANCE_HANDOFF_PROMPT.md`](acceptance/LIVE_ACCEPTANCE_HANDOFF_PROMPT.md)
 - [`acceptance/LIVE_ACCEPTANCE_RUN_PROMPT.md`](acceptance/LIVE_ACCEPTANCE_RUN_PROMPT.md)
+- [`acceptance/LIVE_ACCEPTANCE_BLOCKER_POINTER.md`](acceptance/LIVE_ACCEPTANCE_BLOCKER_POINTER.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 
 ## Current transition
@@ -259,3 +266,12 @@ Same-Reviewer `implementation-delta-review-001-a4` returned `PASS` at report hea
 regression. Advisor verified the report-only commit and immediately routes the immutable subject to the same fixed
 Worker for `live-private-acceptance-001`. This permits only the bounded real private public-source/provider/runtime
 slice; device/global playback, four-session reloads, final audit, and mission completion remain pending.
+
+The same Worker returned a safe `BLOCKED` result for `live-private-acceptance-001` at content head
+`5bcc0b649783077d5209242f462af80dc5618d3a` and pointer head
+`0203dd34ebed518ba2694027231a79f6cc948b00`. The Tailscale CLI and daemon required for the frozen distinct
+Serve/status/Funnel/ping observations are absent. Advisor reproduced the blocker and verified zero provider calls,
+zero secret-value consumption, zero runtime mutation, no acceptance-command execution, and no five-label success
+evidence. Implementation `PASS` remains closed; live and device acceptance remain unrun. Open decision `D-012` asks
+Leo/operator to provision the trusted-console Tailscale and configured caption-tool prerequisites, or to hold. This is
+not `MISSION_COMPLETE`.

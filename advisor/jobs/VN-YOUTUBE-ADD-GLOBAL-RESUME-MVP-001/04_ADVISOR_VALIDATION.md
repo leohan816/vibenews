@@ -774,3 +774,39 @@ Advisor separately verified current public policy metadata on `2026-07-12` throu
 Reader fallback; the wrapper command was unavailable. The routing artifact records only official URLs, dates, safe
 document-set hashes, statement/control codes, and the exact limited/unverified labels. No private content or credential
 was used. Live acceptance and device/global playback remain mandatory before reloads and final audit.
+
+## Live private acceptance preflight blocker validation
+
+```text
+VALIDATION_PHASE: ADVISOR_POST_LIVE_ACCEPTANCE_PREFLIGHT
+LIVE_ACCEPTANCE_ID: live-private-acceptance-001
+WORKER_ACCEPTANCE_CONTENT_HEAD: 5bcc0b649783077d5209242f462af80dc5618d3a
+WORKER_ACCEPTANCE_POINTER_HEAD: 0203dd34ebed518ba2694027231a79f6cc948b00
+RESULT_STATUS: BLOCKED
+BLOCKED_CODE: RUNTIME_ACCESS_TOOLING_UNAVAILABLE
+BLOCKED_STAGE: PREFLIGHT_BEFORE_SECRET_CONSUMPTION_OR_PROVIDER_CALL
+TAILSCALE_CLI: ABSENT
+TAILSCALED: ABSENT
+PROVIDER_CALLS: ZERO
+ACCEPTANCE_COMMAND_RUN: false
+SECRET_VALUE_CONSUMPTION: ZERO
+RUNTIME_MUTATION_STATUS: ZERO
+DEVICE_GLOBAL_PLAYBACK_ACCEPTANCE: NOT_RUN
+MISSION_COMPLETE: false
+REQUIRED_LEO_DECISION: D-012
+NEXT_ACTOR: Leo/GPT
+```
+
+Advisor independently fetched and verified `HEAD == origin/master ==
+0203dd34ebed518ba2694027231a79f6cc948b00`, a clean worktree, exact content/pointer ancestry, and evidence-only Worker
+commits. The implementation subject `1b39a51a100c8b5e2925699620e24602a4df9445` and final a4 `PASS` report
+`4d600337fbcaa08ff0d4fecd1c4a684430d81700` remain immutable.
+
+The Advisor reproduced absence of both the Tailscale CLI and daemon without reading environment contents. The accepted
+runner cannot prove frozen section 14.4(9) without the mandated read-only Serve/status/Funnel/ping observations. The
+Worker correctly stopped before `accept:private`, secret consumption, provider/network/device calls, or runtime
+mutation. The configured absolute caption binary remains unevaluated rather than falsely classified from PATH alone.
+
+Implementation review remains `PASS`; this environment prerequisite does not reopen any closed finding. It prevents
+live or device acceptance, the five D-009 labels, reload completion, final audit, and `MISSION_COMPLETE`. D-012 is
+required because installation, tailnet identity, Serve configuration, and device presence are operator-owned state.
