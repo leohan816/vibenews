@@ -226,7 +226,7 @@ preserved in `08_D011_DECISION_ACK.md`.
 ## D-012 — live acceptance blocked on operator-owned access tooling
 
 ```text
-DECISION_STATUS: OPEN
+DECISION_STATUS: RESOLVED
 JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 ACTOR: VibeNews Advisor
 SOURCE_ACCEPTANCE_ID: live-private-acceptance-001
@@ -239,7 +239,9 @@ SECRET_VALUE_CONSUMPTION: ZERO
 RUNTIME_MUTATION: ZERO
 MISSION_COMPLETE: false
 ADVISOR_RECOMMENDATION: D-012-A
-NEXT_ACTOR: Leo/GPT
+DECISION_ACK: D-012-A — OPERATOR PREREQUISITES PROVISIONED
+DECISION_ACK_PATH: advisor/jobs/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/11_D012_DECISION_ACK.md
+NEXT_ACTOR: VibeNews Advisor
 ```
 
 ### Why a decision is required
@@ -272,3 +274,10 @@ secrets, or claim mission completion until later Leo/GPT direction.
 
 This request does not reopen D-001 through D-011, alter the frozen design, authorize a substitute actor, or permit any
 secret to be copied into chat or Git.
+
+### Resolution
+
+Leo/GPT returned `D-012-A`. Value-free Advisor checks confirm the Tailscale CLI/daemon and PATH `yt-dlp` backend are
+available and that read-only Tailscale status, Serve, and Funnel commands succeed with raw output discarded. The ACK is
+recorded in `11_D012_DECISION_ACK.md`. A fresh `live-private-acceptance-002` may now be routed to the same fixed Worker;
+the prior blocked attempt remains immutable evidence and no acceptance PASS or mission completion is implied.

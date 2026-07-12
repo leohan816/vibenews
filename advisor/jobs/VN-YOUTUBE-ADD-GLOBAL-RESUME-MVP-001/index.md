@@ -1,13 +1,13 @@
 # VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
 ```text
-STATUS: LIVE_PRIVATE_ACCEPTANCE_BLOCKED_OPERATOR_PREREQUISITE_D012
+STATUS: D012_ACK_PREREQUISITES_VERIFIED_READY_TO_REROUTE
 REPO: /home/leo/Project/VibeNews
 ORIGIN: https://github.com/leohan816/vibenews.git
 BRANCH: master
 ADVISOR_INPUT_HEAD: 42790e7102a144b052d1385aac93f73bc9dc77bf
-DECISION_ACK_STATUS: D_009_D_010_AND_D_011_ACKNOWLEDGED
-UNRESOLVED_DECISIONS: D-012
+DECISION_ACK_STATUS: D_009_D_010_D_011_AND_D_012_ACKNOWLEDGED
+UNRESOLVED_DECISIONS: none
 DESIGN_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001-DESIGN-001
 DESIGN_VERSION: 2
 DESIGN_DEPTH: FULL_DESIGN
@@ -23,6 +23,7 @@ DESIGN_REVIEW_BLOCKING_FINDINGS: DR1-F1
 DECISION_D_009_STATUS: ACKNOWLEDGED_D_009_A
 DECISION_D_010_STATUS: ACKNOWLEDGED_D_010_A
 DECISION_D_011_STATUS: ACKNOWLEDGED_D_011_A
+DECISION_D_012_STATUS: ACKNOWLEDGED_D_012_A
 ACTIVE_DESIGN_REVISION_ID: design-revision-001
 ACTIVE_DESIGN_REVISION_ATTEMPT: 1
 TARGET_DESIGN_VERSION: 2
@@ -115,8 +116,8 @@ LIVE_ACCEPTANCE_PROVIDER_CALLS: ZERO
 LIVE_ACCEPTANCE_SECRET_VALUE_CONSUMPTION: ZERO
 LIVE_ACCEPTANCE_RUNTIME_MUTATION: ZERO
 DEVICE_GLOBAL_PLAYBACK_ACCEPTANCE_STATUS: BLOCKED_NOT_RUN
-REQUIRED_LEO_DECISION: D-012
-NEXT_ACTOR: Leo/GPT
+REQUIRED_LEO_DECISION: none
+NEXT_ACTOR: VibeNews Advisor
 ```
 
 ## Advisor artifacts
@@ -132,6 +133,7 @@ NEXT_ACTOR: Leo/GPT
 - [`07_D010_DECISION_ACK.md`](07_D010_DECISION_ACK.md)
 - [`08_D011_DECISION_ACK.md`](08_D011_DECISION_ACK.md)
 - [`09_LIVE_ACCEPTANCE_BLOCKED.md`](09_LIVE_ACCEPTANCE_BLOCKED.md)
+- [`11_D012_DECISION_ACK.md`](11_D012_DECISION_ACK.md)
 - [`design/revisions/1/DESIGN_REVISION_BRIEF.md`](design/revisions/1/DESIGN_REVISION_BRIEF.md)
 - [`design/revisions/1/DESIGN_REVISION_HANDOFF_PROMPT.md`](design/revisions/1/DESIGN_REVISION_HANDOFF_PROMPT.md)
 - [`design/revisions/1/DESIGN_REVISION_RUN_PROMPT.md`](design/revisions/1/DESIGN_REVISION_RUN_PROMPT.md)
@@ -275,3 +277,10 @@ zero secret-value consumption, zero runtime mutation, no acceptance-command exec
 evidence. Implementation `PASS` remains closed; live and device acceptance remain unrun. Open decision `D-012` asks
 Leo/operator to provision the trusted-console Tailscale and configured caption-tool prerequisites, or to hold. This is
 not `MISSION_COMPLETE`.
+
+Leo/GPT returned `D-012-A`. Advisor value-free checks at synchronized head
+`675af4bf06fa4e4fb22884e219bef0ec25f5b70c` confirm the Tailscale CLI/daemon and PATH `yt-dlp` backend are available,
+and read-only Tailscale status, Serve, and Funnel commands succeed with raw output discarded. No environment value,
+configured target, private address, provider call, or runtime mutation was used. D-012 is resolved; Advisor may now
+prepare a fresh same-Worker `live-private-acceptance-002` route. The first blocked attempt remains immutable evidence,
+and no live/device acceptance or mission completion is claimed.

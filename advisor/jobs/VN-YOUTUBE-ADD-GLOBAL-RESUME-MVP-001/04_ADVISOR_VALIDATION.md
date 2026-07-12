@@ -810,3 +810,37 @@ mutation. The configured absolute caption binary remains unevaluated rather than
 Implementation review remains `PASS`; this environment prerequisite does not reopen any closed finding. It prevents
 live or device acceptance, the five D-009 labels, reload completion, final audit, and `MISSION_COMPLETE`. D-012 is
 required because installation, tailnet identity, Serve configuration, and device presence are operator-owned state.
+
+## D-012-A ACK and prerequisite metadata validation
+
+```text
+VALIDATION_PHASE: ADVISOR_D012_ACK_PREREQUISITE_METADATA
+DECISION_ID: D-012
+DECISION_ACK: D-012-A
+PRIOR_ACCEPTANCE_ID: live-private-acceptance-001
+PRIOR_ACCEPTANCE_STATUS: BLOCKED_RUNTIME_ACCESS_TOOLING_UNAVAILABLE
+TAILSCALE_CLI_METADATA_CHECK: AVAILABLE
+TAILSCALED_BINARY_METADATA_CHECK: AVAILABLE
+TAILSCALE_STATUS_READ_ONLY_CHECK: PASS
+TAILSCALE_SERVE_READ_ONLY_CHECK: PASS
+TAILSCALE_FUNNEL_READ_ONLY_CHECK: PASS
+YTDLP_PATH_BACKEND_METADATA_CHECK: AVAILABLE
+SERVER_ENV_FILE_METADATA: PRESENT_MODE_0600_GIT_IGNORED_UNTRACKED
+SECRET_VALUE_ACCESS: ZERO
+RUNTIME_MUTATION_STATUS: ZERO
+PROVIDER_CALLS: ZERO
+ADVISOR_VALIDATION: PASS_TO_PREPARE_FRESH_ACCEPTANCE_ROUTE
+NEXT_ACCEPTANCE_ID: live-private-acceptance-002
+MISSION_COMPLETE: false
+NEXT_ACTOR: VibeNews Advisor
+```
+
+At clean synchronized head `675af4bf06fa4e4fb22884e219bef0ec25f5b70c`, the four fixed VibeNews sessions remain
+present. The Advisor discarded all raw Tailscale status/Serve/Funnel output and recorded only command availability and
+exit success. The configured target/device and caption path were not read; the reviewed runner remains authoritative
+for exact access, denial, configured-binary, provider, payload, policy, and local-control evidence.
+
+This resolves the D-012 operator prerequisite only. It preserves the blocked first attempt, immutable implementation
+subject, final a4 `PASS`, frozen design, provider data-minimization rules, and fail-closed result contract. It permits a
+fresh same-Worker route but is not live acceptance, device acceptance, reload completion, final audit, or
+`MISSION_COMPLETE`.
