@@ -1,13 +1,13 @@
 # VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
 ```text
-STATUS: LIVE_PRIVATE_ACCEPTANCE_002_BLOCKED_ACCESS_D013
+STATUS: D013_ACK_COMPATIBILITY_CORRECTION_READY_TO_ROUTE
 REPO: /home/leo/Project/VibeNews
 ORIGIN: https://github.com/leohan816/vibenews.git
 BRANCH: master
 ADVISOR_INPUT_HEAD: 42790e7102a144b052d1385aac93f73bc9dc77bf
-DECISION_ACK_STATUS: D_009_D_010_D_011_AND_D_012_ACKNOWLEDGED
-UNRESOLVED_DECISIONS: D-013
+DECISION_ACK_STATUS: D_009_D_010_D_011_D_012_AND_D_013_ACKNOWLEDGED
+UNRESOLVED_DECISIONS: none
 DESIGN_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001-DESIGN-001
 DESIGN_VERSION: 2
 DESIGN_DEPTH: FULL_DESIGN
@@ -24,6 +24,7 @@ DECISION_D_009_STATUS: ACKNOWLEDGED_D_009_A
 DECISION_D_010_STATUS: ACKNOWLEDGED_D_010_A
 DECISION_D_011_STATUS: ACKNOWLEDGED_D_011_A
 DECISION_D_012_STATUS: ACKNOWLEDGED_D_012_A
+DECISION_D_013_STATUS: ACKNOWLEDGED_OPERATOR_FIX_AND_COMPATIBILITY_CORRECTION
 D012_ACK_HEAD: dad870ac5c5f0df1d434395eddb823118bcfb781
 ACTIVE_DESIGN_REVISION_ID: design-revision-001
 ACTIVE_DESIGN_REVISION_ATTEMPT: 1
@@ -131,8 +132,8 @@ LIVE_ACCEPTANCE_RUNTIME_MUTATION: AUTHORIZED_INITIAL_KEY_THREE_BINDINGS_AND_TWO_
 LIVE_ACCEPTANCE_CONTENT_OR_AUDIO_CREATED: ZERO
 LIVE_ACCEPTANCE_TRANSIENT_API: STOPPED
 DEVICE_GLOBAL_PLAYBACK_ACCEPTANCE_STATUS: BLOCKED_NOT_RUN
-REQUIRED_LEO_DECISION: D-013
-NEXT_ACTOR: Leo/GPT
+REQUIRED_LEO_DECISION: none
+NEXT_ACTOR: VibeNews Advisor
 ```
 
 ## Advisor artifacts
@@ -150,6 +151,7 @@ NEXT_ACTOR: Leo/GPT
 - [`09_LIVE_ACCEPTANCE_BLOCKED.md`](09_LIVE_ACCEPTANCE_BLOCKED.md)
 - [`11_D012_DECISION_ACK.md`](11_D012_DECISION_ACK.md)
 - [`12_LIVE_ACCEPTANCE_ACCESS_BLOCKED.md`](12_LIVE_ACCEPTANCE_ACCESS_BLOCKED.md)
+- [`13_D013_DECISION_ACK.md`](13_D013_DECISION_ACK.md)
 - [`design/revisions/1/DESIGN_REVISION_BRIEF.md`](design/revisions/1/DESIGN_REVISION_BRIEF.md)
 - [`design/revisions/1/DESIGN_REVISION_HANDOFF_PROMPT.md`](design/revisions/1/DESIGN_REVISION_HANDOFF_PROMPT.md)
 - [`design/revisions/1/DESIGN_REVISION_RUN_PROMPT.md`](design/revisions/1/DESIGN_REVISION_RUN_PROMPT.md)
@@ -316,3 +318,8 @@ failed. The two evidence commits are content head `d3849dc8ec260be50f963883e1f3f
 `3421a2c0a299bf8f16378570bc88f1e2eeb8a52a`. Advisor verified exact ownership, ancestry, clean origin equality, zero
 provider calls, zero content/audio, the narrow valid key/binding/policy bootstrap state, verified backup, and stopped
 API. Open D-013 returns the two operator-owned access facts to Leo/GPT. This is not `MISSION_COMPLETE`.
+
+Leo/GPT now reports the authorized-device blocker closed and authorizes one bounded same-Worker compatibility
+correction for installed-Tailscale Funnel-off JSON shapes, followed by same-Reviewer
+`implementation-delta-review-001-a5`. Frozen behavior and every independent Serve/device/ping/denial/loopback gate stay
+unchanged. No live call, secret access, Tailscale mutation, runtime mutation, or completion claim is part of correction.

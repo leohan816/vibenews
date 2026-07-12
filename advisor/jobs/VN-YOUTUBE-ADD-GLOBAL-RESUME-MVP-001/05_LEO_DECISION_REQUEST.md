@@ -285,7 +285,7 @@ the prior blocked attempt remains immutable evidence and no acceptance PASS or m
 ## D-013 — exact access-policy facts still fail closed
 
 ```text
-DECISION_STATUS: OPEN
+DECISION_STATUS: RESOLVED
 JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 ACTOR: VibeNews Advisor
 SOURCE_ACCEPTANCE_ID: live-private-acceptance-002
@@ -302,7 +302,9 @@ PROVIDER_CALLS: ZERO
 CONTENT_OR_AUDIO_CREATED: ZERO
 MISSION_COMPLETE: false
 ADVISOR_RECOMMENDATION: D-013-A
-NEXT_ACTOR: Leo/GPT
+DECISION_ACK: OPERATOR DEVICE FIX PLUS BOUNDED FUNNEL COMPATIBILITY CORRECTION
+DECISION_ACK_PATH: advisor/jobs/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/13_D013_DECISION_ACK.md
+NEXT_ACTOR: VibeNews Advisor
 ```
 
 ### Why a decision is required
@@ -335,3 +337,11 @@ provider call or further runtime/access change until later Leo/GPT direction.
 
 D-013 does not reopen D-001 through D-012, change the frozen design or reviewed product, authorize a substitute actor,
 or permit secret/access identity values in chat or Git.
+
+### Resolution
+
+Leo/GPT reports the authorized-device fact closed and identifies the remaining failure as an installed-Tailscale JSON
+compatibility defect in `funnelExplicitlyDisabled()`. One bounded implementation-only correction is authorized in the
+same two product paths by the same fixed Worker, followed by the same fixed Reviewer's
+`implementation-delta-review-001-a5`. The frozen behavior remains unchanged. The complete authority and terminal
+review contract are recorded in `13_D013_DECISION_ACK.md`.

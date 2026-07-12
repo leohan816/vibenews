@@ -918,3 +918,37 @@ occurred; its request identifier is not retained.
 The technical rerun precondition is satisfied only after operator correction of device grant/reachability and explicit
 Funnel-off/public-denial. That external access-policy mutation requires D-013. Implementation review remains `PASS`,
 but live/device acceptance, D-009 success labels, reloads, final audit, and mission completion remain blocked.
+
+## D-013 operator fix and compatibility-correction ACK validation
+
+```text
+VALIDATION_PHASE: ADVISOR_D013_ACK
+DECISION_ID: D-013
+AUTHORIZED_DEVICE_BLOCKER: CLOSED_BY_OPERATOR_ATTESTATION
+REMAINING_FINDING: FUNNEL_STATUS_COMPATIBILITY
+FROZEN_PRODUCT_BEHAVIOR: UNCHANGED
+ALLOWED_PRODUCT_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
+PATCH_OWNER: same fixed VibeNews Worker
+REVIEW_OWNER: same fixed VibeNews Reviewer
+PLANNED_REVIEW_ID: implementation-delta-review-001-a5
+HEAD_AND_ORIGIN: def33a0d861b2c90c240f42f1dcd0be020db4645
+WORKTREE: CLEAN
+FIXED_SESSIONS: FOUR_PRESENT
+TAILSCALE_STATUS_SERVE_FUNNEL_COMMANDS: READ_ONLY_EXIT_SUCCESS
+YTDLP_PATH_BACKEND: AVAILABLE
+SERVER_ENV_FILE_METADATA: PRESENT_MODE_0600_GIT_IGNORED_UNTRACKED
+SECRET_VALUE_ACCESS: ZERO
+PROVIDER_OR_YOUTUBE_CALLS: ZERO
+RUNTIME_MUTATION_STATUS: ZERO_DURING_ACK
+MISSION_COMPLETE: false
+NEXT_ACTOR: VibeNews Advisor
+```
+
+Direct code inspection confirms the current helper rejects absent and `null` `AllowFunnel` before checking object
+entries, while the installed representation may express Funnel-off through either shape. Current tests classify `null`
+as an unknown negative and do not prove every newly authorized/fail-closed shape. The requested correction is therefore
+narrow, deterministic, and compatible with unchanged frozen behavior.
+
+No live access output, provider request, secret value, private runtime value, or deployment action is required for the
+patch/review. The exact Serve, device, ping, denial, and loopback gates remain independent and mandatory. Existing valid
+runtime bootstrap state must remain untouched throughout correction and review.
