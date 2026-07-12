@@ -286,3 +286,58 @@ or evidence path, while frozen sections 14.1, 14.4, and 16.1 require executable 
 the post-review live run. Advisor therefore routes same-Worker implementation rework attempt 1 in only that file plus
 one new allowlisted integration test. Live provider/YouTube/device execution and secret access remain forbidden in the
 rework; the same fixed Reviewer must perform `implementation-delta-review-001-a1` on the returned immutable subject.
+
+## Pre-implementation-delta-review validation — attempt 1
+
+```text
+VALIDATION_PHASE: PRE_IMPLEMENTATION_DELTA_REVIEW
+VALIDATION_STATUS: PASS_FOR_INDEPENDENT_IMPLEMENTATION_DELTA_REVIEW
+IMPLEMENTATION_REVIEW_ID: implementation-review-001
+IMPLEMENTATION_REVIEW_REPORT_HEAD: 263678ed5ea71975b23007cb0a84cd167ee9d54c
+FINDING_IDS_IN_SCOPE: IR-F1
+IMPLEMENTATION_REWORK_ATTEMPT: 1
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 1
+PREVIOUS_SUBJECT_HEAD: 767e0d2bdc6d31e9950858c4267adf75c90f5fae
+NEW_IMPLEMENTATION_SUBJECT_HEAD: f6850963349d2a667b766e60a49800079335da00
+NEW_IMPLEMENTATION_SUBJECT_PATH_COUNT: 87
+REWORK_CONTENT_HEAD: f6850963349d2a667b766e60a49800079335da00
+REWORK_POINTER_HEAD: cd0fae7a173e88d6c3424ac6bf295ac083b9f8fe
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
+FROZEN_DESIGN_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN_PENDING_IMPLEMENTATION_DELTA_REVIEW
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+DIRTY_STATE: clean before Advisor delta-review routing
+NEXT_ACTOR: VibeNews Reviewer
+```
+
+### Direct evidence checked
+
+- Fetched origin and verified `HEAD == origin/master == cd0fae7a173e88d6c3424ac6bf295ac083b9f8fe`, clean
+  staged/unstaged/untracked state, previous-subject/review/rework ancestry, and the exact content/pointer commits.
+- Read the complete rework result/pointer, all 338 lines of `accept-private.ts`, and all 260 lines of the new integration
+  test directly. The content commit changes exactly the two authorized subject paths plus `REWORK_RESULT.md`; the
+  pointer commit changes only `REWORK_RESULT_POINTER.md`.
+- `git diff --check`, text/numstat/control-byte checks, frozen-design immutability, and initial Reviewer-report
+  immutability pass. Rework evidence is excluded from the 87-path verdict target.
+- Advisor independently reran typecheck and the targeted acceptance suite: typecheck exit 0 and 5/5 targeted tests
+  passed. Worker records lint exit 0 with 49 warnings, unit 46/46, integration 56/56, runtime 2/2, and migration
+  dry-run exit 0; the same Reviewer must reproduce and assess these.
+- No live provider/YouTube/tailnet/device call, secret access, systemd/Tailscale mutation, runtime DB mutation, or live
+  acceptance claim occurred.
+
+### Required same-Reviewer focus
+
+The delta is reviewable and within the routed path bound; this validation does not declare IR-F1 closed. The Reviewer
+must determine whether the runner can produce false PASS evidence because runtime-access facts are operator-set
+booleans rather than redacted observed checks; file stat/session creation substitutes for authorized Range/device
+playback; `rawRetained` is hard-coded false; provider policy fixtures permit empty mandatory D-009 fields; runtime
+bindings, payload audits, channel discovery, repeat-job/daily-count behavior, and failure sanitization are sufficiently
+verified; and the new tests prove the normal CLI/evidence boundary rather than only injected assertions.
+
+### Gate decision
+
+Advisor validation permits only the same fixed Reviewer to perform `IMPLEMENTATION_DELTA_REVIEW` of immutable subject
+`f6850963349d2a667b766e60a49800079335da00`, previous subject `767e0d2...`, and the 87 declared paths with IR-F1 in
+scope. A `PASS` opens the later live acceptance phase but is not acceptance. `NEEDS_PATCH` may consume the second and
+final automatic implementation-rework attempt; `PASS_WITH_RISK` requires Leo/GPT; `FAIL` stops.
