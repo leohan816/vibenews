@@ -844,3 +844,35 @@ This resolves the D-012 operator prerequisite only. It preserves the blocked fir
 subject, final a4 `PASS`, frozen design, provider data-minimization rules, and fail-closed result contract. It permits a
 fresh same-Worker route but is not live acceptance, device acceptance, reload completion, final audit, or
 `MISSION_COMPLETE`.
+
+## Live private acceptance attempt 002 routing
+
+```text
+VALIDATION_PHASE: ADVISOR_LIVE_PRIVATE_ACCEPTANCE_002_ROUTING
+DECISION_ID: D-012
+DECISION_ACK: D-012-A
+D012_ACK_HEAD: dad870ac5c5f0df1d434395eddb823118bcfb781
+PRIOR_ACCEPTANCE_ID: live-private-acceptance-001
+PRIOR_ACCEPTANCE_STATUS: BLOCKED_BEFORE_COMMAND_PROVIDER_OR_RUNTIME
+LIVE_ACCEPTANCE_ID: live-private-acceptance-002
+LIVE_ACCEPTANCE_INPUT_HEAD: RECORDED_AFTER_ACCEPTANCE_REROUTING_COMMIT
+IMPLEMENTATION_SUBJECT_HEAD: 1b39a51a100c8b5e2925699620e24602a4df9445
+FINAL_IMPLEMENTATION_REVIEW_REPORT_HEAD: 4d600337fbcaa08ff0d4fecd1c4a684430d81700
+REVIEW_VERDICT: PASS
+PRODUCT_OR_DESIGN_CHANGE: ZERO
+SECRET_VALUE_ACCESS: ZERO_BEFORE_REROUTE
+RUNTIME_MUTATION_STATUS: ZERO_BEFORE_REROUTE
+PROVIDER_CALLS: ZERO_BEFORE_REROUTE
+DEVICE_GLOBAL_PLAYBACK_ACCEPTANCE: NOT_RUN
+MISSION_COMPLETE: false
+NEXT_ACTOR: VibeNews Worker
+```
+
+The second route preserves attempt 001 and changes no reviewed product, frozen design, protocol, model/provider,
+source, schema, package, migration, API, service, deployment, or privacy decision. It only gives the same fixed Worker a
+fresh evidence path after the operator prerequisite was acknowledged and independently metadata-checked.
+
+The complete original live contract remains controlling. Attempt 002 may consume prepared environment values only in
+non-xtrace server subprocesses, make only the authorized public-source/provider calls, and mutate only the reviewed
+private development runtime after all fail-closed preflight gates pass. It must not configure Tailscale or retry the
+whole command after any provider request may have occurred. Only a direct §14.4 `PASS` opens device acceptance.
