@@ -281,3 +281,57 @@ Leo/GPT returned `D-012-A`. Value-free Advisor checks confirm the Tailscale CLI/
 available and that read-only Tailscale status, Serve, and Funnel commands succeed with raw output discarded. The ACK is
 recorded in `11_D012_DECISION_ACK.md`. A fresh `live-private-acceptance-002` may now be routed to the same fixed Worker;
 the prior blocked attempt remains immutable evidence and no acceptance PASS or mission completion is implied.
+
+## D-013 — exact access-policy facts still fail closed
+
+```text
+DECISION_STATUS: OPEN
+JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
+ACTOR: VibeNews Advisor
+SOURCE_ACCEPTANCE_ID: live-private-acceptance-002
+SOURCE_ACCEPTANCE_CONTENT_HEAD: d3849dc8ec260be50f963883e1f3f14feb5b32c5
+SOURCE_ACCEPTANCE_POINTER_HEAD: 3421a2c0a299bf8f16378570bc88f1e2eeb8a52a
+SOURCE_ACCEPTANCE_STATUS: BLOCKED
+BLOCKED_CODE: RUNTIME_ACCESS_REQUIRED
+ACCESS_LOOPBACK_BIND: PASS
+ACCESS_TAILNET_SERVE_HTTPS: PASS
+ACCESS_AUTHORIZED_DEVICE_GRANT_REACHABILITY: FAIL
+ACCESS_FUNNEL_DISABLED: FAIL
+ACCESS_PUBLIC_DENIED: FAIL
+PROVIDER_CALLS: ZERO
+CONTENT_OR_AUDIO_CREATED: ZERO
+MISSION_COMPLETE: false
+ADVISOR_RECOMMENDATION: D-013-A
+NEXT_ACTOR: Leo/GPT
+```
+
+### Why a decision is required
+
+D-012 made the tools available, but the reviewed verifier now proves that two operator-owned facts are still absent:
+the configured authorized device is not verifiably online/granted/reachable in the intended tailnet, and Funnel is not
+explicitly off. Public denial therefore also fails. The Worker's authority forbids changing device identity, tailnet
+membership, Serve/Funnel, grants, ACL, or firewall state. The run stopped before every provider and pipeline action.
+
+### Exact choices
+
+#### D-013-A — operator corrects the two access facts (Advisor recommendation)
+
+Through trusted consoles, connect and authorize the configured Leo device in the intended tailnet, keep it online and
+reachable, explicitly disable Funnel for the VibeNews Serve target, and locally confirm private Serve remains available
+while public/non-tailnet access is denied. Return no value or command output; once complete, reply only `D-013-A`.
+Advisor will then route a fresh same-Worker attempt over the immutable reviewed subject and existing valid runtime
+bootstrap state.
+
+#### D-013-B — authorize bounded Worker access-policy mutation
+
+Authorize the same fixed Worker to disable Funnel only, then stop for Leo/operator device login/grant/presence. This is
+not recommended because it cannot complete the device-owned fact and broadens the Worker's current read-only access
+authority.
+
+#### D-013-C — hold the mission
+
+Preserve the reviewed implementation, attempt evidence, valid audit key/bindings, policy snapshots, and backup. Make no
+provider call or further runtime/access change until later Leo/GPT direction.
+
+D-013 does not reopen D-001 through D-012, change the frozen design or reviewed product, authorize a substitute actor,
+or permit secret/access identity values in chat or Git.

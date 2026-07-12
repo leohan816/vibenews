@@ -876,3 +876,45 @@ The complete original live contract remains controlling. Attempt 002 may consume
 non-xtrace server subprocesses, make only the authorized public-source/provider calls, and mutate only the reviewed
 private development runtime after all fail-closed preflight gates pass. It must not configure Tailscale or retry the
 whole command after any provider request may have occurred. Only a direct §14.4 `PASS` opens device acceptance.
+
+## Live private acceptance attempt 002 blocker validation
+
+```text
+VALIDATION_PHASE: ADVISOR_POST_LIVE_PRIVATE_ACCEPTANCE_002
+LIVE_ACCEPTANCE_ID: live-private-acceptance-002
+ACCEPTANCE_CONTENT_HEAD: d3849dc8ec260be50f963883e1f3f14feb5b32c5
+ACCEPTANCE_POINTER_HEAD: 3421a2c0a299bf8f16378570bc88f1e2eeb8a52a
+RESULT_STATUS: BLOCKED
+BLOCKED_CODE: RUNTIME_ACCESS_REQUIRED
+COMMAND_RUN_COUNT: ONE
+ACCESS_LOOPBACK_BIND: PASS
+ACCESS_TAILNET_SERVE_HTTPS: PASS
+ACCESS_AUTHORIZED_DEVICE_GRANT_REACHABILITY: FAIL
+ACCESS_FUNNEL_DISABLED: FAIL
+ACCESS_PUBLIC_DENIED: FAIL
+PROVIDER_CALLS: ZERO
+CONTENT_OR_AUDIO_CREATED: ZERO
+RUNTIME_MUTATION_STATUS: AUTHORIZED_INITIAL_KEY_THREE_BINDINGS_AND_TWO_POLICY_SNAPSHOTS_ONLY
+PRE_RUN_BACKUP: VERIFIED
+TRANSIENT_API: STOPPED
+DEVICE_GLOBAL_PLAYBACK_ACCEPTANCE: NOT_RUN
+MISSION_COMPLETE: false
+REQUIRED_LEO_DECISION: D-013
+NEXT_ACTOR: Leo/GPT
+```
+
+Advisor fetched and verified `HEAD == origin/master ==
+3421a2c0a299bf8f16378570bc88f1e2eeb8a52a`, a clean worktree, exact two-commit ancestry, and exactly two additive
+attempt-002 evidence paths. The content commit is
+`d3849dc8ec260be50f963883e1f3f14feb5b32c5`; the pointer commit is
+`3421a2c0a299bf8f16378570bc88f1e2eeb8a52a`. Diff check passes. The reviewed 87-path subject, product files, frozen
+design, prior attempt, canonical protocols, Advisor/Reviewer artifacts, packages, and migration remain immutable.
+
+The result and pointer consistently record distinct access proofs, a one-time command exit before the pipeline, zero
+YouTube/DeepSeek/Fish calls, zero content/audio, the narrow authorized bootstrap state, a verified pre-run backup, and a
+stopped API. The reported client `UNAUTHORIZED` response cannot be attributed to a provider because no provider request
+occurred; its request identifier is not retained.
+
+The technical rerun precondition is satisfied only after operator correction of device grant/reachability and explicit
+Funnel-off/public-denial. That external access-policy mutation requires D-013. Implementation review remains `PASS`,
+but live/device acceptance, D-009 success labels, reloads, final audit, and mission completion remain blocked.
