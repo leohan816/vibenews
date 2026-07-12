@@ -520,3 +520,32 @@ This ACK supplies the new authority required after the canonical automatic limit
 change the canonical two-attempt policy, revive `SPECIAL_IMPLEMENTATION_EXCEPTION`, reopen D-001 through D-009-A, or
 permit an Advisor implementation patch. The next transition is an Advisor-authored exceptional rework handoff to the
 same fixed Worker, followed only by the same fixed Reviewer's `implementation-delta-review-001-a3`.
+
+## D-010 exceptional implementation rework routing
+
+```text
+VALIDATION_PHASE: EXCEPTIONAL_IMPLEMENTATION_REWORK_ROUTING
+DECISION_ID: D-010
+DECISION_ACK_HEAD: 53f64282ec594962011da22c2328335d6a12fd8f
+SOURCE_REVIEW_ID: implementation-delta-review-001-a2
+SOURCE_REVIEW_REPORT_HEAD: 054333eb08d677c831e911866d3c7a9dbb34df9c
+FINDING_IDS_IN_SCOPE: IR-F1-D1(b); IR-F1-D1(g)
+PREVIOUS_SUBJECT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+AUTOMATIC_REWORK_ATTEMPTS_USED: 2
+AUTOMATIC_REWORK_ATTEMPTS_MAX: 2
+EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPT: 3
+EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPTS_USED: 1
+EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 1
+ALLOWED_PRODUCT_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
+PLANNED_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a3
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+NEXT_ACTOR: VibeNews Worker
+```
+
+The exceptional handoff narrows the Worker to the two final Reviewer findings and the same two product paths. Its
+positive tests must use the real normal-CLI access collector and isolated real audit-key/binding provisioner, not
+trusted success objects or a caller-supplied matching key. Rework execution remains synthetic and cannot read secrets,
+call live services/networks/devices, or mutate runtime state. Only the same fixed Reviewer may judge returned subject
+head in `implementation-delta-review-001-a3`; no further attempt is authorized.

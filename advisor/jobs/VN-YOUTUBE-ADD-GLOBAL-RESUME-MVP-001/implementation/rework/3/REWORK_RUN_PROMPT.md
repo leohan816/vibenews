@@ -1,0 +1,29 @@
+# Worker Exceptional Rework Short Launcher — implementation-rework-001-a3
+
+```text
+TARGET_ACTOR: VibeNews Worker
+TARGET_PROJECT: VibeNews
+TARGET_REPO: /home/leo/Project/VibeNews
+TARGET_BRANCH: master
+TARGET_SESSION_NAME: VibeNews
+REQUIRED_SKILL: NOT_APPLICABLE
+READ_AND_EXECUTE: advisor/jobs/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/implementation/rework/3/REWORK_HANDOFF_PROMPT.md
+REWORK_INPUT_HEAD: RECORDED_AFTER_REWORK_ROUTING_PUSH_IN_ACTUAL_LAUNCHER
+FROZEN_DESIGN_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
+LEO_DECISION_ID: D-010
+LEO_DECISION_ACK_HEAD: 53f64282ec594962011da22c2328335d6a12fd8f
+PREVIOUS_SUBJECT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+PRIOR_DELTA_REVIEW_REPORT_HEAD: 054333eb08d677c831e911866d3c7a9dbb34df9c
+REVIEW_FINDING_IDS: IR-F1-D1(b); IR-F1-D1(g)
+EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPT: 3
+EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 1
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a3
+RETURN_RESULT_TO: Advisor
+DO_NOT_EXECUTE_FROM_MEMORY: true
+DO_NOT_BROADEN_SCOPE: true
+NO_NEW_AGENT_OR_SUBAGENT: true
+
+Open READ_AND_EXECUTE directly. Perform only D-010-A's one exceptional final same-Worker rework for
+`IR-F1-D1(b)`/`(g)` in the two allowed subject paths. Write/push only the declared rework result and pointer, return
+only the canonical pointer block to Advisor, and STOP.
+```
