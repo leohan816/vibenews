@@ -684,3 +684,54 @@ creation only at zero rows, and makes every existing-row path load/validate with
 must compare complete before/after key and binding state for missing, invalid, symlinked, wrong-owner, wrong-mode, and
 wrong-size keys, plus empty-state provisioning and valid-key idempotence. Correction execution remains synthetic and
 local. Only the same fixed Reviewer may judge the returned subject in a4.
+
+## D-011 micro-correction return and pre-a4 validation
+
+```text
+VALIDATION_PHASE: ADVISOR_PRE_IMPLEMENTATION_DELTA_REVIEW_A4
+DECISION_ID: D-011
+DECISION_ACK_HEAD: c5086000070db388f6d217384191feb50433bfd2
+PRIOR_REVIEW_REPORT_HEAD: d228be432e5645b06e2ad8847293a2adebb8ca88
+PREVIOUS_SUBJECT_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
+REWORK_INPUT_HEAD: e6e336bc091131d85891b2ace136b687e847eecd
+REWORK_CONTENT_HEAD: 1b39a51a100c8b5e2925699620e24602a4df9445
+NEW_IMPLEMENTATION_SUBJECT_HEAD: 1b39a51a100c8b5e2925699620e24602a4df9445
+REWORK_POINTER_HEAD: 613b9a4ed96e4eaf6ac94b653071b2308d5bd8c7
+NEW_IMPLEMENTATION_SUBJECT_PATH_COUNT: 87
+DELTA_PRODUCT_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
+FINDING_ID_FOR_REVIEW: IR-F1-D1(g)-L
+D011_FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPT: 1
+D011_FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPTS_MAX: 1
+TYPECHECK: PASS
+LINT: PASS_0_ERRORS_53_WARNINGS
+UNIT_TESTS: PASS_46_OF_46
+INTEGRATION_TESTS: PASS_89_OF_89
+TARGETED_ACCEPT_PRIVATE_TESTS: PASS_38_OF_38
+RUNTIME_LOCAL_TESTS: PASS_2_OF_2
+MIGRATION_DRY_RUN: PASS_NO_DB_WRITTEN
+CONTROL_BYTE_SCAN: PASS
+ORIGIN_AND_CLEAN_STATE: PASS
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+ADVISOR_ROUTE_VALIDATION: PASS_FOR_INDEPENDENT_A4_REVIEW_ONLY
+PLANNED_REVIEW_ID: implementation-delta-review-001-a4
+NEXT_ACTOR: VibeNews Reviewer
+```
+
+Advisor fetched and verified `HEAD == origin/master == 613b9a4ed96e4eaf6ac94b653071b2308d5bd8c7`, a clean worktree,
+exact parent/ancestry, a three-path content commit (two authorized product paths plus Worker result), and a pointer-only
+commit. Frozen design, D-011 ACK, canonical protocols, prior Reviewer reports, packages, migrations, APIs, and services
+are unchanged. Both product subjects are control-byte clean and `git diff --check` passes.
+
+Direct code inspection confirms the new normal CLI calls `acceptancePreflight`; its lifecycle seam counts binding rows
+before key resolution, confines key creation and provisioning to the zero-row branch, and makes the existing-row branch
+load/select/validate only. The deterministic suite compares full key state and ordered binding-row snapshots across
+missing, invalid, symlinked, wrong-owner, wrong-mode, wrong-size, extra-row, and valid-key cases. At Advisor request, the
+same Worker strengthened the owner proof to reach `AUDIT_KEY_OWNER` specifically and replaced a constructed label check
+with a real downstream spy on the same preflight seam used by `main()`.
+
+The Advisor independently reran every listed check without live calls, secret access, runtime mutation, or deployment.
+This permits only same-Reviewer a4 review; it does not close `IR-F1-D1(g)-L`, authorize live acceptance yet, accept the
+owner test seams as safe, or claim mission completion. Reviewer must decide actual production-default owner enforcement,
+all no-replacement paths, valid-key idempotence, stale fail-closed behavior, and every earlier closure.

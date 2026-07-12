@@ -1,7 +1,7 @@
 # VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
 ```text
-STATUS: D011_FINAL_LIFECYCLE_MICRO_CORRECTION_ROUTED
+STATUS: D011_MICRO_CORRECTION_ADVISOR_VALIDATED_AWAITING_A4
 REPO: /home/leo/Project/VibeNews
 ORIGIN: https://github.com/leohan816/vibenews.git
 BRANCH: master
@@ -63,12 +63,12 @@ REWORK_ATTEMPT_1_SUBJECT_PATH_COUNT: 87
 REWORK_ATTEMPT_2_INPUT_HEAD: 1289037722b4b1ec6136b69292602ecce2b300ce
 REWORK_ATTEMPT_2_CONTENT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
 REWORK_ATTEMPT_2_POINTER_HEAD: 01807f1993961bd12bdc5656aba745b47d80c7f7
-REWORK_CONTENT_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
-REWORK_POINTER_HEAD: 45bd8185026395256fc855bd9dfd600b36c942d5
-NEW_IMPLEMENTATION_SUBJECT_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
+REWORK_CONTENT_HEAD: 1b39a51a100c8b5e2925699620e24602a4df9445
+REWORK_POINTER_HEAD: 613b9a4ed96e4eaf6ac94b653071b2308d5bd8c7
+NEW_IMPLEMENTATION_SUBJECT_HEAD: 1b39a51a100c8b5e2925699620e24602a4df9445
 NEW_IMPLEMENTATION_SUBJECT_PATH_COUNT: 87
-REWORK_STATUS: EXCEPTIONAL_ATTEMPT_REVIEWED_NEEDS_PATCH
-ADVISOR_PRE_IMPLEMENTATION_DELTA_REVIEW_VALIDATION: PASS_FOR_A3_ROUTE_ONLY
+REWORK_STATUS: D011_MICRO_CORRECTION_PUBLISHED_ADVISOR_VALIDATED
+ADVISOR_PRE_IMPLEMENTATION_DELTA_REVIEW_VALIDATION: PASS_FOR_A4_ROUTE_ONLY
 PRIOR_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
 PRIOR_IMPLEMENTATION_DELTA_REVIEW_REPORT_HEAD: 8ce5c26f214b6aafd7404f5642c5698ea3672517
 PRIOR_IMPLEMENTATION_DELTA_REVIEW_VERDICT: NEEDS_PATCH
@@ -96,12 +96,14 @@ ALL_IMPLEMENTATION_REWORK_BUDGET_EXHAUSTED: true
 SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
 FINAL_LIFECYCLE_MICRO_CORRECTION_AUTHORIZED: true
 FINAL_LIFECYCLE_MICRO_CORRECTION_FINDING: IR-F1-D1(g)-L
-FINAL_LIFECYCLE_MICRO_CORRECTION_STATUS: ROUTED_TO_SAME_WORKER
+FINAL_LIFECYCLE_MICRO_CORRECTION_STATUS: PUBLISHED_ADVISOR_VALIDATED_AWAITING_A4
 FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPT: 1
 FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPTS_MAX: 1
-FINAL_LIFECYCLE_MICRO_CORRECTION_INPUT_HEAD: RECORDED_AFTER_ROUTING_COMMIT
+FINAL_LIFECYCLE_MICRO_CORRECTION_INPUT_HEAD: e6e336bc091131d85891b2ace136b687e847eecd
+FINAL_LIFECYCLE_MICRO_CORRECTION_CONTENT_HEAD: 1b39a51a100c8b5e2925699620e24602a4df9445
+FINAL_LIFECYCLE_MICRO_CORRECTION_POINTER_HEAD: 613b9a4ed96e4eaf6ac94b653071b2308d5bd8c7
 REQUIRED_LEO_DECISION: none
-NEXT_ACTOR: VibeNews Worker
+NEXT_ACTOR: VibeNews Reviewer
 ```
 
 ## Advisor artifacts
@@ -148,6 +150,9 @@ NEXT_ACTOR: VibeNews Worker
 - [`reviews/implementation-delta-review-001-a3/REVIEWER_BRIEF.md`](reviews/implementation-delta-review-001-a3/REVIEWER_BRIEF.md)
 - [`reviews/implementation-delta-review-001-a3/REVIEWER_HANDOFF_PROMPT.md`](reviews/implementation-delta-review-001-a3/REVIEWER_HANDOFF_PROMPT.md)
 - [`reviews/implementation-delta-review-001-a3/REVIEWER_RUN_PROMPT.md`](reviews/implementation-delta-review-001-a3/REVIEWER_RUN_PROMPT.md)
+- [`reviews/implementation-delta-review-001-a4/REVIEWER_BRIEF.md`](reviews/implementation-delta-review-001-a4/REVIEWER_BRIEF.md)
+- [`reviews/implementation-delta-review-001-a4/REVIEWER_HANDOFF_PROMPT.md`](reviews/implementation-delta-review-001-a4/REVIEWER_HANDOFF_PROMPT.md)
+- [`reviews/implementation-delta-review-001-a4/REVIEWER_RUN_PROMPT.md`](reviews/implementation-delta-review-001-a4/REVIEWER_RUN_PROMPT.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 
 ## Current transition
@@ -232,3 +237,9 @@ Advisor has now routed D-011-A to the same fixed `VibeNews` Worker. The micro-co
 lifecycle finding and the two authorized product files, with deterministic local proof only. The same fixed Reviewer
 alone performs `implementation-delta-review-001-a4` after Advisor direct validation; live acceptance remains unrun and
 blocked until that review returns `PASS`.
+
+The same Worker returned content head `1b39a51a100c8b5e2925699620e24602a4df9445` and pointer head
+`613b9a4ed96e4eaf6ac94b653071b2308d5bd8c7`. Advisor independently verified exact path ownership, ancestry,
+immutability, clean origin state, fail-closed ordering, control-byte cleanliness, typecheck, lint with zero errors, unit
+46/46, integration 89/89, targeted 38/38, runtime-local 2/2, and migration dry-run. This validation routes only the same
+fixed Reviewer's a4; it does not yet close the finding or open live acceptance.
