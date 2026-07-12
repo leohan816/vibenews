@@ -491,3 +491,32 @@ Both automatic reworks are consumed. Per `RUN_PROTOCOL.md`, the Advisor does not
 an actor, run live acceptance, or claim mission completion. `D-010` in `05_LEO_DECISION_REQUEST.md` asks Leo/GPT to
 authorize one exceptional same-Worker/same-Reviewer bounded correction, hold, or request a broader design-policy
 change. Safe state remains stopped before runtime/provider/device activity.
+
+## D-010 exceptional-rework decision ACK
+
+```text
+VALIDATION_PHASE: LEO_GPT_DECISION_ACK
+DECISION_ID: D-010
+DECISION: D-010-A — AUTHORIZE ONE EXCEPTIONAL FINAL REWORK
+ACK_STATUS: ACKNOWLEDGED
+ACK_PATH: advisor/jobs/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/07_D010_DECISION_ACK.md
+SOURCE_REVIEW_REPORT_HEAD: 054333eb08d677c831e911866d3c7a9dbb34df9c
+FINDING_IDS_IN_SCOPE: IR-F1-D1(b); IR-F1-D1(g)
+PREVIOUS_SUBJECT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+AUTOMATIC_REWORK_ATTEMPTS_USED: 2
+AUTOMATIC_REWORK_LIMIT_REACHED: true
+EXCEPTIONAL_IMPLEMENTATION_REWORK_AUTHORIZED: true
+EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPT: 3
+EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 1
+ALLOWED_PRODUCT_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
+SAME_WORKER_REQUIRED: true
+SAME_REVIEWER_REQUIRED: true
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a3
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN
+NEXT_ACTOR: VibeNews Advisor
+```
+
+This ACK supplies the new authority required after the canonical automatic limit. It is mission-specific and does not
+change the canonical two-attempt policy, revive `SPECIAL_IMPLEMENTATION_EXCEPTION`, reopen D-001 through D-009-A, or
+permit an Advisor implementation patch. The next transition is an Advisor-authored exceptional rework handoff to the
+same fixed Worker, followed only by the same fixed Reviewer's `implementation-delta-review-001-a3`.

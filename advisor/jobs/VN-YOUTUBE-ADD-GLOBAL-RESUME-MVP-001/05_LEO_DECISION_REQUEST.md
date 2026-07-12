@@ -60,7 +60,7 @@ escalation, and live-evidence contract is preserved in `06_D009_DECISION_ACK.md`
 ## D-010 — implementation rework limit reached with two bounded findings open
 
 ```text
-DECISION_STATUS: OPEN
+DECISION_STATUS: RESOLVED
 JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 ACTOR: VibeNews Advisor
 SOURCE_REVIEW_ID: implementation-delta-review-001-a2
@@ -73,7 +73,9 @@ IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 2
 AUTOMATIC_REWORK_LIMIT_REACHED: true
 LIVE_PRIVATE_ACCEPTANCE: NOT_RUN
 ADVISOR_RECOMMENDATION: D-010-A
-NEXT_ACTOR: Leo/GPT
+DECISION_ACK: D-010-A — AUTHORIZE ONE EXCEPTIONAL FINAL REWORK
+DECISION_ACK_PATH: advisor/jobs/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/07_D010_DECISION_ACK.md
+NEXT_ACTOR: VibeNews Advisor
 ```
 
 ### Why a decision is required
@@ -129,7 +131,8 @@ This keeps the frozen design unchanged and is the shortest safe path to real acc
   then require independent design review, a new freeze, implementation, and implementation review.
 - This is broader and slower than D-010-A and is not recommended because the current frozen requirements are clear.
 
-### Required ACK
+### Resolution
 
-Reply with exactly one choice: `D-010-A`, `D-010-B`, or `D-010-C`. Until ACK, safe state is stopped before live
-acceptance with no further product edit or runtime action.
+Leo/GPT selected `D-010-A — AUTHORIZE ONE EXCEPTIONAL FINAL REWORK`. The exact one-attempt, same-Worker,
+same-Reviewer, two-finding, two-product-path, no-live-call/no-secret boundary is recorded in
+`07_D010_DECISION_ACK.md`.
