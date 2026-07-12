@@ -1,143 +1,121 @@
-# Rework Result — implementation-rework-001-a3 (VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001)
+# Rework Result — implementation-rework-001-a4 (VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001)
 
 ```text
 REWORK_RESULT
 JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
-REWORK_ID: implementation-rework-001-a3
+REWORK_ID: implementation-rework-001-a4
 ACTOR: VibeNews Worker
 REPO: /home/leo/Project/VibeNews
 BRANCH: master
-REWORK_INPUT_HEAD: 2b36dbfcde9007ddcab823f0b330364ededd5966
-PREVIOUS_IMPLEMENTATION_SUBJECT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+REWORK_INPUT_HEAD: e6e336bc091131d85891b2ace136b687e847eecd
+PREVIOUS_IMPLEMENTATION_SUBJECT_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
 FROZEN_DESIGN_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
 DESIGN_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001-DESIGN-001
 DESIGN_VERSION: 2
 IMPLEMENTATION_REVIEW_ID: implementation-review-001
 IMPLEMENTATION_REVIEW_REPORT_HEAD: 263678ed5ea71975b23007cb0a84cd167ee9d54c
-PRIOR_DELTA_REVIEW_ID: implementation-delta-review-001-a2
-PRIOR_DELTA_REVIEW_REPORT_HEAD: 054333eb08d677c831e911866d3c7a9dbb34df9c
-REVIEW_FINDING_IDS: IR-F1-D1(b); IR-F1-D1(g)
-IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a3
-LEO_DECISION_ID: D-010
-LEO_DECISION: D-010-A — AUTHORIZE ONE EXCEPTIONAL FINAL REWORK
-LEO_DECISION_ACK_HEAD: 53f64282ec594962011da22c2328335d6a12fd8f
+PRIOR_DELTA_REVIEW_ID: implementation-delta-review-001-a3
+PRIOR_DELTA_REVIEW_REPORT_HEAD: d228be432e5645b06e2ad8847293a2adebb8ca88
+REVIEW_FINDING_ID: IR-F1-D1(g)-L
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a4
+LEO_DECISION_ID: D-011
+LEO_DECISION: D-011-A — AUTHORIZE EXACTLY ONE FINAL LIFECYCLE MICRO-CORRECTION
+LEO_DECISION_ACK_HEAD: c5086000070db388f6d217384191feb50433bfd2
 RESULT_HEAD: RECORDED_AFTER_RESULT_PUSH_IN_POINTER
 NEW_IMPLEMENTATION_SUBJECT_HEAD: RECORDED_AFTER_RESULT_PUSH_IN_POINTER
 RESULT_STATUS: REWORKED_AWAITING_IMPLEMENTATION_DELTA_REVIEW
-AUTOMATIC_IMPLEMENTATION_REWORK_ATTEMPTS_USED: 2
-AUTOMATIC_IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 2
-EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPT: 3
-EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPTS_USED: 1
-EXCEPTIONAL_IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 1
+AUTOMATIC_IMPLEMENTATION_REWORK_ATTEMPTS_USED: 2 / 2
+D010_EXCEPTIONAL_REWORK_ATTEMPTS_USED: 1 / 1
+D011_FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPT: 1
+D011_FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPTS_MAX: 1
 ALLOWED_PATCH_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
 CHANGED_FILES:
-- server/src/bin/accept-private.ts (IR-F1-D1(b): dedicated per-fact observable access collector; IR-F1-D1(g): frozen
-  server-only audit key loader + real transaction-bound binding provisioning/validation; reordered main())
-- server/test/integration/accept-private.test.ts (IR-F1-D1(b): positive executes the real collector via injected
-  seams + eight access negatives; IR-F1-D1(g): real temp-dir key loader/provisioner/validator positive + negatives)
+- server/src/bin/accept-private.ts (IR-F1-D1(g)-L: fail-closed audit-key/binding lifecycle seam; row-count checked
+  before key resolution/creation; main() reordered to use it)
+- server/test/integration/accept-private.test.ts (IR-F1-D1(g)-L: deterministic lifecycle integration proofs with
+  before/after key-path and complete binding-row snapshots)
 - runs/rework/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/REWORK_RESULT.md (this result, in the content commit)
-SCOPE: D-010-A's single exceptional final rework closes ONLY IR-F1-D1(b) and IR-F1-D1(g). Every attempt-2 behavior for
-  the already-closed IR-F1-D1(a), (c), (d), (e), (f) is preserved byte-for-behavior; no design/schema/package/config/
-  provider/service/API/migration/other-test path changed.
+SCOPE: D-011-A authorizes exactly one final lifecycle micro-correction, closing ONLY IR-F1-D1(g)-L. Every earlier closed
+  behavior — IR-F1-D1(a)-(f), the closed (b) access work, and all earlier (g) protections — is preserved. No design/
+  schema/package/config/provider/service/API/migration/other-test path changed; no key format/path/mode/size/owner-check
+  semantics, binding schema, or selector/HMAC contract changed.
 FINDING_RESOLUTION:
-- IR-F1-D1(b) dedicated observable access proof: replaced the attempt-2 generic AccessObserver (which accepted trusted
-  {status,...} objects, allowing a bare/precomputed pass and a non-distinct shared digest) with a real, seam-injectable
-  collector collectAccessEvidence(seams, cfg) that main() uses unchanged via realAccessSeams(config). It derives five
-  INDEPENDENT, time-bound facts, each from its own dedicated read-only command or bounded probe:
-    * loopbackBind: loopback-only bind + successful bounded loopback health probe (200) + failed non-loopback bind probe
-      for the configured API port;
-    * tailnetServeHttps: strict parse of read-only `tailscale serve status --json` (serveTargetsLoopbackPort) proving
-      HTTPS Serve targets the expected loopback API port;
-    * authorizedDeviceGrant: strict parse of read-only `tailscale status --json` (authorizedPeerOnline) proving the
-      explicitly configured authorized Leo device identity is the matching online self/peer — identity never emitted;
-    * funnelDisabled: strict parse of read-only `tailscale funnel status --json` (funnelExplicitlyDisabled: an explicit
-      map with no enabled target; unknown/absent => not disabled), NOT a bare `!!status`;
-    * publicDenied: combined from verified loopback-only bind + explicit Funnel-off + a dedicated public denial probe,
-      never inferred from tailnet-up alone.
-  Each fact carries {status, observedAt, safe source code, digest of canonical redacted fields} and is stamped with its OWN
-  completion time (seams.clock() sampled after that observation); the runner samples the validation clock AFTER collection
-  (deps.clock) so ages are truthful, never negative, and long collection is detected. The runner requires each expected
-  status (public path 'denied'), freshness (0 <= accessNow-observedAt <= accessMaxAgeMs), AND all five digests distinct
-  (ACCESS_PROOFS_DISTINCT). Strictness added this attempt: serveTargetsLoopbackPort requires an HTTPS Serve (TLS :443) site
-  entry proxying the exact loopback API port (not any Web proxy; malformed Web fails closed); funnelExplicitlyDisabled
-  requires an object whose every entry is strictly boolean false (any true or non-boolean/malformed value fails closed);
-  the device fact requires a DISTINCT online in-network-map Peer (never Self) matching the configured id, from which ONE
-  validated Tailscale IP (CGNAT/ULA) is derived and passed to a dedicated `tailscale ping` reachability probe (the IP is
-  never emitted); the non-loopback and public probes are REAL bounded read-only TCP connect probes (no hard-coded
-  constants) that fail closed on timeout/ambiguity, and public denial is proven only against globally-routable public
-  unicast targets (RFC1918/CGNAT/link-local/ULA/reserved excluded) with a missing public target failing closed. Missing
-  command, non-zero exit, malformed/ambiguous output, unexpected target/non-443 listener, missing/wrong/offline/not-granted/
-  unreachable/self-only device, malformed/mismatched tailnet IP, Funnel enabled/unknown/malformed, public or non-loopback
-  reachability, no public target, stale, or shared proof yields non-zero RUNTIME_ACCESS_REQUIRED and no five-label block.
-  Emits only safe source codes/status/age/8-char digest; never raw output, host, IP, route, peer/device id, URL, token, or
-  secret; thrown command/probe errors are sanitized. The future normal CLI seams are read-only and mutate no Tailscale
-  login/Serve/Funnel/grant/ACL/firewall/bind/systemd state.
-- IR-F1-D1(g) frozen separate audit key + real binding provisioning: removed the attempt-2 deviation that validated
-  against an arbitrary injected/matching key (and any device-bearer-token-hash-as-HMAC material). Implemented the real
-  normal-runtime path inside the runner and export it for test/main use:
-    * resolveAuditKey(stateDir, {allowCreate}) resolves only <validated stateDir>/private/provider-audit-hmac-v1.key,
-      rejecting symlinks, non-regular files, wrong owner, wrong size (!=32), and any private dir/file mode != 0700/0600.
-      The authorized acceptance run may create a missing dir/key exclusively (O_EXCL, 32 CSPRNG bytes, exact modes, fsync,
-      fail-closed cleanup on partial creation). It never returns/logs the path or key bytes; main() zeroizes the key buffer
-      after binding work.
-    * provisionRoleBindings(db, key, selectors, now) is a transaction-bound, idempotent provisioner that builds the three
-      exact role bindings from the current NORMALIZED base URL surface (scheme+host+path, no creds/query/fragment — a
-      non-root base path such as /v1 is bound, not dropped by URL.origin), models, Verifier reasoning, Fish model/reference,
-      and adapter schema using the separate key, inserting/selecting under UNIQUE(provider_role, config_version_hash) and
-      returning only safe row IDs. Re-provisioning an unchanged binding re-affirms credential_present and re-stamps
-      verified_at (freshness refresh path), so a still-valid binding never becomes permanently stale — no dependence on
-      tests or manual SQL to create or refresh the rows.
-    * validateRoleBindings(db, key, ids, selectors, now, freshness) recomputes with the LOADED separate key and verifies
-      audit_key_id='provider-audit-hmac-v1', credential_present=1, verified_at finite/not-future/within the freshness bound,
-      the distinct 3-role matrix, API surface, every required/forbidden selector HMAC, and the config-version hash. Missing/
-      extra/duplicate/stale/wrong-key/wrong-key-id/no-credential/mismatched rows block RUNTIME_BINDING_REQUIRED before any
-      provider call. Never returns key/HMAC material, device token, selectors, or private-path metadata.
-    * main() reordered so key resolution and binding provisioning+validation occur BEFORE pipeline evidence is accepted;
-      policy snapshots remain required and unchanged. The old precomputed boolean and the tests' arbitrary matching key can
-      no longer substitute for this verification. The device bearer-token hash is used ONLY as the ephemeral in-process
-      Range-auth token (a fresh random token hashed for §14.4(6)), never as provider-binding HMAC material.
-- Preserved unchanged: IR-F1-D1(a) job-bound raw-retention/local-controls evidence; (c) this-run feed-bound discovery/
-  promotion/timestamps; (d) exactly-one job-attributable TTS success delta; (e) authorized HTTP Range boundary via the real
-  in-process handler; (f) strict D-009-A policy-snapshot validation. All D-001..D-009-A constraints, authorized-source-only,
-  fixed userId=leo, no original media, no synthetic/sentinel fallback, and the five exact labels only after every local gate
-  passes remain intact. No live YouTube/DeepSeek/Fish/tailnet call; accept:private not run against live config.
+- IR-F1-D1(g)-L lifecycle ordering: previously main() called resolveAuditKey(config.stateDir, { allowCreate: true })
+  BEFORE determining whether provider_runtime_bindings already held rows, so a lost/tampered key could be re-created and
+  new key-dependent bindings inserted, allowing a false PASS. Added an exported, testable lifecycle-preparation seam
+  prepareAuditKeyAndBindings(db, stateDir, selectors, now, freshnessMs, opts) used unchanged by main(), with this exact
+  ordering:
+    1. Query the provider_runtime_bindings row count BEFORE resolving or creating the key.
+    2. rowCount === 0 (initial bootstrap only): resolveAuditKey({ allowCreate: true }) then a single three-role
+       provisionRoleBindings, then validateRoleBindings; any failure returns sanitized RUNTIME_BINDING_REQUIRED and zeroes
+       the key.
+    3. Any existing row: the table must be exactly the three matching rows (rowCount === 3, else missing/extra/ambiguous
+       fails closed); key resolution is LOAD-ONLY (allowCreate:false), so a missing/invalid/symlinked/wrong-owner/wrong-
+       mode/wrong-size key returns the sanitized RUNTIME_BINDING_REQUIRED outcome BEFORE any provisioning or row mutation.
+    4. With existing rows, no replacement binding set is inserted: loadRoleBindings performs a SELECT-only lookup of the
+       three rows by their computed config-version hashes for the current valid key/configuration and validateRoleBindings
+       confirms them; missing/extra/mismatched/invalid/ambiguous rows fail closed with no fallback provisioning.
+    5. On every existing-binding failure the filesystem and the complete binding table are byte-for-value unchanged (fail()
+       only zeroes the in-memory key buffer — no replacement key, silent rotation, new/deleted/updated/rewritten row); the
+       run never reaches runPrivateAcceptance, never returns PASS, and never emits any of the five D-009 labels.
+    6. Existing rows plus the correct valid key succeed idempotently — the same key and the same row IDs are reused and no
+       key or binding row is created or mutated (load-only), so re-runs leave the ordered row snapshot unchanged.
+    7. Loaded key buffers are zeroed on both the success path (acceptancePreflight zeroes the prepared key in its finally
+       after the downstream returns) and the failure path (fail() zeroes any loaded buffer); the CLI maps every
+       lifecycle/preparation failure to `LIVE_PRIVATE_ACCEPTANCE: BLOCKED RUNTIME_BINDING_REQUIRED` and exits non-zero.
+  main() is reordered to build selectors, then dispatch through an exported CLI preflight gate seam
+  acceptancePreflight (used unchanged by main()): it runs the fail-closed lifecycle and ONLY on success invokes the
+  downstream acceptance (runPrivateAcceptance); on any lifecycle failure it emits exactly the sanitized
+  `LIVE_PRIVATE_ACCEPTANCE: BLOCKED RUNTIME_BINDING_REQUIRED` line, never calls the downstream, never emits any of the
+  five D-009 labels, zeroes the prepared key, and returns non-zero. The earlier unconditional
+  resolveAuditKey(allowCreate:true) and direct provisionRoleBindings/validateRoleBindings calls are removed from main().
+  Two narrow injected seams (defaults preserve exact production behavior) were threaded into resolveAuditKey and
+  forwarded by the lifecycle seam so the exact shared owner-check is deterministically exercisable without a privileged
+  chown: currentUid (the expected process UID) and keyOwnerUid (the key file's observed owner UID) — the latter lets the
+  resolver reach and reject the KEY FILE owner check (AUDIT_KEY_OWNER) specifically while the private-directory owner
+  check passes. The a3 freshness-refresh capability remains on provisionRoleBindings (its direct test still passes) but is
+  never invoked on existing rows by the lifecycle, since a refresh would mutate an existing row — preserving freshness
+  only where it does not weaken these rules.
+- Preserved unchanged: IR-F1-D1(a) raw-retention evidence; (b) the closed observable access collector; (c) feed-bound
+  discovery/promotion; (d) exactly-one TTS success delta; (e) authorized HTTP Range boundary; (f) policy-snapshot
+  validation; and all earlier (g) audit-key/binding protections. No live YouTube/DeepSeek/Fish/tailnet call; accept:private
+  not run against live config.
 COMMANDS_EXECUTED:
-- preflight: git rev-parse/fetch origin master (HEAD == origin/master == REWORK_INPUT_HEAD 2b36dbf); 98d3ea6 present;
-  git status --porcelain (only the two allowed subject paths modified before staging the evidence result)
-- direct reads: rework/3 REWORK_RUN_PROMPT.md + REWORK_HANDOFF_PROMPT.md; delta-review-001-a2 IR-F1-D1(b)/(g) at 054333e;
-  frozen 설계문서/18 §4.2/§8.2/§14.4/§15/§16 at FROZEN_DESIGN_HEAD; D-010 ACK at 53f6428; both subject files + prior blobs
-  at PREVIOUS_SUBJECT_HEAD; contracts (buildRuntimeBinding/RuntimeBinding/ProviderRole) and the runtime-binding schema/CHECK
+- preflight: git rev-parse/fetch origin master (HEAD == origin/master == REWORK_INPUT_HEAD e6e336b); df6dfd5 present and an
+  ancestor; git status --porcelain (only the two allowed subject paths modified before staging the evidence result)
+- direct reads: rework/4 REWORK_HANDOFF_PROMPT.md; D-011 ACK at c508600; a3 result/pointer + IR-F1-D1(g)-L at d228be4;
+  rework-3 subject files at PREVIOUS_SUBJECT_HEAD; the provider_runtime_bindings schema/CHECK and the audit-key/binding
+  seams at FROZEN_DESIGN_HEAD §4.2
 - npm run typecheck; npm run lint; npm run test:unit; npm run test:integration; npm run test:runtime-local;
   node --import tsx --test server/test/integration/accept-private.test.ts; npm run server:migrate -- --dry-run (isolated
   synthetic state dir, no DB written)
-- git diff --check; git status path comparison; control-byte/text scans on both subject files; frozen-design + D-010 +
-  all Reviewer-report immutability; focused greps proving no bare-operator funnel/access inference, no device-token-as-audit
-  -key, no trusted okAccess, no secret/body/selector/HMAC output, and no synthetic fallback remain
+- git diff --check; git status path comparison; control-byte/text scans on both subject files; frozen-design + D-011 +
+  all Reviewer-report immutability; focused searches proving no unconditional allowCreate:true before the binding-row
+  check (present only inside the rowCount===0 branch) and no existing-row fallback that inserts/replaces bindings
+  (provisionRoleBindings is called only in the zero-rows branch, never in main() or the existing-rows path)
 TEST_RESULTS:
 - typecheck (app + server): exit 0
 - lint (official Expo flat config, frozen scope): exit 0 (0 errors, 53 warnings)
 - unit: 46 pass / 0 fail
-- integration: 80 pass / 0 fail (accept-private.test.ts now 29 tests)
+- integration: 89 pass / 0 fail (accept-private.test.ts now 38 tests)
 - runtime-local: 2 pass / 0 fail
 - server:migrate -- --dry-run: MIGRATE_DRY_RUN OK, exit 0, no DB written
-- accept-private.test.ts (29/29): the positive PASS constructs access evidence by EXECUTING collectAccessEvidence with
-  injected synthetic command/probe seams (never okAccess/trusted objects) and provisions bindings with the real temp-dir
-  resolveAuditKey + provisionRoleBindings, proving every gate + the five labels only after preflight and asserting no
-  device id or derived tailnet IP leaks. (b) negatives — serve wrong loopback port, serve non-443 listener, serve malformed
-  web, serve absent, Funnel enabled, Funnel malformed non-boolean value, Funnel unknown shape, authorized device offline,
-  device not in network map, device mismatched/malformed tailnet IP, configured id present only as server Self (no peer),
-  device unreachable, public reachable, non-loopback reachable, malformed command output, command failure, and stale
-  per-fact observation — each BLOCK RUNTIME_ACCESS_REQUIRED with no labels; a dedicated derivePublicDenial test proves the
-  global-unicast public classifier (RFC1918/CGNAT/link-local/ULA excluded) and fail-closed on no-public-target/reachable/
-  ambiguous. (g) resolveAuditKey creates idempotently and rejects missing/symlink/wrong-file-mode/wrong-size/wrong-dir-mode;
-  validateRoleBindings rejects the device-token-hash key (wrong HMAC), a changed base-URL surface (non-root path), absent
-  credential, stale/future verified_at, and a duplicate role; the DB CHECK enforces the frozen audit_key_id at the storage
-  layer; re-provisioning refreshes verified_at so a valid binding is never permanently stale; normalizeBaseSurface preserves
-  a non-root path and strips creds/query/fragment; and an acceptance run whose bindings were provisioned with the device-
-  token hash BLOCKS RUNTIME_BINDING_REQUIRED with no labels. Preserved (a) raw-retention FAIL, (c) zero-discovery FAIL,
-  (d) pre-seeded aggregate + one delta PASS, (e) 206/Content-Range/Cache + 401 via the real handler, (f) empty policy ->
-  POLICY_SNAPSHOT_REQUIRED, plus regression never-passing-verifier FAIL and non-authorized source BLOCKED. No raw
-  transcript/audio-body/secret/selector/HMAC/device-id/tailnet-IP/fallback in output.
+- accept-private.test.ts (38/38): nine new IR-F1-D1(g)-L lifecycle proofs exercise the SAME seams used by main() with
+  isolated temp dirs and in-memory DBs — (i) zero rows allow one key creation + one three-role provisioning then validate;
+  (ii) existing rows + missing key -> RUNTIME_BINDING_REQUIRED, key stays absent, no key created, complete row snapshot
+  unchanged; (iii) existing rows + invalid correctly-sized key -> fail closed, exact key bytes + rows preserved (no
+  replacement); (iv) existing rows + symlinked/wrong-mode/wrong-size key -> each fail closed, exact artifact/table
+  preserved; (v) existing rows + wrong KEY-FILE owner reach and reject AUDIT_KEY_OWNER specifically (the private-directory
+  owner check passes) via the injected key-owner seam -> deterministic fail closed (no chown), state preserved, and
+  success with the real key-owner metadata; (vi) existing rows + a superfluous extra row -> fail closed with no fallback
+  provisioning (extra row neither used nor removed); (vii) existing rows + correct valid key -> idempotent success with the
+  same key, same row IDs, unchanged row snapshot (load-only); (viii) acceptancePreflight (the gate main() uses) on a
+  failing lifecycle never calls the downstream runPrivateAcceptance spy, emits ONLY the blocked RUNTIME_BINDING_REQUIRED
+  line (none of the five success labels), and returns non-zero; (ix) acceptancePreflight on a valid lifecycle calls the
+  downstream exactly once with the prepared 32-byte key + the loaded binding IDs and propagates its exit code. Assertions
+  compare before/after key-path state (exists/bytes/mode/symlink) AND complete ordered binding-row snapshots, and use a
+  real downstream spy — not a constructed string or precomputed evidence. Earlier IR-F1-D1(a)-(f) and (g) positive/negative
+  tests remain passing.
 - exact path allowlist: only server/src/bin/accept-private.ts and server/test/integration/accept-private.test.ts changed
 - immutability: 설계문서/**, docs/agent/**, runs/reviewer/**, advisor/** untouched; git diff --check clean
 - both subject files are text (no NUL/control bytes; the only non-ASCII bytes are legitimate `§` section signs and Korean
@@ -150,7 +128,7 @@ UNSTAGED_FILES: none at each commit
 UNTRACKED_FILES: none after each push
 NEW_IMPLEMENTATION_SUBJECT: the same 87 implementation paths at NEW_IMPLEMENTATION_SUBJECT_HEAD (the original 86 plus
   server/test/integration/accept-private.test.ts); server/src/bin/accept-private.ts and
-  server/test/integration/accept-private.test.ts are the two reworked subject paths. REWORK_RESULT.md and
+  server/test/integration/accept-private.test.ts are the two corrected subject paths. REWORK_RESULT.md and
   REWORK_RESULT_POINTER.md are Worker EVIDENCE records, excluded from the verdict subject.
 RUNTIME_ACCESS: false
 DB_ACCESS: synthetic/in-memory test databases and isolated temp key/state paths only
@@ -159,13 +137,16 @@ PROD_ACCESS: false
 LIVE_PROVIDER_CALLS: false
 LIVE_YOUTUBE_CALLS: false
 LIVE_TAILNET_OR_PUBLIC_NETWORK_CALLS: false
-KNOWN_LIMITATIONS: This is D-010-A's ONE exceptional final rework (exceptional attempt 3, used 1 of 1) after the two
-  automatic attempts; no fourth attempt exists. The live private acceptance RUN (real YouTube/DeepSeek/Fish/tailnet
-  execution of accept:private) and §14.5 device A/B/C/D playback remain deferred to the post-review acceptance phase; the
-  runner is now the real fail-closed, evidence-verifying tooling to perform it. No completed live run is claimed.
-RESIDUAL_RISKS: YouTube anti-bot may block real caption extraction at acceptance (runner fails closed); provider-side
-  retention/training NOT_VERIFIED under D-009-A (accepted by Leo); single-host/token/tailnet risks per §19-20. No new risk
-  requiring Leo/GPT acceptance.
+KNOWN_LIMITATIONS: This is D-011-A's single final lifecycle micro-correction (attempt 1 of 1) after the two automatic
+  attempts and the one D-010 exceptional attempt; no further attempts exist. The live private acceptance RUN (real
+  YouTube/DeepSeek/Fish/tailnet execution of accept:private) and §14.5 device A/B/C/D playback remain deferred to the
+  post-review acceptance phase; the runner is the real fail-closed, evidence-verifying tooling. No completed live run is
+  claimed.
+RESIDUAL_RISKS: With existing rows, the lifecycle is load-only and performs no in-place freshness refresh, so a stale
+  existing binding (verified_at older than the freshness window) fails closed. Any remediation or key/binding rotation is
+  outside D-011 scope and requires an approved operator procedure; this Worker neither defines a re-bootstrap policy nor
+  self-accepts a residual risk here. Provider-side retention/training NOT_VERIFIED under D-009-A (accepted by Leo);
+  single-host/token/tailnet risks per §19-20. No new risk requiring Leo/GPT acceptance.
 RESULT_PATH: runs/rework/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/REWORK_RESULT.md
 POINTER_PATH: runs/rework/VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001/REWORK_RESULT_POINTER.md
 RETURN_TO: Advisor

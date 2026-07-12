@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash as cryptoHash, randomUUID as uuid } from 'node:crypto';
-import { chmodSync, closeSync as fsCloseSync, fsyncSync as fsFsyncSync, mkdirSync, mkdtempSync, openSync as fsOpenSync, symlinkSync, writeFileSync, writeSync as fsWriteSync } from 'node:fs';
+import { chmodSync, closeSync as fsCloseSync, fsyncSync as fsFsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync as fsOpenSync, readFileSync, rmSync, symlinkSync, writeFileSync, writeSync as fsWriteSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
@@ -12,7 +12,7 @@ import { openDatabase, type Db } from '../../src/db/connection';
 import { runMigrations } from '../../src/db/migrate';
 import type { BuilderPort, CaptionPort, PipelineEvidence, PipelinePorts, TtsPort, VerifierPort } from '../../src/services/processing';
 import type { FeedResponseLike, FeedTransport } from '../../src/services/source';
-import { runPrivateAcceptance, collectAccessEvidence, resolveAuditKey, provisionRoleBindings, validateRoleBindings, derivePublicDenial, isGlobalUnicastPublic, normalizeBaseSurface, AuditKeyError, AUTHORIZED_VIDEO_ID, AUTHORIZED_CHANNEL_ID, type AccessSeams, type AccessCollectorConfig, type AcceptanceDeps, type ConnectProbeResult, type RuntimeSelectors } from '../../src/bin/accept-private';
+import { runPrivateAcceptance, collectAccessEvidence, resolveAuditKey, provisionRoleBindings, validateRoleBindings, loadRoleBindings, prepareAuditKeyAndBindings, acceptancePreflight, derivePublicDenial, isGlobalUnicastPublic, normalizeBaseSurface, AuditKeyError, AUTHORIZED_VIDEO_ID, AUTHORIZED_CHANNEL_ID, type AccessSeams, type AccessCollectorConfig, type AcceptanceDeps, type AcceptanceResult, type BindingIds, type ConnectProbeResult, type RuntimeSelectors } from '../../src/bin/accept-private';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = join(HERE, '..', '..', 'migrations');
@@ -354,6 +354,216 @@ test('IR-F1-D1(g): normalizeBaseSurface preserves a non-root base path and strip
   assert.equal(normalizeBaseSurface('https://api.deepseek.com'), 'https://api.deepseek.com');
   assert.equal(normalizeBaseSurface('https://api.deepseek.com/v1/'), 'https://api.deepseek.com/v1');
   assert.equal(normalizeBaseSurface('https://user:pass@api.deepseek.com/v1?k=1#f'), 'https://api.deepseek.com/v1');
+});
+
+// ---------------------------------------------------------------------------
+// IR-F1-D1(g)-L: fail-closed audit-key/binding lifecycle (row count checked BEFORE key resolution/creation)
+// ---------------------------------------------------------------------------
+const keyPathOf = (root: string): string => join(root, 'private', KEY_FILE);
+function rowSnapshot(db: Db): string {
+  return JSON.stringify(
+    db.prepare('SELECT id, provider_role, public_api_surface_id, audit_key_id, endpoint_origin_hmac, model_selector_hmac, reasoning_selector_hmac, reference_selector_hmac, config_version_hash, credential_present, verified_at FROM provider_runtime_bindings ORDER BY id').all(),
+  );
+}
+function keyState(root: string): { exists: boolean; bytes: string | null; mode: number | null; symlink: boolean } {
+  try {
+    const st = lstatSync(keyPathOf(root));
+    return { exists: true, bytes: st.isSymbolicLink() ? null : readFileSync(keyPathOf(root)).toString('hex'), mode: st.mode & 0o777, symlink: st.isSymbolicLink() };
+  } catch {
+    return { exists: false, bytes: null, mode: null, symlink: false };
+  }
+}
+const rowCount = (db: Db): number => (db.prepare('SELECT COUNT(*) AS c FROM provider_runtime_bindings').get() as { c: number }).c;
+// Bootstrap an existing-binding state via the same seam: zero rows -> creates the key + exactly three rows.
+function bootstrapExisting(): { db: Db; root: string } {
+  const { db, root } = migrated();
+  const prep = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH);
+  assert.equal(prep.ok, true);
+  assert.equal(rowCount(db), 3);
+  return { db, root };
+}
+
+test('IR-F1-D1(g)-L: zero rows allow ONE initial key creation and three-role provisioning, then validate', () => {
+  const { db, root } = migrated();
+  assert.equal(keyState(root).exists, false);
+  assert.equal(rowCount(db), 0);
+  const prep = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH);
+  assert.equal(prep.ok, true);
+  assert.ok(prep.key);
+  assert.ok(prep.bindingIds);
+  assert.equal(prep.key.length, 32);
+  assert.equal(keyState(root).exists, true); // key created exactly once
+  assert.equal(rowCount(db), 3); // one three-role provisioning
+  assert.equal(validateRoleBindings(db, prep.key, prep.bindingIds, SELECTORS, T, BINDING_FRESH).ok, true);
+  assert.deepEqual(loadRoleBindings(db, prep.key, SELECTORS), prep.bindingIds); // load-only lookup agrees
+  db.close();
+});
+
+test('IR-F1-D1(g)-L: existing rows + missing key -> RUNTIME_BINDING_REQUIRED; key stays absent, no key created, rows unchanged', () => {
+  const { db, root } = bootstrapExisting();
+  rmSync(keyPathOf(root)); // lose the key, keep the rows
+  const beforeRows = rowSnapshot(db);
+  assert.equal(keyState(root).exists, false);
+  const prep = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH);
+  assert.equal(prep.ok, false);
+  assert.equal(prep.code, 'RUNTIME_BINDING_REQUIRED');
+  assert.equal(keyState(root).exists, false); // no replacement key created
+  assert.equal(rowCount(db), 3);
+  assert.equal(rowSnapshot(db), beforeRows); // complete row snapshot unchanged
+  db.close();
+});
+
+test('IR-F1-D1(g)-L: existing rows + invalid but correctly-sized key -> fail closed; exact key bytes and rows preserved', () => {
+  const { db, root } = bootstrapExisting();
+  const invalid = Buffer.alloc(32, 0x5a);
+  writeFileSync(keyPathOf(root), invalid);
+  chmodSync(keyPathOf(root), 0o600);
+  const beforeRows = rowSnapshot(db);
+  const beforeKey = keyState(root);
+  const prep = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH);
+  assert.equal(prep.ok, false);
+  assert.equal(prep.code, 'RUNTIME_BINDING_REQUIRED');
+  assert.deepEqual(keyState(root), beforeKey); // key file not replaced or rotated
+  assert.equal(readFileSync(keyPathOf(root)).toString('hex'), invalid.toString('hex'));
+  assert.equal(rowSnapshot(db), beforeRows);
+  db.close();
+});
+
+test('IR-F1-D1(g)-L: existing rows + symlinked/wrong-mode/wrong-size key each fail closed and preserve exact state', () => {
+  // symlink
+  {
+    const { db, root } = bootstrapExisting();
+    rmSync(keyPathOf(root));
+    symlinkSync('/etc/hostname', keyPathOf(root));
+    const beforeRows = rowSnapshot(db);
+    const beforeKey = keyState(root);
+    const prep = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH);
+    assert.equal(prep.ok, false);
+    assert.equal(prep.code, 'RUNTIME_BINDING_REQUIRED');
+    assert.deepEqual(keyState(root), beforeKey); // still the symlink, not replaced
+    assert.equal(rowSnapshot(db), beforeRows);
+    db.close();
+  }
+  // wrong mode
+  {
+    const { db, root } = bootstrapExisting();
+    chmodSync(keyPathOf(root), 0o644);
+    const beforeRows = rowSnapshot(db);
+    const beforeKey = keyState(root);
+    const prep = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH);
+    assert.equal(prep.ok, false);
+    assert.equal(prep.code, 'RUNTIME_BINDING_REQUIRED');
+    assert.deepEqual(keyState(root), beforeKey); // mode unchanged (0644), not rewritten
+    assert.equal(rowSnapshot(db), beforeRows);
+    db.close();
+  }
+  // wrong size
+  {
+    const { db, root } = bootstrapExisting();
+    writeFileSync(keyPathOf(root), Buffer.alloc(16, 0x11));
+    chmodSync(keyPathOf(root), 0o600);
+    const beforeRows = rowSnapshot(db);
+    const beforeKey = keyState(root);
+    const prep = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH);
+    assert.equal(prep.ok, false);
+    assert.equal(prep.code, 'RUNTIME_BINDING_REQUIRED');
+    assert.deepEqual(keyState(root), beforeKey);
+    assert.equal(rowSnapshot(db), beforeRows);
+    db.close();
+  }
+});
+
+test('IR-F1-D1(g)-L: existing rows + wrong KEY-FILE owner reach AUDIT_KEY_OWNER (dir owner passes) and fail closed; state preserved', () => {
+  const { db, root } = bootstrapExisting();
+  const beforeRows = rowSnapshot(db);
+  const beforeKey = keyState(root);
+  // Deterministic, no privileged chown: the injected key-owner seam maps the KEY FILE's observed owner UID to a
+  // different value while the private DIRECTORY owner check sees the real UID and passes. This proves the resolver
+  // reaches and rejects the key-file owner check specifically (AUDIT_KEY_OWNER), not only AUDIT_KEY_DIR_OWNER.
+  assert.throws(
+    () => resolveAuditKey(root, { allowCreate: false, keyOwnerUid: (u) => u + 7 }),
+    (e: unknown) => e instanceof AuditKeyError && e.message === 'AUDIT_KEY_OWNER',
+  );
+  const prep = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH, { keyOwnerUid: (u) => u + 7 });
+  assert.equal(prep.ok, false);
+  assert.equal(prep.code, 'RUNTIME_BINDING_REQUIRED');
+  assert.deepEqual(keyState(root), beforeKey);
+  assert.equal(rowSnapshot(db), beforeRows);
+  // the same shared owner check passes with the real (default) key-owner metadata
+  assert.equal(prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH).ok, true);
+  db.close();
+});
+
+test('IR-F1-D1(g)-L: existing rows + a superfluous (extra) binding row fails closed with no provisioning/mutation', () => {
+  const { db, root } = bootstrapExisting();
+  // Insert a valid-shaped but extra row for a different config version (ambiguous table state).
+  db.prepare("INSERT INTO provider_runtime_bindings (id, provider_role, public_api_surface_id, audit_key_id, endpoint_origin_hmac, model_selector_hmac, reasoning_selector_hmac, reference_selector_hmac, config_version_hash, credential_present, verified_at) VALUES ('extra','deepseek_builder','deepseek.post.chat-completions','provider-audit-hmac-v1','x','y',NULL,NULL,'other-config',1,?)").run(T);
+  const beforeRows = rowSnapshot(db);
+  const prep = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH);
+  assert.equal(prep.ok, false);
+  assert.equal(prep.code, 'RUNTIME_BINDING_REQUIRED');
+  assert.equal(rowCount(db), 4); // no fallback provisioning; the extra row is neither used nor removed
+  assert.equal(rowSnapshot(db), beforeRows);
+  db.close();
+});
+
+test('IR-F1-D1(g)-L: existing rows + correct valid key succeed repeatedly with same key, same row IDs, unchanged rows (load-only)', () => {
+  const { db, root } = bootstrapExisting();
+  const first = prepareAuditKeyAndBindings(db, root, SELECTORS, T, BINDING_FRESH);
+  assert.equal(first.ok, true);
+  assert.ok(first.key);
+  assert.ok(first.bindingIds);
+  const beforeRows = rowSnapshot(db);
+  const second = prepareAuditKeyAndBindings(db, root, SELECTORS, T + 1000, BINDING_FRESH);
+  assert.equal(second.ok, true);
+  assert.ok(second.key);
+  assert.ok(second.bindingIds);
+  assert.deepEqual(second.bindingIds, first.bindingIds); // same row IDs
+  assert.equal(second.key.toString('hex'), first.key.toString('hex')); // same key reused
+  assert.equal(rowCount(db), 3);
+  assert.equal(rowSnapshot(db), beforeRows); // load-only: no insert, rotation, or refresh mutation
+  db.close();
+});
+
+const FIVE_LABEL_KEYS = ['PROVIDER_POLICY_ASSURANCE', 'LOCAL_DATA_CONTROLS: VERIFIED', 'PROVIDER_SIDE_DELETION', 'PROVIDER_SIDE_NO_TRAINING', 'PRODUCTION_PRIVACY_APPROVAL'];
+
+test('IR-F1-D1(g)-L: acceptancePreflight (the seam main() uses) — a failing lifecycle never calls the downstream and emits only the blocked line', async () => {
+  const { db, root } = bootstrapExisting();
+  rmSync(keyPathOf(root)); // existing rows + missing key -> lifecycle fails closed
+  const lines: string[] = [];
+  let downstreamCalls = 0;
+  const downstream = async (): Promise<AcceptanceResult> => {
+    downstreamCalls += 1;
+    return { status: 'PASS', code: 'OK', exitCode: 0, labelsEmitted: true };
+  };
+  const code = await acceptancePreflight({ db, stateDir: root, selectors: SELECTORS, now: T, freshnessMs: BINDING_FRESH, emit: (l) => lines.push(l), downstream });
+  assert.equal(code, 2); // non-zero
+  assert.equal(downstreamCalls, 0); // runPrivateAcceptance spy NOT called
+  const out = lines.join('\n');
+  assert.equal(out, 'LIVE_PRIVATE_ACCEPTANCE: BLOCKED RUNTIME_BINDING_REQUIRED'); // only the blocked line
+  for (const label of FIVE_LABEL_KEYS) assert.ok(!out.includes(label), `no success label ${label}`);
+  db.close();
+});
+
+test('IR-F1-D1(g)-L: acceptancePreflight — a valid lifecycle calls the downstream exactly once with the prepared key/bindings and propagates its exit code', async () => {
+  const { db, root } = bootstrapExisting();
+  const lines: string[] = [];
+  let calls = 0;
+  let seenLen = -1;
+  let seenIds: BindingIds | null = null;
+  const downstream = async (key: Buffer, bindingIds: BindingIds): Promise<AcceptanceResult> => {
+    calls += 1;
+    seenLen = key.length;
+    seenIds = bindingIds;
+    return { status: 'FAIL', code: 'DOWNSTREAM', exitCode: 1, labelsEmitted: false };
+  };
+  const code = await acceptancePreflight({ db, stateDir: root, selectors: SELECTORS, now: T, freshnessMs: BINDING_FRESH, emit: (l) => lines.push(l), downstream });
+  assert.equal(calls, 1); // downstream invoked exactly once on lifecycle success
+  assert.equal(code, 1); // downstream exit code propagated
+  assert.equal(seenLen, 32); // real prepared key handed to the downstream
+  assert.deepEqual(seenIds, loadRoleBindings(db, resolveAuditKey(root, { allowCreate: false }), SELECTORS));
+  assert.equal(lines.length, 0); // the gate itself emits nothing on success
+  db.close();
 });
 
 test('regression: never-passing verifier fails the slice, and a non-authorized source is rejected — both without labels', async () => {

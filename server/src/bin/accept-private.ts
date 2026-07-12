@@ -263,9 +263,13 @@ export class AuditKeyError extends Error {
  *  symlinks, non-regular files, wrong size/mode/owner, and a private dir/file not exactly 0700/0600. With
  *  allowCreate a missing key is created exclusively (O_EXCL, random 32 bytes, exact modes, fsync) with
  *  fail-closed cleanup on partial creation. Never returns/logs the path or key bytes. */
-export function resolveAuditKey(stateDir: string, opts: { allowCreate: boolean }): Buffer {
+export function resolveAuditKey(stateDir: string, opts: { allowCreate: boolean; currentUid?: () => number | undefined; keyOwnerUid?: (actualUid: number) => number }): Buffer {
   const dir = join(stateDir, 'private');
   const keyPath = join(dir, AUDIT_KEY_FILE);
+  // Narrow injected seams used by the normal resolver (defaults preserve exact production behavior): currentUid is
+  // the expected process UID; keyOwnerUid maps the key file's observed owner UID. Together they let the exact shared
+  // owner-check reject the KEY FILE specifically (dir passing) deterministically without a privileged chown.
+  const uidOf = opts.currentUid ?? (() => (typeof process.getuid === 'function' ? process.getuid() : undefined));
   let dst: ReturnType<typeof lstatSync> | null = null;
   try {
     dst = lstatSync(dir);
@@ -275,7 +279,8 @@ export function resolveAuditKey(stateDir: string, opts: { allowCreate: boolean }
   if (dst) {
     if (dst.isSymbolicLink() || !dst.isDirectory()) throw new AuditKeyError('AUDIT_KEY_DIR_INVALID');
     if ((dst.mode & 0o777) !== 0o700) throw new AuditKeyError('AUDIT_KEY_DIR_MODE');
-    if (typeof process.getuid === 'function' && dst.uid !== process.getuid()) throw new AuditKeyError('AUDIT_KEY_DIR_OWNER');
+    const myUid = uidOf();
+    if (myUid !== undefined && dst.uid !== myUid) throw new AuditKeyError('AUDIT_KEY_DIR_OWNER');
   } else {
     if (!opts.allowCreate) throw new AuditKeyError('AUDIT_KEY_MISSING');
     mkdirSync(dir, { recursive: false });
@@ -292,7 +297,9 @@ export function resolveAuditKey(stateDir: string, opts: { allowCreate: boolean }
     if (kst.isSymbolicLink() || !kst.isFile()) throw new AuditKeyError('AUDIT_KEY_NOT_REGULAR');
     if ((kst.mode & 0o777) !== 0o600) throw new AuditKeyError('AUDIT_KEY_MODE');
     if (kst.size !== AUDIT_KEY_BYTES) throw new AuditKeyError('AUDIT_KEY_SIZE');
-    if (typeof process.getuid === 'function' && kst.uid !== process.getuid()) throw new AuditKeyError('AUDIT_KEY_OWNER');
+    const expectedKeyUid = uidOf();
+    const observedKeyUid = opts.keyOwnerUid ? opts.keyOwnerUid(kst.uid) : kst.uid;
+    if (expectedKeyUid !== undefined && observedKeyUid !== expectedKeyUid) throw new AuditKeyError('AUDIT_KEY_OWNER');
     const key = readFileSync(keyPath);
     if (key.length !== AUDIT_KEY_BYTES) throw new AuditKeyError('AUDIT_KEY_SIZE');
     return key;
@@ -407,6 +414,113 @@ export function validateRoleBindings(db: Db, key: Buffer, ids: BindingIds, selec
   const roles = (db.prepare('SELECT provider_role FROM provider_runtime_bindings WHERE id IN (?,?,?)').all(ids.builderBindingId, ids.verifierBindingId, ids.fishBindingId) as Array<{ provider_role: string }>).map((r) => r.provider_role);
   const rolesDistinct = roles.length === 3 && new Set(roles).size === 3 && ['deepseek_builder', 'deepseek_verifier', 'fish_tts'].every((r) => roles.includes(r));
   return { ok: builder && verifier && fish && rolesDistinct, builder, verifier, fish, rolesDistinct };
+}
+
+/** Load-only lookup of the three existing role bindings for the CURRENT key+configuration by their computed
+ *  config-version hashes. Inserts/updates nothing. Returns null if any role's row is absent for this key. */
+export function loadRoleBindings(db: Db, key: Buffer, selectors: RuntimeSelectors): BindingIds | null {
+  const inputs = roleInputs(selectors);
+  const find = (role: ProviderRole): string | null => {
+    let rb;
+    try {
+      rb = buildRuntimeBinding(key, inputs[role]);
+    } catch {
+      return null;
+    }
+    const row = db.prepare('SELECT id FROM provider_runtime_bindings WHERE provider_role = ? AND config_version_hash = ?').get(rb.providerRole, rb.configVersionHash) as { id: string } | undefined;
+    return row?.id ?? null;
+  };
+  const builderBindingId = find('deepseek_builder');
+  const verifierBindingId = find('deepseek_verifier');
+  const fishBindingId = find('fish_tts');
+  if (!builderBindingId || !verifierBindingId || !fishBindingId) return null;
+  return { builderBindingId, verifierBindingId, fishBindingId };
+}
+
+export interface LifecyclePrep {
+  ok: boolean;
+  code?: string; // 'RUNTIME_BINDING_REQUIRED' on any failure
+  key?: Buffer;
+  bindingIds?: BindingIds;
+}
+export interface LifecycleOpts {
+  currentUid?: () => number | undefined; // expected UID, forwarded to the resolver's owner check (deterministic testing)
+  keyOwnerUid?: (actualUid: number) => number; // observed key-file owner UID, forwarded to the resolver's key owner check
+}
+
+/** IR-F1-D1(g)-L fail-closed audit-key/binding lifecycle used unchanged by main(). Row count is checked BEFORE
+ *  the key is resolved or created: only an empty table permits secure initial key creation + one-time three-role
+ *  provisioning; with any existing row, key resolution is load-only and provisioning is forbidden. Every failure
+ *  returns a sanitized RUNTIME_BINDING_REQUIRED, mutates neither the filesystem nor the binding table, discards
+ *  any loaded key buffer, and never reaches acceptance. Only an empty table (initial) or the exact valid key +
+ *  exactly the three matching existing rows succeeds; success is idempotent and inserts/rotates nothing. */
+export function prepareAuditKeyAndBindings(db: Db, stateDir: string, selectors: RuntimeSelectors, now: number, freshnessMs: number, opts: LifecycleOpts = {}): LifecyclePrep {
+  const fail = (key?: Buffer): LifecyclePrep => {
+    key?.fill(0);
+    return { ok: false, code: 'RUNTIME_BINDING_REQUIRED' };
+  };
+  const rowCount = (db.prepare('SELECT COUNT(*) AS c FROM provider_runtime_bindings').get() as { c: number }).c;
+
+  if (rowCount === 0) {
+    // Initial bootstrap only: no rows exist, so secure key creation and one-time provisioning are allowed.
+    let key: Buffer;
+    try {
+      key = resolveAuditKey(stateDir, { allowCreate: true, currentUid: opts.currentUid, keyOwnerUid: opts.keyOwnerUid });
+    } catch {
+      return fail();
+    }
+    let ids: BindingIds;
+    try {
+      ids = provisionRoleBindings(db, key, selectors, now);
+    } catch {
+      return fail(key);
+    }
+    if (!validateRoleBindings(db, key, ids, selectors, now, freshnessMs).ok) return fail(key);
+    return { ok: true, key, bindingIds: ids };
+  }
+
+  // Existing rows: load-only key, no provisioning, no mutation. Exactly the three matching rows must be present;
+  // a missing/extra/ambiguous table, an unresolvable key, or a validation miss fails closed before any change.
+  if (rowCount !== 3) return fail();
+  let key: Buffer;
+  try {
+    key = resolveAuditKey(stateDir, { allowCreate: false, currentUid: opts.currentUid, keyOwnerUid: opts.keyOwnerUid });
+  } catch {
+    return fail();
+  }
+  const ids = loadRoleBindings(db, key, selectors);
+  if (!ids) return fail(key);
+  if (!validateRoleBindings(db, key, ids, selectors, now, freshnessMs).ok) return fail(key);
+  return { ok: true, key, bindingIds: ids };
+}
+
+export interface PreflightInputs {
+  db: Db;
+  stateDir: string;
+  selectors: RuntimeSelectors;
+  now: number;
+  freshnessMs: number;
+  emit: (line: string) => void;
+  downstream: (key: Buffer, bindingIds: BindingIds) => Promise<AcceptanceResult>;
+  lifecycleOpts?: LifecycleOpts;
+}
+
+/** The CLI preflight gate used unchanged by main(): it runs the fail-closed lifecycle and ONLY on success invokes
+ *  the downstream acceptance (runPrivateAcceptance). On any lifecycle failure it emits exactly the sanitized
+ *  `LIVE_PRIVATE_ACCEPTANCE: BLOCKED RUNTIME_BINDING_REQUIRED` line, never calls downstream, never emits any of the
+ *  five D-009 success labels, and returns a non-zero exit code. The prepared key buffer is zeroed after use. */
+export async function acceptancePreflight(p: PreflightInputs): Promise<number> {
+  const prep = prepareAuditKeyAndBindings(p.db, p.stateDir, p.selectors, p.now, p.freshnessMs, p.lifecycleOpts);
+  if (!prep.ok || !prep.key || !prep.bindingIds) {
+    p.emit('LIVE_PRIVATE_ACCEPTANCE: BLOCKED RUNTIME_BINDING_REQUIRED');
+    return 2;
+  }
+  const key = prep.key;
+  try {
+    return (await p.downstream(key, prep.bindingIds)).exitCode;
+  } finally {
+    key.fill(0);
+  }
 }
 
 function scanBoundedForRaw(dir: string): { forbidden: number; accessible: boolean } {
@@ -811,15 +925,6 @@ async function main(): Promise<void> {
   }
   const db = openDatabase(join(config.stateDir, 'db', 'vibenews.sqlite3'));
 
-  // Prepare the frozen server-only audit key and provision/validate role bindings BEFORE any pipeline
-  // evidence is accepted (IR-F1-D1(g)).
-  let auditKey: Buffer;
-  try {
-    auditKey = resolveAuditKey(config.stateDir, { allowCreate: true });
-  } catch {
-    out('LIVE_PRIVATE_ACCEPTANCE: BLOCKED RUNTIME_BINDING_REQUIRED');
-    process.exit(2);
-  }
   const env = process.env;
   const req = (k: string): string => {
     const v = env[k];
@@ -850,42 +955,41 @@ async function main(): Promise<void> {
     process.exit(2);
   }
   const now = Date.now();
-  const bindingIds = provisionRoleBindings(db, auditKey, selectors, now);
-  if (!validateRoleBindings(db, auditKey, bindingIds, selectors, now, BINDING_FRESHNESS_MS).ok) {
-    out('LIVE_PRIVATE_ACCEPTANCE: BLOCKED RUNTIME_BINDING_REQUIRED');
-    process.exit(2);
-  }
-  const dsPolicy = db.prepare("SELECT id FROM provider_policy_snapshots WHERE provider = 'deepseek' AND lookup_status IN ('retrieved','changed_since_review') ORDER BY reviewed_at DESC LIMIT 1").get() as { id: string } | undefined;
-  const fishPolicy = db.prepare("SELECT id FROM provider_policy_snapshots WHERE provider = 'fish_audio' AND lookup_status IN ('retrieved','changed_since_review') ORDER BY reviewed_at DESC LIMIT 1").get() as { id: string } | undefined;
-  if (!dsPolicy || !fishPolicy) {
-    out('LIVE_PRIVATE_ACCEPTANCE: BLOCKED POLICY_SNAPSHOT_REQUIRED');
-    process.exit(2);
-  }
-
-  const collectorCfg: AccessCollectorConfig = { apiPort: config.port, bindHost: config.bindHost, authorizedDeviceId: env.VIBENEWS_AUTHORIZED_DEVICE_ID ?? '' };
-  const result = await runPrivateAcceptance({
-    config,
-    db,
-    ports,
-    evidence: { deepseekPolicySnapshotId: dsPolicy.id, fishPolicySnapshotId: fishPolicy.id, builderBindingId: bindingIds.builderBindingId, verifierBindingId: bindingIds.verifierBindingId, fishBindingId: bindingIds.fishBindingId },
-    access: () => collectAccessEvidence(realAccessSeams(config), collectorCfg),
-    accessMaxAgeMs: DEFAULT_ACCESS_MAX_AGE_MS,
-    clock: () => Date.now(), // sampled after collection to bound access freshness truthfully
-    feedTransport: (url, init) => fetch(url, { method: 'GET', signal: init.signal, redirect: init.redirect }).then((res) => ({ status: res.status, headers: res.headers, body: res.body as AsyncIterable<Uint8Array> | null })),
-    audioDir: join(config.stateDir, 'audio'),
-    stagingDir: join(config.stateDir, 'staging'),
-    captionTempRoot: join(config.stateDir, 'caption-temp'),
-    referenceId: req('FISH_REFERENCE_ID'),
-    guardVersion: 'd009a.guard.v1',
-    auditKey,
-    selectors,
-    now,
-    videoId,
-    channelId,
-    emit: out,
-  });
-  auditKey.fill(0); // discard key bytes after binding work
-  process.exit(result.exitCode);
+  // IR-F1-D1(g)-L: the CLI preflight gate checks the binding-row count BEFORE the key is resolved/created and
+  // only invokes the downstream acceptance when the fail-closed lifecycle succeeds. Any lifecycle failure emits
+  // BLOCKED RUNTIME_BINDING_REQUIRED, never reaches runPrivateAcceptance, and exits non-zero.
+  const downstream = async (auditKey: Buffer, bindingIds: BindingIds): Promise<AcceptanceResult> => {
+    const dsPolicy = db.prepare("SELECT id FROM provider_policy_snapshots WHERE provider = 'deepseek' AND lookup_status IN ('retrieved','changed_since_review') ORDER BY reviewed_at DESC LIMIT 1").get() as { id: string } | undefined;
+    const fishPolicy = db.prepare("SELECT id FROM provider_policy_snapshots WHERE provider = 'fish_audio' AND lookup_status IN ('retrieved','changed_since_review') ORDER BY reviewed_at DESC LIMIT 1").get() as { id: string } | undefined;
+    if (!dsPolicy || !fishPolicy) {
+      out('LIVE_PRIVATE_ACCEPTANCE: BLOCKED POLICY_SNAPSHOT_REQUIRED');
+      return { status: 'BLOCKED', code: 'POLICY_SNAPSHOT_REQUIRED', exitCode: 2, labelsEmitted: false };
+    }
+    const collectorCfg: AccessCollectorConfig = { apiPort: config.port, bindHost: config.bindHost, authorizedDeviceId: env.VIBENEWS_AUTHORIZED_DEVICE_ID ?? '' };
+    return runPrivateAcceptance({
+      config,
+      db,
+      ports,
+      evidence: { deepseekPolicySnapshotId: dsPolicy.id, fishPolicySnapshotId: fishPolicy.id, builderBindingId: bindingIds.builderBindingId, verifierBindingId: bindingIds.verifierBindingId, fishBindingId: bindingIds.fishBindingId },
+      access: () => collectAccessEvidence(realAccessSeams(config), collectorCfg),
+      accessMaxAgeMs: DEFAULT_ACCESS_MAX_AGE_MS,
+      clock: () => Date.now(), // sampled after collection to bound access freshness truthfully
+      feedTransport: (url, init) => fetch(url, { method: 'GET', signal: init.signal, redirect: init.redirect }).then((res) => ({ status: res.status, headers: res.headers, body: res.body as AsyncIterable<Uint8Array> | null })),
+      audioDir: join(config.stateDir, 'audio'),
+      stagingDir: join(config.stateDir, 'staging'),
+      captionTempRoot: join(config.stateDir, 'caption-temp'),
+      referenceId: req('FISH_REFERENCE_ID'),
+      guardVersion: 'd009a.guard.v1',
+      auditKey,
+      selectors,
+      now,
+      videoId,
+      channelId,
+      emit: out,
+    });
+  };
+  const exitCode = await acceptancePreflight({ db, stateDir: config.stateDir, selectors, now, freshnessMs: BINDING_FRESHNESS_MS, emit: out, downstream });
+  process.exit(exitCode);
 }
 
 const HERE = dirname(fileURLToPath(import.meta.url));
