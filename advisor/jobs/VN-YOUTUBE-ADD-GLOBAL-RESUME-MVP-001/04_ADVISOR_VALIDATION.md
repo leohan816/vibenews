@@ -658,3 +658,29 @@ D-001 through D-010 unchanged, permits only synthetic local proof during correct
 Advisor to patch product code or substitute any actor. The next transition is an Advisor-authored handoff to the same
 fixed Worker followed by the same fixed Reviewer's `implementation-delta-review-001-a4`. A4 `PASS` opens the already
 approved real private acceptance; any other verdict returns the exact evidence to Leo/GPT.
+
+## D-011 final lifecycle micro-correction routing
+
+```text
+VALIDATION_PHASE: FINAL_LIFECYCLE_MICRO_CORRECTION_ROUTING
+DECISION_ID: D-011
+DECISION_ACK_HEAD: c5086000070db388f6d217384191feb50433bfd2
+SOURCE_REVIEW_ID: implementation-delta-review-001-a3
+SOURCE_REVIEW_REPORT_HEAD: d228be432e5645b06e2ad8847293a2adebb8ca88
+FINDING_ID_IN_SCOPE: IR-F1-D1(g)-L
+PREVIOUS_SUBJECT_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
+D011_FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPT: 1
+D011_FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPTS_MAX: 1
+ALLOWED_PRODUCT_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
+PLANNED_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a4
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+NEXT_ACTOR: VibeNews Worker
+```
+
+The handoff requires the normal runtime to count binding rows before resolving the audit key, permits key/binding
+creation only at zero rows, and makes every existing-row path load/validate without replacement provisioning. Its tests
+must compare complete before/after key and binding state for missing, invalid, symlinked, wrong-owner, wrong-mode, and
+wrong-size keys, plus empty-state provisioning and valid-key idempotence. Correction execution remains synthetic and
+local. Only the same fixed Reviewer may judge the returned subject in a4.

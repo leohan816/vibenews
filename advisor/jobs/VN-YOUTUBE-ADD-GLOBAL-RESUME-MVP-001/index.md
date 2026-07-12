@@ -1,7 +1,7 @@
 # VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
 ```text
-STATUS: D011_ACKNOWLEDGED_LIFECYCLE_MICRO_CORRECTION_AUTHORIZED
+STATUS: D011_FINAL_LIFECYCLE_MICRO_CORRECTION_ROUTED
 REPO: /home/leo/Project/VibeNews
 ORIGIN: https://github.com/leohan816/vibenews.git
 BRANCH: master
@@ -96,9 +96,12 @@ ALL_IMPLEMENTATION_REWORK_BUDGET_EXHAUSTED: true
 SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
 FINAL_LIFECYCLE_MICRO_CORRECTION_AUTHORIZED: true
 FINAL_LIFECYCLE_MICRO_CORRECTION_FINDING: IR-F1-D1(g)-L
-FINAL_LIFECYCLE_MICRO_CORRECTION_STATUS: ACKNOWLEDGED_PENDING_ADVISOR_ROUTING
+FINAL_LIFECYCLE_MICRO_CORRECTION_STATUS: ROUTED_TO_SAME_WORKER
+FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPT: 1
+FINAL_LIFECYCLE_MICRO_CORRECTION_ATTEMPTS_MAX: 1
+FINAL_LIFECYCLE_MICRO_CORRECTION_INPUT_HEAD: RECORDED_AFTER_ROUTING_COMMIT
 REQUIRED_LEO_DECISION: none
-NEXT_ACTOR: VibeNews Advisor
+NEXT_ACTOR: VibeNews Worker
 ```
 
 ## Advisor artifacts
@@ -140,6 +143,8 @@ NEXT_ACTOR: VibeNews Advisor
 - [`reviews/implementation-delta-review-001-a2/REVIEWER_RUN_PROMPT.md`](reviews/implementation-delta-review-001-a2/REVIEWER_RUN_PROMPT.md)
 - [`implementation/rework/3/REWORK_HANDOFF_PROMPT.md`](implementation/rework/3/REWORK_HANDOFF_PROMPT.md)
 - [`implementation/rework/3/REWORK_RUN_PROMPT.md`](implementation/rework/3/REWORK_RUN_PROMPT.md)
+- [`implementation/rework/4/REWORK_HANDOFF_PROMPT.md`](implementation/rework/4/REWORK_HANDOFF_PROMPT.md)
+- [`implementation/rework/4/REWORK_RUN_PROMPT.md`](implementation/rework/4/REWORK_RUN_PROMPT.md)
 - [`reviews/implementation-delta-review-001-a3/REVIEWER_BRIEF.md`](reviews/implementation-delta-review-001-a3/REVIEWER_BRIEF.md)
 - [`reviews/implementation-delta-review-001-a3/REVIEWER_HANDOFF_PROMPT.md`](reviews/implementation-delta-review-001-a3/REVIEWER_HANDOFF_PROMPT.md)
 - [`reviews/implementation-delta-review-001-a3/REVIEWER_RUN_PROMPT.md`](reviews/implementation-delta-review-001-a3/REVIEWER_RUN_PROMPT.md)
@@ -222,3 +227,8 @@ micro-correction by the same fixed Worker, limited to `IR-F1-D1(g)-L` in the sam
 same fixed Reviewer's `implementation-delta-review-001-a4`. Correction execution is synthetic and local only. A4
 `PASS` opens the already-approved real private acceptance without another counter-based approval; any other verdict
 returns the exact remaining finding to Leo/GPT.
+
+Advisor has now routed D-011-A to the same fixed `VibeNews` Worker. The micro-correction is limited to the audit-key
+lifecycle finding and the two authorized product files, with deterministic local proof only. The same fixed Reviewer
+alone performs `implementation-delta-review-001-a4` after Advisor direct validation; live acceptance remains unrun and
+blocked until that review returns `PASS`.
