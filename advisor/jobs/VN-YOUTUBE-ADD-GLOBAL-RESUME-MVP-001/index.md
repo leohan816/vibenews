@@ -1,7 +1,7 @@
 # VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
 ```text
-STATUS: IMPLEMENTATION_REWORK_ROUTING
+STATUS: IMPLEMENTATION_DELTA_REVIEW_ROUTING
 REPO: /home/leo/Project/VibeNews
 ORIGIN: https://github.com/leohan816/vibenews.git
 BRANCH: master
@@ -58,20 +58,24 @@ IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 2
 REWORK_ATTEMPT_1_CONTENT_HEAD: f6850963349d2a667b766e60a49800079335da00
 REWORK_ATTEMPT_1_POINTER_HEAD: cd0fae7a173e88d6c3424ac6bf295ac083b9f8fe
 REWORK_ATTEMPT_1_SUBJECT_PATH_COUNT: 87
-REWORK_CONTENT_HEAD: NOT_APPLICABLE
-REWORK_POINTER_HEAD: NOT_APPLICABLE
-NEW_IMPLEMENTATION_SUBJECT_HEAD: NOT_APPLICABLE
-NEW_IMPLEMENTATION_SUBJECT_PATH_COUNT: 87_EXPECTED
-REWORK_STATUS: FINAL_ATTEMPT_ROUTING
-ADVISOR_PRE_IMPLEMENTATION_DELTA_REVIEW_VALIDATION: PASS_FOR_A1
-IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
-IMPLEMENTATION_DELTA_REVIEW_REPORT_HEAD: 8ce5c26f214b6aafd7404f5642c5698ea3672517
-IMPLEMENTATION_DELTA_REVIEW_VERDICT: NEEDS_PATCH
-IMPLEMENTATION_DELTA_REVIEW_BLOCKING_FINDINGS: IR-F1-D1
+REWORK_ATTEMPT_2_INPUT_HEAD: 1289037722b4b1ec6136b69292602ecce2b300ce
+REWORK_CONTENT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+REWORK_POINTER_HEAD: 01807f1993961bd12bdc5656aba745b47d80c7f7
+NEW_IMPLEMENTATION_SUBJECT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+NEW_IMPLEMENTATION_SUBJECT_PATH_COUNT: 87
+REWORK_STATUS: FINAL_ATTEMPT_PUBLISHED_AND_ADVISOR_VALIDATED_FOR_REVIEW
+ADVISOR_PRE_IMPLEMENTATION_DELTA_REVIEW_VALIDATION: PASS_FOR_A2_ROUTE_ONLY
+PRIOR_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
+PRIOR_IMPLEMENTATION_DELTA_REVIEW_REPORT_HEAD: 8ce5c26f214b6aafd7404f5642c5698ea3672517
+PRIOR_IMPLEMENTATION_DELTA_REVIEW_VERDICT: NEEDS_PATCH
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a2
+IMPLEMENTATION_DELTA_REVIEW_REPORT_HEAD: NOT_APPLICABLE
+IMPLEMENTATION_DELTA_REVIEW_VERDICT: PENDING
+IMPLEMENTATION_DELTA_REVIEW_FINDINGS_IN_SCOPE: IR-F1-D1
 PLANNED_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a2
 RUNTIME_CHANGE_STATUS: ZERO
 SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
-NEXT_ACTOR: VibeNews Worker
+NEXT_ACTOR: VibeNews Reviewer
 ```
 
 ## Advisor artifacts
@@ -106,6 +110,9 @@ NEXT_ACTOR: VibeNews Worker
 - [`reviews/implementation-delta-review-001-a1/REVIEWER_RUN_PROMPT.md`](reviews/implementation-delta-review-001-a1/REVIEWER_RUN_PROMPT.md)
 - [`implementation/rework/2/REWORK_HANDOFF_PROMPT.md`](implementation/rework/2/REWORK_HANDOFF_PROMPT.md)
 - [`implementation/rework/2/REWORK_RUN_PROMPT.md`](implementation/rework/2/REWORK_RUN_PROMPT.md)
+- [`reviews/implementation-delta-review-001-a2/REVIEWER_BRIEF.md`](reviews/implementation-delta-review-001-a2/REVIEWER_BRIEF.md)
+- [`reviews/implementation-delta-review-001-a2/REVIEWER_HANDOFF_PROMPT.md`](reviews/implementation-delta-review-001-a2/REVIEWER_HANDOFF_PROMPT.md)
+- [`reviews/implementation-delta-review-001-a2/REVIEWER_RUN_PROMPT.md`](reviews/implementation-delta-review-001-a2/REVIEWER_RUN_PROMPT.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 
 ## Current transition
@@ -139,3 +146,13 @@ and integration-test paths. It is followed by same-Reviewer `implementation-delt
 returns to Leo/GPT. No live call, secret access, runtime change, risk acceptance, or mission-complete claim has occurred.
 Real private provider acceptance, global resume/exclusion acceptance, required reloads, final audit, and final pointer
 remain mandatory. Partial, mock-only, and sample-audio work cannot close the mission.
+
+Same-Worker final rework attempt 2 returned content head
+`98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518` and pointer head
+`01807f1993961bd12bdc5656aba745b47d80c7f7`, changing only the same two subject paths plus its evidence. Typecheck and
+the targeted 8/8 suite pass, and the full recorded suite is green. Advisor direct review does not self-close
+`IR-F1-D1`: the normal access observer may still infer Serve/Funnel/device/public facts from generic Tailscale status,
+and the CLI appears to reuse the device-token hash instead of the frozen separate provider audit key. These and the
+remaining raw/policy/TTS/Range/channel boundaries are explicitly routed to same-Reviewer final
+`implementation-delta-review-001-a2`. A PASS opens live acceptance; any non-pass exhausts the two-attempt limit and
+returns to Leo/GPT. No live acceptance or mission completion is claimed.

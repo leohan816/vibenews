@@ -383,3 +383,71 @@ same two subject paths and stable finding `IR-F1-D1`. Rework remains synthetic a
 provider/YouTube/tailnet/device calls, or mutate runtime state. The same fixed Reviewer must perform
 `implementation-delta-review-001-a2`. Any further non-pass reaches the two-attempt limit and returns to Leo/GPT; there
 is no third automatic rework, substitute actor, or Advisor patch.
+
+## Pre-implementation-delta-review validation — attempt 2
+
+```text
+VALIDATION_PHASE: PRE_IMPLEMENTATION_DELTA_REVIEW
+VALIDATION_STATUS: PASS_FOR_INDEPENDENT_IMPLEMENTATION_DELTA_REVIEW
+VALIDATION_MEANING: route permission only; IR-F1-D1 closure not declared
+IMPLEMENTATION_REVIEW_ID: implementation-review-001
+INITIAL_IMPLEMENTATION_REVIEW_REPORT_HEAD: 263678ed5ea71975b23007cb0a84cd167ee9d54c
+PRIOR_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
+PRIOR_IMPLEMENTATION_DELTA_REVIEW_REPORT_HEAD: 8ce5c26f214b6aafd7404f5642c5698ea3672517
+FINDING_IDS_IN_SCOPE: IR-F1-D1
+IMPLEMENTATION_REWORK_ATTEMPT: 2
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 2
+IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 2
+PREVIOUS_SUBJECT_HEAD: f6850963349d2a667b766e60a49800079335da00
+NEW_IMPLEMENTATION_SUBJECT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+NEW_IMPLEMENTATION_SUBJECT_PATH_COUNT: 87
+REWORK_INPUT_HEAD: 1289037722b4b1ec6136b69292602ecce2b300ce
+REWORK_CONTENT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+REWORK_POINTER_HEAD: 01807f1993961bd12bdc5656aba745b47d80c7f7
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a2
+FROZEN_DESIGN_HEAD: 5c97382841d00ceb8b18e27998c5e68bbe468555
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN_PENDING_IMPLEMENTATION_DELTA_REVIEW
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+DIRTY_STATE: clean before Advisor delta-review routing
+NEXT_ACTOR: VibeNews Reviewer
+```
+
+### Direct evidence checked
+
+- Fetched origin and verified `HEAD == origin/master == 01807f1993961bd12bdc5656aba745b47d80c7f7`, clean
+  staged/unstaged/untracked state, previous-subject/review/rework ancestry, and exact content/pointer commits.
+- Read the complete rework result/pointer, all 500 lines of `accept-private.ts`, all 300 lines of the integration test,
+  the runtime-binding constructor, actual `loadPipelineEvidence`, config surface, migration, audio route, and frozen
+  audit-key/access requirements directly.
+- Content commit `98d3ea6...` changes exactly the two allowed subject paths plus `REWORK_RESULT.md`; pointer commit
+  `01807f1...` changes only its pointer. Worker evidence remains excluded from the 87-path verdict target.
+- `git diff --check`, ancestry, text/control-byte, frozen-design, and both Reviewer-report immutability checks pass.
+  Advisor independently reran typecheck and the targeted acceptance suite: exit 0 and 8/8. Worker records lint exit 0
+  with 53 warnings, unit 46/46, integration 59/59, runtime 2/2, and migration dry-run exit 0.
+- No live provider/YouTube/tailnet/public-network/device call, secret access, runtime DB/state mutation, or acceptance
+  claim occurred.
+
+### Required same-Reviewer focus
+
+The delta is within the routed paths and independently reviewable; that does not mean the finding is closed. Direct
+Advisor inspection found material normal-CLI questions that the Reviewer must decide:
+
+- `cliAccessObserver` calls only `tailscale status --json`; `funnelOff = !!statusJson`, Serve/device status derives
+  from self-online, and public denial derives from the same boolean. No Serve/Funnel status or reachability/denial
+  probe is made, so the prior operator-boolean defect may have become another tautological false-PASS path.
+- The CLI uses `config.deviceTokenSha256` as the provider-binding HMAC key, while frozen design requires a separate
+  server-only audit key under an operator-only 0700/0600 private path. It does not load that key or compare stored
+  `audit_key_id`, `credential_present`, or `verified_at`; the test injects an arbitrary matching key.
+- Bounded raw scanning covers only caption-temp/staging with a partial extension list; policy host/API URL/freshness,
+  daily local-date selection, ephemeral rather than configured Range authorization, and pre-existing channel/retry
+  behavior also require direct judgment. The eight tests mostly inject already-trusted access/key evidence and do not
+  prove those normal CLI boundaries.
+
+### Gate decision
+
+Advisor validation permits only the same fixed Reviewer to perform the final `IMPLEMENTATION_DELTA_REVIEW` of subject
+`98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518`, previous subject `f685096...`, and the unchanged 87 paths with
+`IR-F1-D1` in scope. `PASS` opens later live acceptance but is not acceptance. Any `PASS_WITH_RISK`, `NEEDS_PATCH`, or
+`FAIL` returns to Leo/GPT because attempt 2 exhausted the automatic rework limit; no third rework or Advisor patch is
+authorized.
