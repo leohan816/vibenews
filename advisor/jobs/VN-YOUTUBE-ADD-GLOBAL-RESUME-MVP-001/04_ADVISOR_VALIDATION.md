@@ -451,3 +451,43 @@ Advisor validation permits only the same fixed Reviewer to perform the final `IM
 `IR-F1-D1` in scope. `PASS` opens later live acceptance but is not acceptance. Any `PASS_WITH_RISK`, `NEEDS_PATCH`, or
 `FAIL` returns to Leo/GPT because attempt 2 exhausted the automatic rework limit; no third rework or Advisor patch is
 authorized.
+
+## Final implementation delta-review validation — automatic limit reached
+
+```text
+VALIDATION_PHASE: POST_IMPLEMENTATION_DELTA_REVIEW
+VALIDATION_STATUS: IMPLEMENTATION_REWORK_LIMIT_REACHED_RETURN_TO_LEO_GPT
+IMPLEMENTATION_REVIEW_ID: implementation-review-001
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a2
+IMPLEMENTATION_DELTA_REVIEW_REPORT_HEAD: 054333eb08d677c831e911866d3c7a9dbb34df9c
+REVIEWER_VERDICT: NEEDS_PATCH
+VERDICT_TARGET_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+BLOCKING_FINDING_IDS: IR-F1-D1(b); IR-F1-D1(g)
+CLOSED_SUBITEMS: IR-F1-D1(a); IR-F1-D1(c); IR-F1-D1(d); IR-F1-D1(e); IR-F1-D1(f)
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 2
+IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 2
+AUTOMATIC_REWORK_LIMIT_REACHED: true
+THIRD_AUTOMATIC_REWORK_AUTHORIZED: false
+REQUIRED_LEO_DECISION: D-010
+ADVISOR_RECOMMENDATION: D-010-A
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN_BLOCKED_BY_IMPLEMENTATION_REVIEW
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+NEXT_ACTOR: Leo/GPT
+```
+
+The Advisor directly read the complete final delta-review result and pointer and verified report commit
+`054333eb08d677c831e911866d3c7a9dbb34df9c` is pushed, descends from routing head
+`1a961929360ec159178c1f8dafbad58a56f9f569`, changes only the two declared Reviewer report paths, targets exact
+87-path subject `98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518`, and leaves the worktree clean. The same Reviewer independently
+reproduced typecheck, acceptance 8/8, unit 46/46, and integration 59/59 with no live call or secret access.
+
+The final verdict credits five closed sub-items and retains exactly two stable blockers. `IR-F1-D1(b)` can still
+false-PASS private access from generic tailnet-up status; `IR-F1-D1(g)` uses the device bearer-token hash instead of
+the frozen separate provider audit key and lacks the real key/binding provisioning path. Neither may be risk-accepted
+implicitly because they directly affect whether live PASS evidence is truthful.
+
+Both automatic reworks are consumed. Per `RUN_PROTOCOL.md`, the Advisor does not route attempt 3, patch code, substitute
+an actor, run live acceptance, or claim mission completion. `D-010` in `05_LEO_DECISION_REQUEST.md` asks Leo/GPT to
+authorize one exceptional same-Worker/same-Reviewer bounded correction, hold, or request a broader design-policy
+change. Safe state remains stopped before runtime/provider/device activity.
