@@ -341,3 +341,45 @@ Advisor validation permits only the same fixed Reviewer to perform `IMPLEMENTATI
 `f6850963349d2a667b766e60a49800079335da00`, previous subject `767e0d2...`, and the 87 declared paths with IR-F1 in
 scope. A `PASS` opens the later live acceptance phase but is not acceptance. `NEEDS_PATCH` may consume the second and
 final automatic implementation-rework attempt; `PASS_WITH_RISK` requires Leo/GPT; `FAIL` stops.
+
+## Implementation delta-review validation — attempt 1
+
+```text
+VALIDATION_PHASE: POST_IMPLEMENTATION_DELTA_REVIEW
+VALIDATION_STATUS: NEEDS_PATCH_ROUTED_TO_FINAL_BOUNDED_REWORK
+IMPLEMENTATION_REVIEW_ID: implementation-review-001
+IMPLEMENTATION_REVIEW_REPORT_HEAD: 263678ed5ea71975b23007cb0a84cd167ee9d54c
+IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
+IMPLEMENTATION_DELTA_REVIEW_REPORT_HEAD: 8ce5c26f214b6aafd7404f5642c5698ea3672517
+REVIEWER_VERDICT: NEEDS_PATCH
+VERDICT_TARGET_HEAD: f6850963349d2a667b766e60a49800079335da00
+BLOCKING_FINDING_IDS: IR-F1-D1
+IMPLEMENTATION_REWORK_ATTEMPT: 2
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 2
+IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 2
+NEXT_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a2
+ALLOWED_PATCH_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN_PENDING_IMPLEMENTATION_REVIEW
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+NEXT_ACTOR: VibeNews Worker
+```
+
+The Advisor directly read the complete delta-review result and pointer and verified report commit
+`8ce5c26f214b6aafd7404f5642c5698ea3672517` is pushed, descends from routing head
+`c141596e2cee093370058965e81304464d54ee7b`, changes only the two declared Reviewer report paths, targets exact
+87-path subject `f6850963349d2a667b766e60a49800079335da00`, and leaves the worktree clean. The report confirms the two-path
+delta, prior/frozen/report immutability, typecheck, targeted 5/5, unit 46/46, and integration 56/56 without live calls
+or secret access.
+
+`IR-F1-D1(a–g)` is objective and bounded: hard-coded raw-retention success; operator-asserted access booleans;
+tautological channel discovery; daily aggregate instead of job-attributable TTS increment; file stat instead of the
+authorized HTTP Range boundary; empty D-009-A policy records accepted; and unchecked/precomputed runtime bindings.
+These defects can emit false section 14.4 or `LOCAL_DATA_CONTROLS: VERIFIED` evidence. Correcting them implements the
+already frozen contract and requires no new Leo/GPT decision.
+
+The Advisor therefore routes same-Worker implementation rework attempt 2, the final automatic attempt, limited to the
+same two subject paths and stable finding `IR-F1-D1`. Rework remains synthetic and may not access secrets, make live
+provider/YouTube/tailnet/device calls, or mutate runtime state. The same fixed Reviewer must perform
+`implementation-delta-review-001-a2`. Any further non-pass reaches the two-attempt limit and returns to Leo/GPT; there
+is no third automatic rework, substitute actor, or Advisor patch.

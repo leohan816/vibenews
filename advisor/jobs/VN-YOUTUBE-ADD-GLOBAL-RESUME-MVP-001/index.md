@@ -1,7 +1,7 @@
 # VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
 
 ```text
-STATUS: IMPLEMENTATION_DELTA_REVIEW_ROUTING
+STATUS: IMPLEMENTATION_REWORK_ROUTING
 REPO: /home/leo/Project/VibeNews
 ORIGIN: https://github.com/leohan816/vibenews.git
 BRANCH: master
@@ -48,25 +48,30 @@ IMPLEMENTATION_REVIEW_SUBJECT_HEAD: 767e0d2bdc6d31e9950858c4267adf75c90f5fae
 IMPLEMENTATION_REVIEW_SUBJECT_PATH_COUNT: 86
 ADVISOR_PRE_IMPLEMENTATION_REVIEW_VALIDATION: PASS
 ADVISOR_POST_IMPLEMENTATION_REVIEW_VALIDATION: NEEDS_PATCH_ROUTED
-IMPLEMENTATION_REVIEW_STATUS: NEEDS_PATCH_REWORK_ROUTED
+IMPLEMENTATION_REVIEW_STATUS: NEEDS_PATCH_FINAL_REWORK_ROUTED
 IMPLEMENTATION_REVIEW_REPORT_HEAD: 263678ed5ea71975b23007cb0a84cd167ee9d54c
 IMPLEMENTATION_REVIEW_VERDICT: NEEDS_PATCH
 IMPLEMENTATION_REVIEW_BLOCKING_FINDINGS: IR-F1
-ACTIVE_IMPLEMENTATION_REWORK_ATTEMPT: 1
-IMPLEMENTATION_REWORK_ATTEMPTS_USED: 1
+ACTIVE_IMPLEMENTATION_REWORK_ATTEMPT: 2
+IMPLEMENTATION_REWORK_ATTEMPTS_USED: 2
 IMPLEMENTATION_REWORK_ATTEMPTS_MAX: 2
-PLANNED_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
-REWORK_CONTENT_HEAD: f6850963349d2a667b766e60a49800079335da00
-REWORK_POINTER_HEAD: cd0fae7a173e88d6c3424ac6bf295ac083b9f8fe
-NEW_IMPLEMENTATION_SUBJECT_HEAD: f6850963349d2a667b766e60a49800079335da00
-NEW_IMPLEMENTATION_SUBJECT_PATH_COUNT: 87
-REWORK_STATUS: PUBLISHED_AND_ADVISOR_VALIDATED
-ADVISOR_PRE_IMPLEMENTATION_DELTA_REVIEW_VALIDATION: PASS
+REWORK_ATTEMPT_1_CONTENT_HEAD: f6850963349d2a667b766e60a49800079335da00
+REWORK_ATTEMPT_1_POINTER_HEAD: cd0fae7a173e88d6c3424ac6bf295ac083b9f8fe
+REWORK_ATTEMPT_1_SUBJECT_PATH_COUNT: 87
+REWORK_CONTENT_HEAD: NOT_APPLICABLE
+REWORK_POINTER_HEAD: NOT_APPLICABLE
+NEW_IMPLEMENTATION_SUBJECT_HEAD: NOT_APPLICABLE
+NEW_IMPLEMENTATION_SUBJECT_PATH_COUNT: 87_EXPECTED
+REWORK_STATUS: FINAL_ATTEMPT_ROUTING
+ADVISOR_PRE_IMPLEMENTATION_DELTA_REVIEW_VALIDATION: PASS_FOR_A1
 IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a1
-IMPLEMENTATION_DELTA_REVIEW_REPORT_HEAD: NOT_APPLICABLE
+IMPLEMENTATION_DELTA_REVIEW_REPORT_HEAD: 8ce5c26f214b6aafd7404f5642c5698ea3672517
+IMPLEMENTATION_DELTA_REVIEW_VERDICT: NEEDS_PATCH
+IMPLEMENTATION_DELTA_REVIEW_BLOCKING_FINDINGS: IR-F1-D1
+PLANNED_IMPLEMENTATION_DELTA_REVIEW_ID: implementation-delta-review-001-a2
 RUNTIME_CHANGE_STATUS: ZERO
 SPECIAL_IMPLEMENTATION_EXCEPTION: EXPIRED
-NEXT_ACTOR: VibeNews Reviewer
+NEXT_ACTOR: VibeNews Worker
 ```
 
 ## Advisor artifacts
@@ -99,6 +104,8 @@ NEXT_ACTOR: VibeNews Reviewer
 - [`reviews/implementation-delta-review-001-a1/REVIEWER_BRIEF.md`](reviews/implementation-delta-review-001-a1/REVIEWER_BRIEF.md)
 - [`reviews/implementation-delta-review-001-a1/REVIEWER_HANDOFF_PROMPT.md`](reviews/implementation-delta-review-001-a1/REVIEWER_HANDOFF_PROMPT.md)
 - [`reviews/implementation-delta-review-001-a1/REVIEWER_RUN_PROMPT.md`](reviews/implementation-delta-review-001-a1/REVIEWER_RUN_PROMPT.md)
+- [`implementation/rework/2/REWORK_HANDOFF_PROMPT.md`](implementation/rework/2/REWORK_HANDOFF_PROMPT.md)
+- [`implementation/rework/2/REWORK_RUN_PROMPT.md`](implementation/rework/2/REWORK_RUN_PROMPT.md)
 - [`10_LOOP_STATE.md`](10_LOOP_STATE.md)
 
 ## Current transition
@@ -119,8 +126,16 @@ fixed `VibeNews-reviewer`. The Reviewer returned `NEEDS_PATCH` at report head
 `263678ed5ea71975b23007cb0a84cd167ee9d54c` with one blocking finding, `IR-F1`: `accept-private.ts` is a sentinel stub,
 not the executable frozen acceptance runner. Same-Worker rework attempt 1 returned content head
 `f6850963349d2a667b766e60a49800079335da00`, changing only that runner plus one integration test. Advisor verified the
-exact delta, ancestry, immutability, typecheck, and targeted 5/5 tests without live calls or secret access and now
-routes same-Reviewer `implementation-delta-review-001-a1`. The Reviewer must determine whether the new runner verifies
-real access/policy/playback/retention evidence rather than trusting self-asserted flags or constants. Real private
-provider acceptance, global resume/exclusion acceptance, required reloads, final audit, and final pointer remain
-mandatory. Partial, mock-only, and sample-audio work cannot close the mission.
+exact delta, ancestry, immutability, typecheck, and targeted 5/5 tests without live calls or secret access, then routed
+same-Reviewer `implementation-delta-review-001-a1` to determine whether the new runner verified real access,
+policy, playback, and retention evidence rather than trusting self-asserted flags or constants.
+
+Same-Reviewer `implementation-delta-review-001-a1` returned `NEEDS_PATCH` at report head
+`8ce5c26f214b6aafd7404f5642c5698ea3672517`. Attempt 1 genuinely made the acceptance runner executable and wired to
+the real pipeline, but stable finding `IR-F1-D1(a–g)` shows that raw-retention, access, channel discovery, per-job TTS,
+authorized Range, provider-policy, and runtime-binding gates can still accept hard-coded, tautological, empty, or
+unchecked evidence. Advisor routes same-Worker rework attempt 2, the final automatic attempt, in only the same runner
+and integration-test paths. It is followed by same-Reviewer `implementation-delta-review-001-a2`; any further non-pass
+returns to Leo/GPT. No live call, secret access, runtime change, risk acceptance, or mission-complete claim has occurred.
+Real private provider acceptance, global resume/exclusion acceptance, required reloads, final audit, and final pointer
+remain mandatory. Partial, mock-only, and sample-audio work cannot close the mission.
