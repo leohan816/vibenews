@@ -549,3 +549,51 @@ positive tests must use the real normal-CLI access collector and isolated real a
 trusted success objects or a caller-supplied matching key. Rework execution remains synthetic and cannot read secrets,
 call live services/networks/devices, or mutate runtime state. Only the same fixed Reviewer may judge returned subject
 head in `implementation-delta-review-001-a3`; no further attempt is authorized.
+
+## Exceptional rework attempt 3 return and pre-a3 validation
+
+```text
+VALIDATION_PHASE: ADVISOR_PRE_IMPLEMENTATION_DELTA_REVIEW_A3
+DECISION_ID: D-010
+DECISION_ACK_HEAD: 53f64282ec594962011da22c2328335d6a12fd8f
+PRIOR_REVIEW_REPORT_HEAD: 054333eb08d677c831e911866d3c7a9dbb34df9c
+PREVIOUS_SUBJECT_HEAD: 98d3ea6ffbb5b7377f5ed6480cad5f9b1ede7518
+REWORK_INPUT_HEAD: 2b36dbfcde9007ddcab823f0b330364ededd5966
+REWORK_CONTENT_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
+NEW_IMPLEMENTATION_SUBJECT_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
+REWORK_POINTER_HEAD: 45bd8185026395256fc855bd9dfd600b36c942d5
+NEW_IMPLEMENTATION_SUBJECT_PATH_COUNT: 87
+DELTA_PRODUCT_PATHS: server/src/bin/accept-private.ts; server/test/integration/accept-private.test.ts
+FINDING_IDS_FOR_REVIEW: IR-F1-D1(b); IR-F1-D1(g)
+AUTOMATIC_REWORK_ATTEMPTS_USED: 2
+AUTOMATIC_REWORK_ATTEMPTS_MAX: 2
+EXCEPTIONAL_REWORK_ATTEMPTS_USED: 1
+EXCEPTIONAL_REWORK_ATTEMPTS_MAX: 1
+TYPECHECK: PASS
+LINT: PASS_0_ERRORS_53_WARNINGS
+UNIT_TESTS: PASS_46_OF_46
+INTEGRATION_TESTS: PASS_80_OF_80
+TARGETED_ACCEPT_PRIVATE_TESTS: PASS_29_OF_29
+RUNTIME_LOCAL_TESTS: PASS_2_OF_2
+MIGRATION_DRY_RUN: PASS_NO_DB_WRITTEN
+CONTROL_BYTE_SCAN: PASS
+ORIGIN_AND_CLEAN_STATE: PASS
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+ADVISOR_ROUTE_VALIDATION: PASS_FOR_INDEPENDENT_A3_REVIEW_ONLY
+PLANNED_REVIEW_ID: implementation-delta-review-001-a3
+NEXT_ACTOR: VibeNews Reviewer
+```
+
+Advisor fetched and verified exact origin equality, clean state, prior/routing ancestry, the three-path content commit
+(two product paths plus Worker result), the pointer-only commit, and immutable frozen/decision/prior-review objects.
+The positive suite executes the seam-driven collector and isolated real key/binding provisioner; no trusted `okAccess`
+or device-token-as-audit-key production path remains. Advisor also caught and caused the same Worker to remove a literal
+NUL and pre-commit constant access probes before the returned subject was published.
+
+This is a routing validation, not a finding closure or risk acceptance. The a3 Reviewer brief requires direct scrutiny
+of actual Serve/Funnel/device/public-denial semantics and of the frozen key lifecycle: current `main()` calls
+`resolveAuditKey(..., {allowCreate:true})` before checking whether binding rows already exist, while frozen §4.2 says an
+existing binding plus missing key must fail closed rather than create a new key. Only the same Reviewer may decide
+whether that and every `(b)`/`(g)` requirement pass. Any non-pass returns to Leo/GPT; no attempt 4 is authorized.
