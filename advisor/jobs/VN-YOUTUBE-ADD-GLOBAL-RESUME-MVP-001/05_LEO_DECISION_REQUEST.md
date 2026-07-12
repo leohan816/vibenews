@@ -136,3 +136,81 @@ This keeps the frozen design unchanged and is the shortest safe path to real acc
 Leo/GPT selected `D-010-A — AUTHORIZE ONE EXCEPTIONAL FINAL REWORK`. The exact one-attempt, same-Worker,
 same-Reviewer, two-finding, two-product-path, no-live-call/no-secret boundary is recorded in
 `07_D010_DECISION_ACK.md`.
+
+## D-011 — exceptional rework exhausted with one audit-key lifecycle guard open
+
+```text
+DECISION_STATUS: OPEN
+JOB_ID: VN-YOUTUBE-ADD-GLOBAL-RESUME-MVP-001
+ACTOR: VibeNews Advisor
+SOURCE_REVIEW_ID: implementation-delta-review-001-a3
+SOURCE_REVIEW_REPORT_HEAD: d228be432e5645b06e2ad8847293a2adebb8ca88
+VERDICT: NEEDS_PATCH
+VERDICT_TARGET_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
+CLOSED_THIS_ATTEMPT: IR-F1-D1(b)
+BLOCKING_FINDING_ID: IR-F1-D1(g)-L
+AUTOMATIC_REWORK_ATTEMPTS_USED: 2
+AUTOMATIC_REWORK_ATTEMPTS_MAX: 2
+EXCEPTIONAL_REWORK_ATTEMPTS_USED: 1
+EXCEPTIONAL_REWORK_ATTEMPTS_MAX: 1
+ALL_REWORK_BUDGET_EXHAUSTED: true
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN
+ADVISOR_RECOMMENDATION: D-011-A
+NEXT_ACTOR: Leo/GPT
+```
+
+### Why a decision is required
+
+D-010-A's exceptional attempt is complete and the same Reviewer independently closed `IR-F1-D1(b)`. The separate
+server-only audit key, file checks, role-binding provisioning, HMAC recomputation, key ID, credential, freshness, and
+normal device-token separation are also genuine improvements. One narrow frozen lifecycle guard remains:
+
+- Frozen section 4.2 permits initial audit-key creation only when no provider binding row exists. If binding rows exist
+  but the key is missing or invalid, runtime must fail closed rather than create a replacement key.
+- Current `main()` unconditionally calls `resolveAuditKey(..., {allowCreate:true})` before checking binding-row
+  existence. Because `config_version_hash` includes key-dependent HMACs, a missing old key causes a new key and a new
+  matching binding set to be created; validation can then pass. This silently re-keys after key loss/tampering.
+- The existing tests cover missing-key rejection only with `allowCreate:false`; they do not cover the normal-runtime
+  existing-bindings-plus-missing-key case.
+
+Live acceptance cannot proceed while this false-PASS path remains. All automatic reworks and D-010's explicit one
+exception are consumed, so the Advisor cannot route another edit without new Leo/GPT authority. This does not reopen
+D-001 through D-010 or require secret/provider/runtime access.
+
+### Exact choices
+
+#### D-011-A — authorize one final lifecycle micro-correction (Advisor recommendation)
+
+Authorize exactly one additional mission-specific Worker correction with these hard bounds:
+
+- same fixed `VibeNews` Worker and same fixed `VibeNews-reviewer`; no substitute actor, agent, or subagent;
+- finding scope only `IR-F1-D1(g)-L`;
+- product patch paths only `server/src/bin/accept-private.ts` and
+  `server/test/integration/accept-private.test.ts`, plus normal Worker result/pointer evidence;
+- key creation must be allowed only when `provider_runtime_bindings` has zero rows; an existing binding set plus a
+  missing, invalid, wrong-owner, wrong-mode, symlink, or wrong-size key must return `RUNTIME_BINDING_REQUIRED` without
+  creating/replacing a key or new bindings;
+- tests must prove empty-state initial provisioning, existing-bindings-plus-missing-key fail-closed/no-key-created,
+  existing-bindings-plus-invalid-key no replacement, and existing-bindings-plus-valid-key idempotent success, with no
+  five-label block on failure;
+- preserve every closed `(a)`–`(f)` behavior and all other `(g)` improvements; no design/schema/package/config/provider/
+  service/API/migration change;
+- no live provider/YouTube/tailnet/public-network/device call, no secret reading/output, and no runtime mutation during
+  the correction;
+- follow with same-Reviewer `implementation-delta-review-001-a4`; any non-pass returns to Leo/GPT and no further attempt
+  is implied or authorized.
+
+This is the shortest safe path to the already-required live acceptance and does not weaken the frozen design.
+
+#### D-011-B — hold the mission
+
+- Keep subject `df6dfd502593735518d77ee7d7ec62035989a016` and all evidence unchanged.
+- Do not run live private acceptance, deploy the acceptance runner, or claim implementation PASS/mission completion.
+- Resume only after a later Leo/GPT instruction supplies new authority.
+
+#### D-011-C — request a design-policy change
+
+- Do not accept the current implementation as conforming.
+- Return to Designer with an explicitly scoped proposal to permit or govern audit-key rotation after loss, then require
+  independent design review, a new freeze, implementation, and implementation review.
+- This is broader and less safe than D-011-A and is not recommended because frozen section 4.2 is explicit.

@@ -597,3 +597,38 @@ of actual Serve/Funnel/device/public-denial semantics and of the frozen key life
 `resolveAuditKey(..., {allowCreate:true})` before checking whether binding rows already exist, while frozen §4.2 says an
 existing binding plus missing key must fail closed rather than create a new key. Only the same Reviewer may decide
 whether that and every `(b)`/`(g)` requirement pass. Any non-pass returns to Leo/GPT; no attempt 4 is authorized.
+
+## Exceptional implementation delta review a3 return
+
+```text
+VALIDATION_PHASE: ADVISOR_POST_IMPLEMENTATION_DELTA_REVIEW_A3
+REVIEW_ID: implementation-delta-review-001-a3
+REVIEW_REPORT_HEAD: d228be432e5645b06e2ad8847293a2adebb8ca88
+REVIEW_VERDICT: NEEDS_PATCH
+VERDICT_TARGET_HEAD: df6dfd502593735518d77ee7d7ec62035989a016
+CLOSED_THIS_ATTEMPT: IR-F1-D1(b)
+BLOCKING_FINDING_ID: IR-F1-D1(g)-L
+AUTOMATIC_REWORK_ATTEMPTS_USED: 2
+AUTOMATIC_REWORK_ATTEMPTS_MAX: 2
+EXCEPTIONAL_REWORK_ATTEMPTS_USED: 1
+EXCEPTIONAL_REWORK_ATTEMPTS_MAX: 1
+ALL_REWORK_BUDGET_EXHAUSTED: true
+LIVE_PRIVATE_ACCEPTANCE: NOT_RUN_BLOCKED_BY_IMPLEMENTATION_REVIEW
+RUNTIME_CHANGE_STATUS: ZERO
+SECRET_VALUE_ACCESS: ZERO
+REQUIRED_LEO_DECISION: D-011
+ADVISOR_RECOMMENDATION: D-011-A
+NEXT_ACTOR: Leo/GPT
+```
+
+The Advisor directly read the complete a3 result/pointer and verified report commit
+`d228be432e5645b06e2ad8847293a2adebb8ca88` is pushed, descends from routing head
+`a30659723791e0722094f696de4d7a8fd2cdb164`, changes only the two declared Reviewer report paths, targets exact
+87-path subject `df6dfd502593735518d77ee7d7ec62035989a016`, and leaves the worktree clean. The Reviewer independently
+confirmed `(b)` closed, all earlier closed sub-items intact, and the synthetic suite green.
+
+`IR-F1-D1(g)-L` remains blocking because the normal CLI can create a fresh key and fresh key-dependent binding rows
+when old binding rows exist but the key file is missing. That violates frozen §4.2 and can false-PASS after key loss or
+tampering. All authorized rework is consumed. The Advisor does not route attempt 4, patch code, run live acceptance, or
+claim completion. `D-011` in `05_LEO_DECISION_REQUEST.md` requests the new authority required for a single narrow
+lifecycle micro-correction or a hold/design-policy decision.
